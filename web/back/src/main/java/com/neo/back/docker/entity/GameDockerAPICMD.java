@@ -1,36 +1,31 @@
 package com.neo.back.docker.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Setter
 @Getter
-public class Game {
+public class GameDockerAPICMD {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long gameDockerAPIId;
 
-    private String gameName;
-    private String version;
+    @Column(length = 100, unique = true)
+    private String cmdId;
 
-    private String dockerImage;
+    @Column(length = 700)
+    private String cmd;
 
     @ManyToOne
-    @JoinColumn
-    private GameServerSetting defaultSetting;
-
-    @OneToMany(mappedBy = "game")
-    private List<GameDockerAPICMD> gameDockerAPICMDs = new ArrayList<>();
+    @JoinColumn(name = "game_id")
+    private Game game;
 
 }
