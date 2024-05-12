@@ -24,7 +24,7 @@ public class StartAndStopGameServerService {
     private final MakeWebClient makeWebClient;
     private final DockerAPI dockerAPI;
     private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
-    
+
     public StartGameServerDto getStartGameServer(User user) {
         DockerServer dockerServer = this.dockerServerRepo.findByUser(user);
         String ip = dockerServer.getEdgeServer().getIp();
@@ -89,7 +89,7 @@ public class StartAndStopGameServerService {
         AckAckInfoEND.block();
 
         String Ack = (String)AckAckInfoEND.block();
-        startGameServerDto.setIsWorking(Ack.equals("startAck"));
+        startGameServerDto.setIsWorking(Ack.equals("stopAck"));
         return startGameServerDto;
     }
 }

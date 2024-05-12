@@ -111,7 +111,7 @@ public class EdgeServerInfoConfig {
         CmdStartStr.setCmdId("CmdStartStr");
         
         GameDockerAPICMD CmdStartAckStr = new GameDockerAPICMD();
-        CmdStartAckStr.setCmd("sh\t-c\t/control/start.sh");
+        CmdStartAckStr.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Done\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
         CmdStartAckStr.setCmdId("CmdStartAckStr");
         
         GameDockerAPICMD CmdStopStr = new GameDockerAPICMD();
@@ -119,7 +119,7 @@ public class EdgeServerInfoConfig {
         CmdStopStr.setCmdId("CmdStopStr");
 
         GameDockerAPICMD CmdStopAckStr = new GameDockerAPICMD();
-        CmdStopAckStr.setCmd("sh\t-c\t/control/stop.sh");
+        CmdStopAckStr.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Saving worlds\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
         CmdStopAckStr.setCmdId("CmdStopAckStr");
 
         GameDockerAPICMD makeDirStr = new GameDockerAPICMD();
