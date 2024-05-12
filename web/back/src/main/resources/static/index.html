@@ -252,10 +252,9 @@
             })
                 .then(response => {
                     if (!response.ok) {
-                        // 오류 상태 코드를 처리합니다. 여기서는 에러를 throw 하지만, 다른 방식으로 처리할 수도 있습니다.
                         throw new Error('Network response was not ok');
                     }
-                    return response.json()
+                    return response;
                 })
                 .then(data => {
                     alert("생성 완료");
@@ -297,8 +296,7 @@
                     throw new Error('데이터 삭제 실패!');
                 }
 
-                const result = await response.json();
-                responseMessage.textContent = '성공적으로 삭제되었습니다: ' + result.message;
+                responseMessage.textContent = '성공적으로 삭제되었습니다';
             } catch (error) {
                 responseMessage.textContent = '오류: ' + error.message;
             } finally {
