@@ -17,6 +17,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class DockerImage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,4 +38,12 @@ public class DockerImage {
     @JoinColumn(name = "game")
     private Game game;
 
+    public void setDockerImage (String serverName, User user, String imageId, Long size, String date, Game game) {
+        this.serverName = serverName;
+        this.user = user;
+        this.imageId = imageId;
+        this.size = size;
+        this.date = date;
+        this.game = game;
+    }
 }

@@ -1,9 +1,13 @@
 package com.neo.back.docker.middleware;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.List;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -88,11 +92,24 @@ public class DockerAPI {
             .bodyToMono(String.class);
     }
 
-    // public Mono<String> getImage(String imageId, WebClient dockerWebClient) {
-    //     return dockerWebClient.get()
-    //         .uri("/images/{imageName}/get", imageId)
-    //         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    // }
+    public Mono<Object> getImage(String imageId, WebClient dockerWebClient, FileChannel channel) {
+        return dockerWebClient.get()
+            .uri("/images/{imageName}/get", imageId)
+            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .exchangeToMono(response -> {
+                return response.bodyToFlux(DataBuffer.class)
+                    .flatMap(dataBuffer -> saveToNas(dataBuffer, channel))
+                    .then(Mono.just("file save success"))
+                    .doFinally(type -> {
+                        try {
+                            if (channel != null) channel.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } 
+                    });
+            })
+            .flatMap(result -> Mono.just("Save image success"));
+    }
 
     public Mono<String> loadImage(List<DataBuffer> dataBuffer, WebClient dockerWebClient) {
         return dockerWebClient.post()
@@ -180,6 +197,21 @@ public class DockerAPI {
 
     public String[] split_tap(String cmd){
         return  cmd.split("\t");
+    }
+
+    @SuppressWarnings("deprecation")
+    private Mono<String> saveToNas(DataBuffer dataBuffer, FileChannel channel){
+        try {
+            ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
+            while (byteBuffer.hasRemaining()) {
+                System.out.println("Writing data...");
+                channel.write(byteBuffer);
+            }
+            DataBufferUtils.release(dataBuffer);
+            return Mono.empty();
+        } catch (Exception e) {
+            return Mono.error(e);
+        }
     }
 
 }

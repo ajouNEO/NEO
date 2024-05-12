@@ -1,7 +1,5 @@
 package com.neo.back.docker.service;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -9,11 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 import com.neo.back.springjwt.entity.User;
 import org.json.JSONObject;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -56,15 +50,25 @@ public class CloseDockerService {
             return this.stopContainerRequest(dockerServer)
                 .flatMap(result -> this.makeImageRequest(dockerServer))
                 .flatMap(result -> this.deleteContainerRequest(dockerServer))
-                .flatMap(result -> this.saveDockerImage(dockerServer))
+                .flatMap(result -> {
+                    try {
+                        return this.saveDockerImage(dockerServer);
+                    } catch (NasServerException e) {
+                        e.printStackTrace();
+                        return Mono.error(new NasServerException());
+                    }
+                })
+                .onErrorResume(NasServerException.class, e -> Mono.error(new NasServerException()))
                 .flatMap(result -> this.databaseReflection(dockerServer))
                 .flatMap(result -> this.deleteLeftDockerImage())
                 .flatMap(result -> Mono.just("Server close & save success"));
 
         } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server."));
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
         } catch (WebClientResponseException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
+        } catch (Exception e) {
+            return Mono.just(e);
         }
     }
 
@@ -87,39 +91,23 @@ public class CloseDockerService {
         return this.dockerAPI.deleteContainer(dockerServer.getDockerId(), this.dockerWebClient);
     }
 
-    private Mono<String> saveDockerImage(DockerServer dockerServer) {
-        Path dockerImagePath = Paths.get("/mnt/nas/dockerImage");
-        if (!Files.exists(dockerImagePath)) {
-            try {
-                Files.createDirectories(dockerImagePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private Mono<Object> saveDockerImage(DockerServer dockerServer) throws NasServerException {
+        try {
+            Path dockerImagePath = Paths.get("/mnt/nas/dockerImage");
+            if (!Files.exists(dockerImagePath)) Files.createDirectories(dockerImagePath);
+
+            Path path = dockerImagePath.resolve(dockerServer.getServerName() + "_" + dockerServer.getUser().getId() + ".tar");
+
+            FileChannel channel = FileChannel.open(path,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE);
+
+            return this.dockerAPI.getImage(this.imageId, this.dockerWebClient, channel);
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new NasServerException();
         }
-        Path path = dockerImagePath.resolve(dockerServer.getServerName() + "_" + dockerServer.getUser().getId() + ".tar");
-        return this.dockerWebClient.get()
-            .uri("/images/{imageName}/get", this.imageId)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-            .exchangeToMono(response -> {
-                try {FileChannel channel = FileChannel.open(path,
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.WRITE);
-                    return response.bodyToFlux(DataBuffer.class)
-                            .flatMap(dataBuffer -> saveToNas(dataBuffer, channel))
-                            .then(Mono.just("file save success"))
-                            .onErrorResume(e -> Mono.just("Failed to upload file: " + e.getMessage()))
-                            .doFinally(type -> {
-                                try {
-                                    if (channel != null) channel.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                } catch (IOException e) {
-                    return Mono.error(e);
-                }
-            })
-            .flatMap(result -> Mono.just("Save image success"));
     }
 
     private Mono<String> databaseReflection(DockerServer dockerServer) {
@@ -132,12 +120,14 @@ public class CloseDockerService {
                     dockerImage = new DockerImage();
                 } 
                 
-                dockerImage.setServerName(dockerServer.getServerName());
-                dockerImage.setUser(dockerServer.getUser());
-                dockerImage.setImageId(this.imageId);
-                dockerImage.setSize(parseImageSize(response));
-                dockerImage.setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                dockerImage.setGame(dockerServer.getGame());
+                dockerImage.setDockerImage(
+                    dockerServer.getServerName(),
+                    dockerServer.getUser(),
+                    this.imageId,
+                    parseImageSize(response),
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    dockerServer.getGame()
+                );
                 this.dockerImageRepo.save(dockerImage);
 
                 this.dockerServerRepo.deleteById(dockerServer.getId());
@@ -152,21 +142,6 @@ public class CloseDockerService {
 
     private Mono<String> deleteLeftDockerImage() {
         return this.dockerAPI.deleteImage(this.imageId, this.dockerWebClient);
-    }
-
-    @SuppressWarnings("deprecation")
-    private Mono<String> saveToNas(DataBuffer dataBuffer, FileChannel channel){
-        try {
-            ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
-            while (byteBuffer.hasRemaining()) {
-                System.out.println("Writing data...");
-                channel.write(byteBuffer);
-            }
-            DataBufferUtils.release(dataBuffer);
-            return Mono.empty();
-        } catch (Exception e) {
-            throw new NasServerException();
-        }
     }
 
     private String parseImageId(String response) {

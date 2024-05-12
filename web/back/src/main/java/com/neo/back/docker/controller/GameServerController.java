@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neo.back.docker.dto.FileDataDto;
-import com.neo.back.docker.dto.StartGameServerDto;
 import com.neo.back.docker.service.GameDataService;
 import com.neo.back.docker.service.StartAndStopGameServerService;
 import com.neo.back.docker.service.UploadAndDownloadService;
@@ -35,19 +34,16 @@ public class GameServerController {
     private final GetCurrentUser getCurrentUser;
 
     @PutMapping("/api/server/start")
-    public ResponseEntity<StartGameServerDto> serverStart() {
+    public Mono<Object> serverStart() {
         User user = getCurrentUser.getUser();
-        StartGameServerDto startMes =  startAndStopGameServerService.getStartGameServer(user);
-        System.out.println(startMes.getIsWorking());
-        return ResponseEntity.ok(startMes);
+        return startAndStopGameServerService.getStartGameServer(user);
     }
 
     @PutMapping("/api/server/stop")
-    public ResponseEntity<StartGameServerDto> serverStop() {
+    public Mono<Object> serverStop() {
         User user = getCurrentUser.getUser();
-        StartGameServerDto stopMes =  startAndStopGameServerService.getStopGameServer(user);
-        System.out.println(stopMes.getIsWorking());
-        return ResponseEntity.ok(stopMes);
+        return startAndStopGameServerService.getStopGameServer(user);
+
     }
 
     @GetMapping("/api/server/ListOfFileAndFolder")
@@ -62,11 +58,10 @@ public class GameServerController {
     public Mono<Object> getServerSetting() {
         User user = getCurrentUser.getUser();
         return serverSettingService.getServerSetting(user);
-        //return ResponseEntity.ok(new CustomResponseEntity(serverSettingService.getServerSetting(user), "ok"));
     }
 
     @PostMapping("/api/server/setting")
-    public Mono<String> setServerSetting(@RequestBody Map<String, String> setting) throws IOException {
+    public Mono<Object> setServerSetting(@RequestBody Map<String, String> setting) throws IOException {
         User user = getCurrentUser.getUser();
         return serverSettingService.setServerSetting(setting, user);
     }

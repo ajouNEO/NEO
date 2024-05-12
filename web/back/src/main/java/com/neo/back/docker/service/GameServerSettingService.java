@@ -1,6 +1,7 @@
 package com.neo.back.docker.service;
 
 import com.neo.back.docker.entity.DockerServer;
+import com.neo.back.docker.exception.DoNotHaveServerException;
 import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.docker.repository.DockerServerRepository;
 import com.neo.back.docker.utility.MakeWebClient;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
@@ -43,54 +45,68 @@ public class GameServerSettingService {
     private WebClient dockerWebClient;
 
     public Mono<Object> getServerSetting(User user) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
 
-        DockerServer dockerServer = dockerServerRepo.findByUser(user);
-        if (dockerServer == null) {
-            return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "This user does not have an open server."));
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
+            String containerId = dockerServer.getDockerId();
+            String filePathInContainer = dockerServer.getGame().getDefaultSetting().getSettingFilePath();
+            Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
+
+            // Docker 컨테이너로부터 파일 받아오기
+            return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
+                    .flatMap(response -> Mono.just(this.settingFormatConversion(localPath)));
+            
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        } catch (WebClientResponseException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
+        } catch (Exception e) {
+            return Mono.just(e);
         }
-        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
-        String containerId = dockerServer.getDockerId();
-        String filePathInContainer = dockerServer.getGame().getDefaultSetting().getSettingFilePath();
-        Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
-
-        // Docker 컨테이너로부터 파일 받아오기
-        return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
-                .flatMap(response -> Mono.just(this.settingFormatConversion(localPath)));
 
     }
 
-    public Mono<String> setServerSetting(Map<String, String> setting, User user) throws IOException {
+    public Mono<Object> setServerSetting(Map<String, String> setting, User user) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
 
-        DockerServer dockerServer = dockerServerRepo.findByUser(user);
-        if (dockerServer == null) {
-            return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "This user does not have an open server."));
-        }
-        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
-        String dockerId = dockerServer.getDockerId();
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
+            String dockerId = dockerServer.getDockerId();
 
-        StringBuilder result = new StringBuilder();
-        for (Map.Entry<String, String> entry : setting.entrySet()) {
-            if (result.length() > 0) {
-                result.append("\n");
+            StringBuilder result = new StringBuilder();
+            for (Map.Entry<String, String> entry : setting.entrySet()) {
+                if (result.length() > 0) {
+                    result.append("\n");
+                }
+                result.append(entry.getKey()).append(" = ").append(entry.getValue());
             }
-            result.append(entry.getKey()).append(" = ").append(entry.getValue());
+
+            System.out.println(result.toString());
+            // content 문자열을 바이트 배열로 변환
+            byte[] contentBytes = result.toString().getBytes(StandardCharsets.UTF_8);
+
+            // 파일 내용을 tar 파일로 압축
+            byte[] tarFile = this.createTarContent(contentBytes);
+
+            // tar 파일을 저장할 경로
+            Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
+
+            // tar 파일 바이트 배열을 실제 파일로 저장
+            Files.write(tarPath, tarFile);
+
+            // Docker API를 통해 파일을 컨테이너에 복사
+            return this.changeFileinContainer(dockerId, tarFile);
+
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        } catch (WebClientResponseException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
+        } catch (Exception e) {
+            return Mono.just(e);
         }
-
-        System.out.println(result.toString());
-        // content 문자열을 바이트 배열로 변환
-        byte[] contentBytes = result.toString().getBytes(StandardCharsets.UTF_8);
-
-        // 파일 내용을 tar 파일로 압축
-        byte[] tarFile = this.createTarContent(contentBytes);
-
-        // tar 파일을 저장할 경로
-        Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
-
-        // tar 파일 바이트 배열을 실제 파일로 저장
-        Files.write(tarPath, tarFile);
-
-        // Docker API를 통해 파일을 컨테이너에 복사
-        return this.changeFileinContainer(dockerId, tarFile);
     }
 
 
@@ -99,7 +115,6 @@ public class GameServerSettingService {
     private Mono<String> getDockerContainerFile(String containerId, String filePathInContainer, Path localPath) {
         return this.dockerAPI.downloadFile(containerId, filePathInContainer, this.dockerWebClient)
             .flatMap(dataBuffer -> {
-                System.out.println();
                 // 받아온 tar 파일을 로컬에 저장
                 try (WritableByteChannel channel = Files.newByteChannel(localPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
                     // DataBuffer에서 데이터를 읽어 로컬 파일에 쓰기
@@ -167,10 +182,9 @@ public class GameServerSettingService {
         }
     }
 
-    private Mono<String> changeFileinContainer(String containerId, byte[] tarFile) {
+    private Mono<Object> changeFileinContainer(String containerId, byte[] tarFile) {
         return  this.dockerAPI.uploadFile(containerId, "/server", tarFile, this.dockerWebClient)
-                .then(this.dockerAPI.restartContainer(containerId, this.dockerWebClient))
-                .thenReturn("File updated and container restarted.");
+                .thenReturn("success file updated");
     }
 
 
