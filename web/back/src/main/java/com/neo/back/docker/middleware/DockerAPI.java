@@ -158,4 +158,28 @@ public class DockerAPI {
                 .retrieve()
                 .bodyToMono(String.class);
     }
+
+    public Map<String,Object> makeExecInst(String[] Mes){
+        return Map.of(
+            "AttachStdin", false,
+            "AttachStdout", true,
+            "AttachStderr", true,
+            "DetachKeys", "ctrl-p,ctrl-q",
+            "Tty", false,
+            "Cmd", Mes,
+            "Env", new String[]{"FOO=bar", "BAZ=quux"}
+        );
+    }
+
+    public Map<String,Boolean> makeExecStartInst(){
+        return  Map.of(
+            "Detach", false,
+            "Tty", true
+        );
+    }
+
+    public String[] split_tap(String cmd){
+        return  cmd.split("\t");
+    }
+
 }

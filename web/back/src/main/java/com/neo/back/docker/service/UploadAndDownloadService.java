@@ -3,21 +3,17 @@ package com.neo.back.docker.service;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.neo.back.docker.entity.DockerServer;
 import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.docker.repository.DockerServerRepository;
+import com.neo.back.docker.repository.GameDockerAPICMDRepository;
 import com.neo.back.docker.utility.MakeWebClient;
 import com.neo.back.springjwt.entity.User;
 
@@ -39,11 +36,11 @@ public class UploadAndDownloadService {
     private final MakeWebClient makeWebClient;
     private final DockerAPI dockerAPI;
     private WebClient dockerWebClient;
+    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
 
-    public Mono<String> upload(MultipartFile[] files, String path){
-        User user = null;
-        String userId = "null"; 
+    public Mono<String> upload(MultipartFile[] files, String path,User user){
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        String userId = user.getName(); 
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient = makeWebClient.makeDockerWebClient(ip);
@@ -60,7 +57,7 @@ public class UploadAndDownloadService {
             e.printStackTrace();
         }
         Mono<String> result = postUserTarToContainer(dockerId, tarFileBytes, path);
-        deleteFileAndFolder("userTar.tar");
+        deleteFileAndFolder("userTar.tar",user);
         result.block();
         delFileAndFolderAndTar(basePath);
         return  result; 
@@ -145,28 +142,16 @@ public class UploadAndDownloadService {
                 }
             }
     }
-    public Map<String, String> deleteFileAndFolder(String path){
-        User user = null;
+    public Map<String, String> deleteFileAndFolder(String path,User user){
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient = makeWebClient.makeDockerWebClient(ip);
 
-        String[] delMeoStr = {"rm","-rf","server/"+ path };
-        Map<String, Object> delMesList = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", delMeoStr,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-
-        Map<String, Boolean> delStartList = Map.of(
-            "Detach", false,
-            "Tty", true
-        );
+        String delMeo = this.gameDockerAPICMDRepo.findBycmdId("delMeoStr").getCmd() + path;
+        String[] delMeoStr = this.dockerAPI.split_tap(delMeo);
+        Map<String,Boolean> delStartList = this.dockerAPI.makeExecStartInst();
+        Map<String,Object> delMesList = this.dockerAPI.makeExecInst(delMeoStr);
 
         Mono<Map> execIdMes = this.dockerAPI.makeExec(dockerId, delMesList, this.dockerWebClient);
         String execId = (String) execIdMes.block().get("Id");
@@ -176,28 +161,15 @@ public class UploadAndDownloadService {
         return responseData;
     }
 
-    public Map<String, String> makeDir(String path) {
-        User user = null;
+    public Map<String, String> makeDir(String path,User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient = makeWebClient.makeDockerWebClient(ip);
-
-        String[] makeDirStr = {"mkdir","server/"+ path };
-        Map<String, Object> delMesList = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", makeDirStr,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-
-        Map<String, Boolean> makeDirList = Map.of(
-            "Detach", false,
-            "Tty", true
-        );
+        String makeDir = this.gameDockerAPICMDRepo.findBycmdId("makeDirStr").getCmd() + path;
+        String[] makeDirStr = this.dockerAPI.split_tap(makeDir);
+        Map<String,Boolean> makeDirList = this.dockerAPI.makeExecStartInst();
+        Map<String,Object> delMesList = this.dockerAPI.makeExecInst(makeDirStr);
 
         Mono<Map> execIdMes = this.dockerAPI.makeExec(dockerId, delMesList, this.dockerWebClient);
         String execId = (String) execIdMes.block().get("Id");

@@ -325,7 +325,7 @@
         const token = localStorage.getItem('jwtToken');
         fetch(`/api/server/ListOfFileAndFolder?path=${path}`, {
             headers: {
-                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
             }
         })
         .then(response => response.json())
@@ -417,7 +417,7 @@
                     fetch(`api/server/makeDir?path=${path}`, {
                         method: "PUT",
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token,
                         }
                     })
                     .then(data => {
@@ -437,9 +437,9 @@
             return () => {
                 const token = localStorage.getItem('jwtToken');
                 fetch(`api/server/delete?path=${path}`, {
-                    method: 'PUT'
+                    method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token,
                     }
                 })
                     .then(response => response.json())
@@ -629,6 +629,7 @@
         function startServer() {
             const token = localStorage.getItem('jwtToken');
             fetch('/api/server/start', {
+                method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token  // JWT 토큰을 헤더에 추가
                 }
@@ -649,6 +650,7 @@
         function stopServer() {
             const token = localStorage.getItem('jwtToken');
             fetch('/api/server/stop', {
+                method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token  // JWT 토큰을 헤더에 추가
                 }

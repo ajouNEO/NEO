@@ -96,19 +96,22 @@ public class GameServerController {
 
     @PostMapping("api/server/upload")
         public  ResponseEntity<String> uploadFile(MultipartFile[] files,@RequestParam String path) {
-            Mono<String> Mes = uploadAndDownloadService.upload(files,path);
+            User user = getCurrentUser.getUser();
+            Mono<String> Mes = uploadAndDownloadService.upload(files,path,user);
         return Mes.map(message -> ResponseEntity.ok().body("{\"uploadStatus\": \"" + message + "\"}")).block();
     }
 
     @PutMapping("api/server/delete")
     public ResponseEntity<Map<String, String>> deleteGameServerData(@RequestParam String path) {
-        Map<String, String> Mes = uploadAndDownloadService.deleteFileAndFolder(path);
+        User user = getCurrentUser.getUser();
+        Map<String, String> Mes = uploadAndDownloadService.deleteFileAndFolder(path,user);
         return ResponseEntity.ok(Mes);
     }
 
     @PutMapping("api/server/makeDir")
     public ResponseEntity<Map<String, String>> makeDirInGameServer(@RequestParam String path) {
-        Map<String, String> Mes = uploadAndDownloadService.makeDir(path);
+        User user = getCurrentUser.getUser();
+        Map<String, String> Mes = uploadAndDownloadService.makeDir(path,user);
         return ResponseEntity.ok(Mes);
     }
 
