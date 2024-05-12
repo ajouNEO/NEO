@@ -11,15 +11,18 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.neo.back.docker.dto.CreateDockerDto;
 import com.neo.back.docker.dto.EdgeServerInfoDto;
 import com.neo.back.docker.entity.DockerImage;
 import com.neo.back.docker.entity.DockerServer;
+import com.neo.back.docker.entity.EdgeServer;
 import com.neo.back.docker.entity.Game;
+import com.neo.back.docker.exception.UserCapacityExceededException;
 import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.docker.repository.DockerImageRepository;
 import com.neo.back.docker.repository.DockerServerRepository;
@@ -43,69 +46,101 @@ public class CreateDockerService {
     private final SelectEdgeServerService selectEdgeServerService;
     private final MakeWebClient makeWebClient;
     private WebClient dockerWebClient;
-    private EdgeServerInfoDto edgeServerInfo;
+    private EdgeServerInfoDto selectedEdgeServerInfo;
     private String containerId;
 
-    public Mono<String> createContainer(CreateDockerDto config, User user) {
-        DockerServer existingDocker = this.dockerRepo.findByUser(user);
-        if (existingDocker != null) return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "This user already has an open server."));
-        
-        this.edgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
-        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.edgeServerInfo.getIP());
+    public Mono<Object> createContainer(CreateDockerDto config, User user) {
+        try {
+            DockerServer existingDocker = this.dockerRepo.findByUser(user);
+            if (existingDocker != null) throw new IllegalStateException();
+            
+            this.selectedEdgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
+            if (this.selectedEdgeServerInfo == null) throw new UserCapacityExceededException();
 
-        Game game = gameRepo.findByGameNameAndVersion(config.getGameName(), config.getVersion());
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.selectedEdgeServerInfo.getIP());
 
-        // Docker 컨테이너 생성을 위한 JSON 객체 구성
-        var createContainerRequest = Map.of(
-            "Image", game.getDockerImage(),
-            "ExposedPorts", Map.of(
-                "25565/tcp", Map.of()
-            ),
-            "HostConfig", Map.of(
-                "PortBindings", Map.of(
-                    "25565/tcp", Collections.singletonList(
-                        Map.of("HostPort", String.valueOf(edgeServerInfo.getPortSelect()))
-                    )
+            Game game = gameRepo.findByGameNameAndVersion(config.getGameName(), config.getVersion());
+            if (game == null) throw new IllegalArgumentException();
+
+            // Docker 컨테이너 생성을 위한 JSON 객체 구성
+            var createContainerRequest = Map.of(
+                "Image", game.getDockerImage(),
+                "ExposedPorts", Map.of(
+                    "25565/tcp", Map.of()
                 ),
-                "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
-            )
-        );
+                "HostConfig", Map.of(
+                    "PortBindings", Map.of(
+                        "25565/tcp", Collections.singletonList(
+                            Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
+                        )
+                    ),
+                    "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
+                )
+            );
 
-        return this.createContainerRequest(createContainerRequest)
-            .flatMap(response -> this.databaseReflection(config, game, null, user));
-    
+            return this.createContainerRequest(createContainerRequest)
+                .flatMap(response -> this.databaseReflection(config, game, null, user));
+        
+        } catch (IllegalStateException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("This user already has an open server"));
+        } catch (UserCapacityExceededException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("No servers are available"));
+        } catch (IllegalArgumentException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("It's a game that doesn't exist"));
+        } catch (WebClientResponseException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
+        } catch (Exception e) {
+            return Mono.just(e);
+        }
     }
 
-    public Mono<String> recreateContainer(CreateDockerDto config, User user) {
-        DockerServer existingDocker = this.dockerRepo.findByUser(user);
-        if (existingDocker != null) return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "This user already has an open server."));
+    public Mono<Object> recreateContainer(CreateDockerDto config, User user) {
+        try {
+            DockerServer existingDocker = this.dockerRepo.findByUser(user);
+            if (existingDocker != null) throw new IllegalStateException();
 
-        Optional<DockerImage> dockerImage = this.imageRepo.findById(config.getImageNum());
-        this.edgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
-        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.edgeServerInfo.getIP());
+            Optional<DockerImage> dockerImage = this.imageRepo.findById(config.getImageNum());
+            
+            this.selectedEdgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
+            if (this.selectedEdgeServerInfo == null) throw new UserCapacityExceededException();
 
-        // Docker 컨테이너 생성을 위한 JSON 객체 구성
-        var createContainerRequest = Map.of(
-            "Image", dockerImage.get().getImageId(),
-            "ExposedPorts", Map.of(
-                "25565/tcp", Map.of()
-            ),
-            "HostConfig", Map.of(
-                "PortBindings", Map.of(
-                    "25565/tcp", Collections.singletonList(
-                        Map.of("HostPort", String.valueOf(edgeServerInfo.getPortSelect()))
-                    )
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.selectedEdgeServerInfo.getIP());
+
+            // Docker 컨테이너 생성을 위한 JSON 객체 구성
+            var createContainerRequest = Map.of(
+                "Image", dockerImage.get().getImageId(),
+                "ExposedPorts", Map.of(
+                    "25565/tcp", Map.of()
                 ),
-                "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
-            )
-        );
+                "HostConfig", Map.of(
+                    "PortBindings", Map.of(
+                        "25565/tcp", Collections.singletonList(
+                            Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
+                        )
+                    ),
+                    "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
+                )
+            );
 
-        config.setServerName(dockerImage.get().getServerName());
+            config.setServerName(dockerImage.get().getServerName());
 
-        return this.loadImage(dockerImage.get())
-            .flatMap(response -> this.createContainerRequest(createContainerRequest))
-            .flatMap(response -> this.databaseReflection(config, dockerImage.get().getGame(), dockerImage.get().getImageId(), user));
-    
+            return this.loadImage(dockerImage.get())
+                .flatMap(response -> this.createContainerRequest(createContainerRequest))
+                .flatMap(response -> this.databaseReflection(config, dockerImage.get().getGame(), dockerImage.get().getImageId(), user));
+        
+        } catch (IllegalStateException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("This user already has an open server"));
+        } catch (UserCapacityExceededException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("No servers are available"));
+        } catch (IllegalArgumentException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("It's a game that doesn't exist"));
+        } catch (WebClientResponseException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
+        } catch (NoSuchFileException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This image does not exist in storage"));
+        } catch (Exception e) {
+            return Mono.just(e);
+        }
     }
 
 
@@ -127,8 +162,8 @@ public class CreateDockerService {
         DockerServer dockerServer = new DockerServer(
             config.getServerName(),
             user, 
-            this.edgeRepo.findByIp(this.edgeServerInfo.getIP()), 
-            this.edgeServerInfo.getPortSelect(), 
+            this.edgeRepo.findByIp(this.selectedEdgeServerInfo.getIP()), 
+            this.selectedEdgeServerInfo.getPortSelect(), 
             this.containerId, 
             config.getRamCapacity(), 
             game);
@@ -138,11 +173,17 @@ public class CreateDockerService {
 
         this.dockerRepo.save(dockerServer);
 
+        EdgeServer edgeserver = dockerServer.getEdgeServer();
+        edgeserver.increaseMemoryUse(config.getRamCapacity());
+        this.edgeRepo.save(edgeserver);
+
         return Mono.just("Container create Success");
     }
 
-    private Mono<String> loadImage(DockerImage dockerImage) {
+    private Mono<String> loadImage(DockerImage dockerImage) throws NoSuchFileException {
         Path filePath = Paths.get("/mnt/nas/dockerImage/" + dockerImage.getServerName() + "_" + dockerImage.getUser().getId() + ".tar");
+        if (!Files.exists(filePath)) throw new NoSuchFileException(filePath.toString());
+        
         FileSystemResource resource = new FileSystemResource(filePath);
         
         return DataBufferUtils.read(resource, new DefaultDataBufferFactory(), 4096)

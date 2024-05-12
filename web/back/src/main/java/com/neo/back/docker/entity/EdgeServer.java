@@ -24,4 +24,11 @@ public class EdgeServer {
     private String passWord;
     private int memoryTotal;
     private int memoryUse;
+
+    public void increaseMemoryUse(int memory) {
+        this.memoryUse += memory;
+    }
+    public void decreaseMemoryUse(int memory) {
+        this.memoryUse -= memory;
+    }
 }

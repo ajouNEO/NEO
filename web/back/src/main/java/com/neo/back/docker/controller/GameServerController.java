@@ -59,9 +59,9 @@ public class GameServerController {
     }
 
     @GetMapping("/api/server/setting")
-    public ResponseEntity<Mono<Object>> getServerSetting() {
+    public Mono<Object> getServerSetting() {
         User user = getCurrentUser.getUser();
-        return ResponseEntity.ok().body(serverSettingService.getServerSetting(user));
+        return serverSettingService.getServerSetting(user);
         //return ResponseEntity.ok(new CustomResponseEntity(serverSettingService.getServerSetting(user), "ok"));
     }
 

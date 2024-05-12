@@ -2,7 +2,7 @@ package com.neo.back.docker.controller;
 
 import com.neo.back.docker.utility.GetCurrentUser;
 import com.neo.back.springjwt.entity.User;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,31 +33,31 @@ public class DockerManagingController {
     private final GetCurrentUser getCurrentUser;
 
     @GetMapping("/api/container/list")
-    public ResponseEntity<List<MyServerListDto>> getMyServerList() {
+    public Mono<List<MyServerListDto>> getMyServerList() {
         User user = getCurrentUser.getUser();
-        return ResponseEntity.ok(userServerService.getServerList(user));
+        return Mono.just(userServerService.getServerList(user));
     }
 
     @DeleteMapping("/api/container/{ImageNum}")
-    public ResponseEntity<Mono<String>> deleteContainer(@PathVariable Long ImageNum) {
-
-        return ResponseEntity.ok(userServerService.deleteServer(ImageNum));
+    public Mono<Object> deleteContainer(@PathVariable Long ImageNum) {
+        User user = getCurrentUser.getUser();
+        return userServerService.deleteServer(ImageNum, user);
     }
 
     @PostMapping("/api/container/create")
-    public Mono<String> createContainer(@RequestBody CreateDockerDto config) {
+    public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
         return createDockerService.createContainer(config, user);
     }
 
     @PostMapping("/api/container/recreate")
-    public Mono<String> recreateContainer(@RequestBody CreateDockerDto config) {
+    public Mono<Object> recreateContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
         return createDockerService.recreateContainer(config, user);
     }
 
     @PutMapping("/api/container/close")
-    public Mono<String> closeContainer() {
+    public Mono<Object> closeContainer() {
         User user = getCurrentUser.getUser();
         return closeDockerService.closeDockerService(user);
     }

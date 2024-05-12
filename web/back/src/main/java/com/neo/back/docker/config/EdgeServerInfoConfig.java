@@ -55,19 +55,11 @@ public class EdgeServerInfoConfig {
         gameServerSettingRepo.save(minecreftServerSetting);
 
 
-        Game game = new Game();
-        game.setGameName("Minecraft");
-        game.setVersion("1.16.5");
-        game.setDockerImage("mc1.16.5");
-        game.setDefaultSetting(minecreftServerSetting);
+        Game game = new Game("Minecraft", "1.16.5", "mc1.16.5", minecreftServerSetting);
         gameRepo.save(game);
-        game.setGameName("Minecraft");
-        game.setVersion("1.19.2");
-        game.setDockerImage("mc1.19.2");
+        game = new Game("Minecraft", "1.19.2", "mc1.19.2", minecreftServerSetting);
         gameRepo.save(game);
-        game.setGameName("Minecraft");
-        game.setVersion("1.20.4");
-        game.setDockerImage("mc1.20.4");
+        game = new Game("Minecraft", "1.20.4", "mc1.20.4", minecreftServerSetting);
         gameRepo.save(game);
 	}
 }

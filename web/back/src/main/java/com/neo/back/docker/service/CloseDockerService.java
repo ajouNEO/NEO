@@ -14,13 +14,16 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.neo.back.docker.entity.DockerImage;
 import com.neo.back.docker.entity.DockerServer;
 import com.neo.back.docker.entity.EdgeServer;
+import com.neo.back.docker.exception.DoNotHaveServerException;
+import com.neo.back.docker.exception.NasServerException;
 import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.docker.repository.DockerImageRepository;
 import com.neo.back.docker.repository.DockerServerRepository;
@@ -43,20 +46,26 @@ public class CloseDockerService {
     private WebClient dockerWebClient;
     private String imageId;
 
-    public Mono<String> closeDockerService(User user) {
-        DockerServer dockerServer = dockerServerRepo.findByUser(user);
-        if (dockerServer == null) {
-            return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "This user does not have an open server."));
+    public Mono<Object> closeDockerService(User user) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
+
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
+            
+            return this.stopContainerRequest(dockerServer)
+                .flatMap(result -> this.makeImageRequest(dockerServer))
+                .flatMap(result -> this.deleteContainerRequest(dockerServer))
+                .flatMap(result -> this.saveDockerImage(dockerServer))
+                .flatMap(result -> this.databaseReflection(dockerServer))
+                .flatMap(result -> this.deleteLeftDockerImage())
+                .flatMap(result -> Mono.just("Server close & save success"));
+
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server."));
+        } catch (WebClientResponseException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
         }
-        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
-        
-        return this.stopContainerRequest(dockerServer)
-            .flatMap(result -> this.makeImageRequest(dockerServer))
-            .flatMap(result -> this.deleteContainerRequest(dockerServer))
-            .flatMap(result -> this.saveDockerImage(dockerServer))
-            .flatMap(result -> this.databaseReflection(dockerServer))
-            .flatMap(result -> this.deleteLeftDockerImage())
-            .flatMap(result -> Mono.just("Server close & save success"));
     }
 
 
@@ -147,19 +156,17 @@ public class CloseDockerService {
 
     @SuppressWarnings("deprecation")
     private Mono<String> saveToNas(DataBuffer dataBuffer, FileChannel channel){
-        ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
-        while (byteBuffer.hasRemaining()) {
-            System.out.println("Writing data...");
-            try {
+        try {
+            ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
+            while (byteBuffer.hasRemaining()) {
+                System.out.println("Writing data...");
                 channel.write(byteBuffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("Error writing to file: " + e.getMessage());
-                throw new RuntimeException(e);
             }
+            DataBufferUtils.release(dataBuffer);
+            return Mono.empty();
+        } catch (Exception e) {
+            throw new NasServerException();
         }
-        DataBufferUtils.release(dataBuffer);
-        return Mono.empty();
     }
 
     private String parseImageId(String response) {

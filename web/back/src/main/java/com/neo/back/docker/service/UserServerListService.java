@@ -4,12 +4,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.nio.file.*;
+import java.util.NoSuchElementException;
 
 import com.neo.back.springjwt.entity.User;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.neo.back.docker.dto.MyServerListDto;
 import com.neo.back.docker.entity.DockerImage;
+import com.neo.back.docker.exception.NotOwnerException;
 import com.neo.back.docker.repository.DockerImageRepository;
 
 import jakarta.transaction.Transactional;
@@ -30,20 +35,34 @@ public class UserServerListService {
             .collect(Collectors.toList());
     }
 
-    public Mono<String> deleteServer(Long ImageNum) {
-        Path dockerImagePath = Paths.get("/mnt/nas/dockerImage");
-        Optional<DockerImage> dockerImage = dockerImageRepo.findById(ImageNum);
-        Path path = dockerImagePath.resolve(dockerImage.get().getServerName() + "_" + dockerImage.get().getUser().getId() + ".tar");
+    public Mono<Object> deleteServer(Long ImageNum, User user) {
         try {
+            Path dockerImagePath = Paths.get("/mnt/nas/dockerImage");
+            Optional<DockerImage> dockerImage = dockerImageRepo.findById(ImageNum);
+
+            if (dockerImage.get().getUser() != user) {
+                throw new NotOwnerException();
+            } 
+
+            Path path = dockerImagePath.resolve(dockerImage.get().getServerName() + "_" + dockerImage.get().getUser().getId() + ".tar");
+
             Files.delete(path);
             dockerImageRepo.deleteById(ImageNum);
             return Mono.just("Delete image success");
+        } catch (NoSuchElementException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This container does not exist in database"));
+        } catch (NoSuchFileException e) {
+            dockerImageRepo.deleteById(ImageNum);
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This container does not exist in storage"));
+        } catch (NotOwnerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body("This container is not owned by this user"));
         } catch (Exception e) {
-            return Mono.error(new NoSuchFileException("Delete image fail"));
+            return Mono.error(e);
         }
     }
 
     // public Mono<String> renameServer() {
         
     // }
+
 }
