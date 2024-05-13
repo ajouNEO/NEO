@@ -2,13 +2,7 @@ package com.neo.back.docker.entity;
 
 import com.neo.back.springjwt.entity.User;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -54,6 +48,9 @@ public class DockerServer {
     @JoinColumn(name = "game")
     private Game game;
 
+    @Lob
     private String serverComment;
+
+    private boolean isPublic = false;
 
 }

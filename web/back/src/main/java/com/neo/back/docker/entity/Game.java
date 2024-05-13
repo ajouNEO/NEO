@@ -19,9 +19,10 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class Game {
-    public Game(String gameName, String version, String dockerImage, GameServerSetting serverSetting) {
+    public Game(String gameName, String version, int defaultPort, String dockerImage, GameServerSetting serverSetting) {
         this.gameName = gameName;
         this.version = version;
+        this.defaultPort = defaultPort;
         this.dockerImage = dockerImage;
         this.defaultSetting = serverSetting;
     }
@@ -32,6 +33,8 @@ public class Game {
 
     private String gameName;
     private String version;
+
+    private int defaultPort;
 
     private String dockerImage;
 
