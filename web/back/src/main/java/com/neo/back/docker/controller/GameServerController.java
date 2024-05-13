@@ -46,14 +46,6 @@ public class GameServerController {
 
     }
 
-    @GetMapping("/api/server/ListOfFileAndFolder")
-    public ResponseEntity<List<FileDataDto>> getDockerFileList(@RequestParam String path) {
-        User user = getCurrentUser.getUser();
-        Mono<String> fileListInst = gameDataService.getFileAndFolderListInst(path, user);
-        List<FileDataDto> fileList = gameDataService.getFileAndFolderList(fileListInst, user);
-        return ResponseEntity.ok(fileList);
-    }
-
     @GetMapping("/api/server/setting")
     public Mono<Object> getServerSetting() {
         User user = getCurrentUser.getUser();
@@ -66,22 +58,12 @@ public class GameServerController {
         return serverSettingService.setServerSetting(setting, user);
     }
 
-    @PostMapping("/api/get-banlist")//특정 파일 읽어오는 용도 api
-    public Mono<String> readAndConvertToJson(String containerId, String filePath) {
-        String command = "cat " + filePath;
-        return serverSettingService.executeCommand(containerId, command)
-                .map(content -> {
-                    // 파일 내용을 JSON 객체로 변환
-                    JSONObject json = new JSONObject();
-                    json.put("content", content);
-                    return json.toString();
-                });
-    }
-
-    @GetMapping("/api/containers/{containerId}/stats")
-    public Mono<String> getContainerStatsController(@PathVariable String containerId) {
-
-        return serverSettingService.getContainerStats(containerId);
+    @GetMapping("/api/server/ListOfFileAndFolder")
+    public ResponseEntity<List<FileDataDto>> getDockerFileList(@RequestParam String path) {
+        User user = getCurrentUser.getUser();
+        Mono<String> fileListInst = gameDataService.getFileAndFolderListInst(path, user);
+        List<FileDataDto> fileList = gameDataService.getFileAndFolderList(fileListInst, user);
+        return ResponseEntity.ok(fileList);
     }
 
     @PostMapping("api/server/upload")
@@ -103,6 +85,18 @@ public class GameServerController {
         User user = getCurrentUser.getUser();
         Map<String, String> Mes = uploadAndDownloadService.makeDir(path,user);
         return ResponseEntity.ok(Mes);
+    }
+
+    @PostMapping("/api/get-banlist")//특정 파일 읽어오는 용도 api
+    public Mono<String> readAndConvertToJson(String containerId, String filePath) {
+        String command = "cat " + filePath;
+        return serverSettingService.executeCommand(containerId, command)
+                .map(content -> {
+                    // 파일 내용을 JSON 객체로 변환
+                    JSONObject json = new JSONObject();
+                    json.put("content", content);
+                    return json.toString();
+                });
     }
 
 }

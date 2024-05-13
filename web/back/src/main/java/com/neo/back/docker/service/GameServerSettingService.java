@@ -224,9 +224,4 @@ public class GameServerSettingService {
                 });
     }
 
-    public Mono<String> getContainerStats(String containerId) {
-        return this.dockerAPI.getContainerInfo(containerId, this.dockerWebClient);
-    }
-
-
 }
