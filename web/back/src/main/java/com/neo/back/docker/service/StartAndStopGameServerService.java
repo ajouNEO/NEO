@@ -1,20 +1,22 @@
 package com.neo.back.docker.service;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import com.neo.back.springjwt.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-import org.springframework.http.MediaType;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.neo.back.docker.dto.StartGameServerDto;
 import com.neo.back.docker.entity.DockerServer;
+import com.neo.back.docker.exception.DoNotHaveServerException;
+import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.docker.repository.DockerServerRepository;
+import com.neo.back.docker.repository.GameDockerAPICMDRepository;
+import com.neo.back.docker.utility.MakeWebClient;
 
 import reactor.core.publisher.Mono;
 
@@ -22,163 +24,90 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class StartAndStopGameServerService {
     private final DockerServerRepository dockerServerRepo;
-    private final WebClient.Builder webClientBuilder;
     private WebClient dockerWebClient;
-    
-    public ExchangeFilterFunction logRequestAndResponse() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            System.out.println("Request: " + clientRequest.method() + " " + clientRequest.url());
-            clientRequest.headers().forEach((name, values) ->
-                    values.forEach(value -> System.out.println(name + ": " + value)));
-            return Mono.just(clientRequest);
-        }).andThen(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-            System.out.println("Response: Status code " + clientResponse.statusCode());
-            clientResponse.headers().asHttpHeaders().forEach((name, values) ->
-                    values.forEach(value -> System.out.println(name + ": " + value)));
-            return Mono.just(clientResponse);
-        }));
+    private final MakeWebClient makeWebClient;
+    private final DockerAPI dockerAPI;
+    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
+
+    public Mono<Object> getStartGameServer(User user) {
+        try {
+            DockerServer dockerServer = this.dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
+
+            String ip = dockerServer.getEdgeServer().getIp();
+            String dockerId = dockerServer.getDockerId();
+            int memory = dockerServer.getRAMCapacity();
+            String memoryToStr = Integer.toString(memory);
+            StartGameServerDto startGameServerDto = new StartGameServerDto();
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(ip);
+            
+            String gameVersion = dockerServer.getGame().getVersion() + "_START";
+            String CmdMemory = this.gameDockerAPICMDRepo.findBycmdId(gameVersion).getCmd();
+            CmdMemory = CmdMemory.replace("MEMORY",memoryToStr);
+            String[] CmdMemoryStr = this.dockerAPI.split_tap(CmdMemory);
+            Map<String,Boolean> startExecRequest = this.dockerAPI.makeExecStartInst();
+            Map<String,Object> setMemoryInst = this.dockerAPI.makeExecInst(CmdMemoryStr);
+            Mono<Map> AckMemoryStr = this.dockerAPI.makeExec(dockerId, setMemoryInst, this.dockerWebClient);
+            String MemoryMeoStr = (String) AckMemoryStr.block().get("Id");
+            Mono<String> AckMeomoryEND = this.dockerAPI.startExec(MemoryMeoStr,startExecRequest, this.dockerWebClient);
+            AckMeomoryEND.block();
+
+            String CmdStart = this.gameDockerAPICMDRepo.findBycmdId("CmdStartStr").getCmd();
+            String[] CmdStartStr = this.dockerAPI.split_tap(CmdStart);
+            Map<String,Object> setStartInst = this.dockerAPI.makeExecInst(CmdStartStr);
+            Mono<Map> AckStartStr = this.dockerAPI.makeExec(dockerId, setStartInst, this.dockerWebClient);
+            String startMeoStr = (String) AckStartStr.block().get("Id");
+            Mono<String> AckStartEND = this.dockerAPI.startExec(startMeoStr,startExecRequest, this.dockerWebClient);
+            AckStartEND.block();
+
+            String CmdStartAck = this.gameDockerAPICMDRepo.findBycmdId("CmdStartAckStr").getCmd();
+            String[] CmdStartAckStr = this.dockerAPI.split_tap(CmdStartAck);
+            Map<String,Object> setAckInst = this.dockerAPI.makeExecInst(CmdStartAckStr);
+            Mono<Map> AckAckInfoStr = this.dockerAPI.makeExec(dockerId, setAckInst, this.dockerWebClient);
+            String AckMeoStr = (String) AckAckInfoStr.block().get("Id");
+            Mono<String> AckAckInfoEND = this.dockerAPI.startExec(AckMeoStr,startExecRequest, this.dockerWebClient);
+            String Ack = (String)AckAckInfoEND.block();
+            startGameServerDto.setIsWorking(Ack.equals("startAck"));
+            System.out.println(startGameServerDto.getIsWorking());
+            return Mono.just(startGameServerDto);
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        }
     }
 
-    private Mono<String> execCmdInst(String dockerId,Map<String, Serializable> getfileAndFolder) {
-        return dockerWebClient.post()
-        .uri("/containers/"+ dockerId +"/exec")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(getfileAndFolder))
-        .retrieve()
-        .bodyToMono(String.class)
-        .flatMap(fileAndFolder -> Mono.fromCallable(() -> {
-            return fileAndFolder;
-        }));
-    }
-    
-    private Mono<String> execCmd(String CmdInstId) {
-        var MapFile = Map.of(
-            "Detach", false,
-            "Tty", true,
-            "ConsoleSize", new int[]{80,64}
-        );
-        return dockerWebClient.post()
-        .uri("/exec/"+ CmdInstId +"/start")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(MapFile))
-        .retrieve()
-        .bodyToMono(String.class)
-        .flatMap(fileAndFolder -> Mono.fromCallable(() -> {
-            return fileAndFolder;
-        }));
-    }
+    public Mono<Object> getStopGameServer(User user) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
 
-    private String parseExecInstanceId(String response) {
-        JSONObject jsonObject = new JSONObject(response);
-        return jsonObject.getString("Id");
-    }
+            String ip = dockerServer.getEdgeServer().getIp();
+            String dockerId = dockerServer.getDockerId();
+            StartGameServerDto startGameServerDto = new StartGameServerDto();
+            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(ip);
 
-    public StartGameServerDto getStartGameServer(User user) {
-        DockerServer dockerServer = dockerServerRepo.findByUser(user);
-        String ip = dockerServer.getEdgeServer().getIp();
-        String dockerId = dockerServer.getDockerId();
-        int memory = dockerServer.getRAMCapacity();
-        StartGameServerDto startGameServerDto = new StartGameServerDto();
-        this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375").filter(logRequestAndResponse()).build();
-        
-        String[] setMeoStr = new String[]{"sh","-c","echo 'java,-Xmx" + memory + "G,-jar,/server/craftbukkit-1.20.4.jar' >  /control/meomory.txt"};
-        //nohup java -Xmx2G -jar craftbukkit-1.20.4.jar &
-        var setMeo = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", setMeoStr,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-        Mono<String> setMeoMesInst = execCmdInst(dockerId,setMeo)
-        .flatMap(response -> Mono.fromCallable(() -> {
-            return response;
-        }));
+            String CmdStop = this.gameDockerAPICMDRepo.findBycmdId("CmdStopStr").getCmd();
+            String[] CmdStopStr =  this.dockerAPI.split_tap(CmdStop);
+            Map<String,Boolean> startExecRequest = this.dockerAPI.makeExecStartInst();
+            Map<String,Object> setStopInst = this.dockerAPI.makeExecInst(CmdStopStr);
+            Mono<Map> AckStopStr = this.dockerAPI.makeExec(dockerId, setStopInst, this.dockerWebClient);
+            String StopMeoStr = (String) AckStopStr.block().get("Id");
+            Mono<String> AckStopEND = this.dockerAPI.startExec(StopMeoStr,startExecRequest, this.dockerWebClient);
+            AckStopEND.block();
 
-        execCmd(parseExecInstanceId(setMeoMesInst.block())).block();
+            String CmdStopAck = this.gameDockerAPICMDRepo.findBycmdId("CmdStopAckStr").getCmd();
+            String[] CmdStopAckStr = this.dockerAPI.split_tap(CmdStopAck);
+            Map<String,Object> setAckInst = this.dockerAPI.makeExecInst(CmdStopAckStr);
+            Mono<Map> AckAckInfoStr = this.dockerAPI.makeExec(dockerId, setAckInst, this.dockerWebClient);
+            String AckMeoStr = (String) AckAckInfoStr.block().get("Id");
+            Mono<String> AckAckInfoEND = this.dockerAPI.startExec(AckMeoStr,startExecRequest, this.dockerWebClient);
+            AckAckInfoEND.block();
 
-        String[] startStr = new String[]{"sh","-c","echo 'start' > /control/input.txt"};
-        //nohup java -Xmx2G -jar craftbukkit-1.20.4.jar &
-        var startGameServer = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", startStr,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-        Mono<String> startInst = execCmdInst(dockerId,startGameServer)
-        .flatMap(response -> Mono.fromCallable(() -> {
-            return response;
-        }));
-        execCmd(parseExecInstanceId(startInst.block())).block();
-
-        String[] startAck = new String[]{"sh","-c","/control/start.sh"};
-        var startackIns = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", startAck,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-        
-        Mono<String> startAckInst = execCmdInst(dockerId,startackIns)
-        .flatMap(response -> Mono.fromCallable(() -> {
-            return response;
-        }));
-
-        String[] ACK = execCmd(parseExecInstanceId(startAckInst.block())).block().split("\\n");
-        startGameServerDto.setIsWorking(ACK[0].equals("startAck"));
-        return startGameServerDto;
-    }
-
-    public StartGameServerDto getStopGameServer(User user) {
-        DockerServer dockerServer = dockerServerRepo.findByUser(user);
-        String ip = dockerServer.getEdgeServer().getIp();
-        String dockerId = dockerServer.getDockerId();
-        StartGameServerDto startGameServerDto = new StartGameServerDto();
-        this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375").filter(logRequestAndResponse()).build();
-
-        String[] stopStr = new String[]{"sh","-c","echo 'input stop' > /control/input.txt"};
-        //nohup java -Xmx2G -jar craftbukkit-1.20.4.jar &
-        var stopGameServer = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", stopStr,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-        Mono<String> stopInst = execCmdInst(dockerId,stopGameServer)
-        .flatMap(response -> Mono.fromCallable(() -> {
-            return response;
-        }));
-        execCmd(parseExecInstanceId(stopInst.block())).block();
-
-        String[] stopAck = new String[]{"sh","-c","/control/stop.sh"};
-        var stopAckIns = Map.of(
-            "AttachStdin", false,
-            "AttachStdout", true,
-            "AttachStderr", true,
-            "DetachKeys", "ctrl-p,ctrl-q",
-            "Tty", false,
-            "Cmd", stopAck,
-            "Env", new String[]{"FOO=bar", "BAZ=quux"}
-        );
-        
-        Mono<String> stopAckInst = execCmdInst(dockerId,stopAckIns)
-        .flatMap(response -> Mono.fromCallable(() -> {
-            return response;
-        }));
-
-        String[] ACK = execCmd(parseExecInstanceId(stopAckInst.block())).block().split("\\n");
-        startGameServerDto.setIsWorking(ACK[0].equals("stopAck"));
-        return startGameServerDto;
+            String Ack = (String)AckAckInfoEND.block();
+            startGameServerDto.setIsWorking(Ack.equals("stopAck"));
+            System.out.println(startGameServerDto.getIsWorking());
+            return Mono.just(startGameServerDto);
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        }
     }
 }

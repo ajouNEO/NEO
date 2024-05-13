@@ -25,16 +25,16 @@ public class SelectEdgeServerService {
 	
 	public synchronized EdgeServerInfoDto selectingEdgeServer(int UserMemory){
 		List<EdgeServer> allEdgeServers = edgeServerRepo.findAll();
-		List<EdgeServerInfoDto> edgedgeServerDTO =  new ArrayList<>();;
+		List<EdgeServerInfoDto> edgedgeServerInfoList =  new ArrayList<>();;
 		EdgeServerInfoDto selecteEdgeServer = null;
 
         int edgeServermemoryLeft = 1; // 엣지 서버의 시스템 메모리 공간 할당
 
 		for(EdgeServer edgeServer : allEdgeServers){
-			EdgeServerInfoDto edgeServerInfoDTO = getEdgeServerService.changeEdgeServerEntityTODTO(edgeServer);
-			double canUseMemory = edgeServerInfoDTO.getMemoryIdle() - UserMemory - edgeServermemoryLeft;
+			EdgeServerInfoDto edgeServerInfo = getEdgeServerService.changeEdgeServerEntityTODTO(edgeServer);
+			double canUseMemory = edgeServerInfo.getMemoryIdle() - UserMemory - edgeServermemoryLeft;
 			if(0 <= canUseMemory){
-				edgedgeServerDTO.add(edgeServerInfoDTO);
+				edgedgeServerInfoList.add(edgeServerInfo);
 			}
 		}
         /*
@@ -47,13 +47,10 @@ public class SelectEdgeServerService {
          * 서버를 개설시키도록 한다.
          * 만약 기준을 만족하는게 없다면, NULL값을 리턴한다. 
          */
-        Collections.sort(edgedgeServerDTO, Comparator.comparingDouble(EdgeServerInfoDto::getMemoryIdle));
+        Collections.sort(edgedgeServerInfoList, Comparator.comparingDouble(EdgeServerInfoDto::getMemoryIdle));
 
-        for(EdgeServerInfoDto edgeServer : edgedgeServerDTO){
+        for(EdgeServerInfoDto edgeServer : edgedgeServerInfoList){
 			selecteEdgeServer = edgeServer;
-			EdgeServer edgeserver = edgeServerRepo.findByEdgeServerName(selecteEdgeServer.getEdgeServerID());
-			edgeserver.setMemoryUse(selecteEdgeServer.getMemoryUse() + UserMemory);
-			edgeServerRepo.save(edgeserver);
 			return selecteEdgeServer;
         }
 		
