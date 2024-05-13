@@ -1,6 +1,6 @@
 package com.neo.back.docker.controller;
 
-import com.neo.back.docker.service.GameServerSettingService;
+import com.neo.back.docker.service.*;
 import com.neo.back.docker.utility.GetCurrentUser;
 import com.neo.back.springjwt.entity.User;
 
@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neo.back.docker.dto.FileDataDto;
-import com.neo.back.docker.service.GameDataService;
-import com.neo.back.docker.service.StartAndStopGameServerService;
-import com.neo.back.docker.service.UploadAndDownloadService;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -31,6 +28,7 @@ public class GameServerController {
     private final GameServerSettingService serverSettingService;
     private final StartAndStopGameServerService startAndStopGameServerService;
     private final UploadAndDownloadService uploadAndDownloadService;
+    private final OtherServerManagingService otherServerManagingService;
     private final GetCurrentUser getCurrentUser;
 
     @PutMapping("/api/server/start")
@@ -87,7 +85,25 @@ public class GameServerController {
         return ResponseEntity.ok(Mes);
     }
 
-    @PostMapping("/api/get-banlist")//특정 파일 읽어오는 용도 api
+    @GetMapping("/api/server/info")
+    public Mono<Object> getServerInfo() {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.getServerInfo(user);
+    }
+
+    @PutMapping("/api/server/public")
+    public Mono<Object> setPublic() {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.setPublic(user);
+    }
+
+    @PutMapping("/api/server/comment")
+    public Mono<Object> setComment(@RequestBody String comment) {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.setComment(user, comment);
+    }
+
+    @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
     public Mono<String> readAndConvertToJson(String containerId, String filePath) {
         String command = "cat " + filePath;
         return serverSettingService.executeCommand(containerId, command)
