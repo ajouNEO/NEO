@@ -10,12 +10,26 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
 public class DockerServer {
+    
+    //서버 생성시
+    public DockerServer(String serverName, User user, EdgeServer edgeServer, int port, String containerId, int ramCapacity, Game game) {
+        this.serverName = serverName;
+        this.user = user;
+        this.edgeServer = edgeServer;
+        this.port = port;
+        this.dockerId = containerId;
+        this.RAMCapacity = ramCapacity;
+        this.game = game;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

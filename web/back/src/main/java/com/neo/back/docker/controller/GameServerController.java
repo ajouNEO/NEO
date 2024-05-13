@@ -5,13 +5,11 @@ import com.neo.back.docker.utility.GetCurrentUser;
 import com.neo.back.springjwt.entity.User;
 
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neo.back.docker.dto.FileDataDto;
-import com.neo.back.docker.dto.StartGameServerDto;
 import com.neo.back.docker.service.GameDataService;
 import com.neo.back.docker.service.StartAndStopGameServerService;
 import com.neo.back.docker.service.UploadAndDownloadService;
@@ -20,11 +18,6 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,19 +34,16 @@ public class GameServerController {
     private final GetCurrentUser getCurrentUser;
 
     @PutMapping("/api/server/start")
-    public ResponseEntity<StartGameServerDto> serverStart() {
+    public Mono<Object> serverStart() {
         User user = getCurrentUser.getUser();
-        StartGameServerDto startMes =  startAndStopGameServerService.getStartGameServer(user);
-        System.out.println(startMes.getIsWorking());
-        return ResponseEntity.ok(startMes);
+        return startAndStopGameServerService.getStartGameServer(user);
     }
 
     @PutMapping("/api/server/stop")
-    public ResponseEntity<StartGameServerDto> serverStop() {
+    public Mono<Object> serverStop() {
         User user = getCurrentUser.getUser();
-        StartGameServerDto stopMes =  startAndStopGameServerService.getStopGameServer(user);
-        System.out.println(stopMes.getIsWorking());
-        return ResponseEntity.ok(stopMes);
+        return startAndStopGameServerService.getStopGameServer(user);
+
     }
 
     @GetMapping("/api/server/ListOfFileAndFolder")
@@ -71,7 +61,7 @@ public class GameServerController {
     }
 
     @PostMapping("/api/server/setting")
-    public Mono<String> setServerSetting(@RequestBody Map<String, String> setting) throws IOException {
+    public Mono<Object> setServerSetting(@RequestBody Map<String, String> setting) throws IOException {
         User user = getCurrentUser.getUser();
         return serverSettingService.setServerSetting(setting, user);
     }
@@ -96,19 +86,22 @@ public class GameServerController {
 
     @PostMapping("api/server/upload")
         public  ResponseEntity<String> uploadFile(MultipartFile[] files,@RequestParam String path) {
-            Mono<String> Mes = uploadAndDownloadService.upload(files,path);
+            User user = getCurrentUser.getUser();
+            Mono<String> Mes = uploadAndDownloadService.upload(files,path,user);
         return Mes.map(message -> ResponseEntity.ok().body("{\"uploadStatus\": \"" + message + "\"}")).block();
     }
 
     @PutMapping("api/server/delete")
     public ResponseEntity<Map<String, String>> deleteGameServerData(@RequestParam String path) {
-        Map<String, String> Mes = uploadAndDownloadService.deleteFileAndFolder(path);
+        User user = getCurrentUser.getUser();
+        Map<String, String> Mes = uploadAndDownloadService.deleteFileAndFolder(path,user);
         return ResponseEntity.ok(Mes);
     }
 
     @PutMapping("api/server/makeDir")
     public ResponseEntity<Map<String, String>> makeDirInGameServer(@RequestParam String path) {
-        Map<String, String> Mes = uploadAndDownloadService.makeDir(path);
+        User user = getCurrentUser.getUser();
+        Map<String, String> Mes = uploadAndDownloadService.makeDir(path,user);
         return ResponseEntity.ok(Mes);
     }
 
