@@ -25,7 +25,7 @@ public class SearchServerService {
     private final DockerServerRepository dockerServerRepo;
 
     public List<ServerListDto> getServerList () {
-        List<DockerServer> dockerServers = dockerServerRepo.findByPublic(true);
+        List<DockerServer> dockerServers = dockerServerRepo.findByIsPublic(true);
 
         return dockerServers.stream()
             .map(server -> new ServerListDto(server.getId(), server.getServerName(), server.getUser().getUsername(), server.getGame().getGameName(), server.getGame().getVersion(), server.isFreeAccess()))

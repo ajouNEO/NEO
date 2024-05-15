@@ -16,5 +16,5 @@ public interface DockerServerRepository extends JpaRepository<DockerServer, Long
    
     Optional<DockerServer> findById(Long id);
     DockerServer findByUser(User user);
-    List<DockerServer> findByPublic(boolean isPublic);
+    List<DockerServer> findByIsPublic(boolean isPublic);
 }
