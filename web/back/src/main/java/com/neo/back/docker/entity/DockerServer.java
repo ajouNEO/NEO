@@ -53,4 +53,6 @@ public class DockerServer {
 
     private boolean isPublic = false;
 
+    private boolean isFreeAccess = false;
+
 }

@@ -35,10 +35,10 @@ public class UserServerListService {
             .collect(Collectors.toList());
     }
 
-    public Mono<Object> deleteServer(Long ImageNum, User user) {
+    public Mono<Object> deleteServer(Long imageNum, User user) {
         try {
             Path dockerImagePath = Paths.get("/mnt/nas/dockerImage");
-            Optional<DockerImage> dockerImage = dockerImageRepo.findById(ImageNum);
+            Optional<DockerImage> dockerImage = dockerImageRepo.findById(imageNum);
 
             if (dockerImage.get().getUser() != user) {
                 throw new NotOwnerException();
@@ -47,12 +47,12 @@ public class UserServerListService {
             Path path = dockerImagePath.resolve(dockerImage.get().getServerName() + "_" + dockerImage.get().getUser().getId() + ".tar");
 
             Files.delete(path);
-            dockerImageRepo.deleteById(ImageNum);
+            dockerImageRepo.deleteById(imageNum);
             return Mono.just("Delete image success");
         } catch (NoSuchElementException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This container does not exist in database"));
         } catch (NoSuchFileException e) {
-            dockerImageRepo.deleteById(ImageNum);
+            dockerImageRepo.deleteById(imageNum);
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This container does not exist in storage"));
         } catch (NotOwnerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body("This container is not owned by this user"));
