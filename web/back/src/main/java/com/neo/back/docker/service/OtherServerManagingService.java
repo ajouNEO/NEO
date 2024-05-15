@@ -51,6 +51,18 @@ public class OtherServerManagingService {
         }
     }
 
+    public  Mono<Object> setFreeAccess (User user) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
+
+            dockerServer.setFreeAccess(!dockerServer.isFreeAccess());
+            return  Mono.just(dockerServer.isFreeAccess());
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        }
+    }
+
     public  Mono<Object> setComment (User user, String comment) {
         try {
             DockerServer dockerServer = dockerServerRepo.findByUser(user);
