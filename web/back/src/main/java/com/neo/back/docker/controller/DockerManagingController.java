@@ -38,10 +38,10 @@ public class DockerManagingController {
         return Mono.just(userServerService.getServerList(user));
     }
 
-    @DeleteMapping("/api/container/{ImageNum}")
-    public Mono<Object> deleteContainer(@PathVariable Long ImageNum) {
+    @DeleteMapping("/api/container/{imageNum}")
+    public Mono<Object> deleteContainer(@PathVariable Long imageNum) {
         User user = getCurrentUser.getUser();
-        return userServerService.deleteServer(ImageNum, user);
+        return userServerService.deleteServer(imageNum, user);
     }
 
     @PostMapping("/api/container/create")

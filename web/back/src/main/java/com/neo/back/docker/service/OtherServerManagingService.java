@@ -1,6 +1,6 @@
 package com.neo.back.docker.service;
 
-import com.neo.back.docker.dto.ServerInfoDto;
+import com.neo.back.docker.dto.MyServerInfoDto;
 import com.neo.back.docker.entity.DockerServer;
 import com.neo.back.docker.exception.DoNotHaveServerException;
 import com.neo.back.docker.repository.DockerServerRepository;
@@ -22,7 +22,7 @@ public class OtherServerManagingService {
             DockerServer dockerServer = dockerServerRepo.findByUser(user);
             if (dockerServer == null) throw new DoNotHaveServerException();
 
-            ServerInfoDto serverInfo = new ServerInfoDto(
+            MyServerInfoDto serverInfo = new MyServerInfoDto(
                     dockerServer.getServerName(),
                     dockerServer.getEdgeServer().getIp(),
                     dockerServer.getPort(),

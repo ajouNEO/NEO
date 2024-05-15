@@ -9,14 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServerInfoDto {
+public class ServerListDto {
+    Long dockerNum;
     String serverName;
-    String ip;
-    int port;
     String hostName;
     String gameName;
     String version;
     boolean isFreeAccess;
-    String serverComment;
-    
 }
