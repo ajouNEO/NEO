@@ -11,11 +11,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 	@PropertySource("classpath:env.properties") // env.properties 파일 소스 등록
 })
 public class EnvConfig implements WebMvcConfigurer {
-	@Value("${edgeservers.ip}")
-	private String edgeServerIp;
+	@Value("${MAIN_SERVER_IP}")
+	private String mainServerIp;
 
-	public String getEdgeServerIp() {
-		return edgeServerIp;
+	public String getMainServerIp() {
+		return mainServerIp;
 	}
 
 }
