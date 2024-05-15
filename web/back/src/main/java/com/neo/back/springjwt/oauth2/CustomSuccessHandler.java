@@ -63,7 +63,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("refresh", refresh));
 
 
-        response.sendRedirect("https://"+envConfig.getMainServerIp()+":8080/");
+        System.out.println(envConfig.getMainServerIp());
+        response.sendRedirect("https://"+envConfig.getMainServerIp()+":8080");
     }
 
     private Cookie createCookie(String key, String value) {
