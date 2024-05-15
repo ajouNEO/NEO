@@ -9,14 +9,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServerInfoDto {
+public class MyServerInfoDto {
     String serverName;
     String ip;
     int port;
-    String hostName;
     String gameName;
     String version;
-    boolean isFreeAccess;
+    int RAMCapacity;
+    boolean isPublic;
     String serverComment;
-    
 }
