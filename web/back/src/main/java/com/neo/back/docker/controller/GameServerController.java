@@ -97,6 +97,12 @@ public class GameServerController {
         return otherServerManagingService.setPublic(user);
     }
 
+    @PutMapping("/api/server/freeAccess")
+    public Mono<Object> setFreeAccess() {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.setFreeAccess(user);
+    }
+
     @PutMapping("/api/server/comment")
     public Mono<Object> setComment(@RequestBody String comment) {
         User user = getCurrentUser.getUser();
