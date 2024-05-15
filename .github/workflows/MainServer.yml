@@ -80,6 +80,8 @@ jobs:
 
           SPRING_MAIL_USERNAME = ${{ secrets.SPRING_MAIL_USERNAME }}
           SPRING_MAIL_PASSWORD = ${{ secrets.SPRING_MAIL_PASSWORD }}
+          
+          MAIN_SERVER_IP = ${{ secrets.MAIN_SERVER_IP }}
           EOT
           chmod +x ./gradlew
           ./gradlew build

@@ -1,5 +1,6 @@
 package com.neo.back.springjwt.oauth2;
 
+import com.neo.back.config.EnvConfig;
 import com.neo.back.springjwt.dto.CustomOAuth2User;
 import com.neo.back.springjwt.entity.RefreshEntity;
 import com.neo.back.springjwt.jwt.JWTUtil;
@@ -8,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -19,6 +21,9 @@ import java.util.Iterator;
 
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Autowired
+    private EnvConfig envConfig;
 
     private final JWTUtil jwtUtil;
 
@@ -58,7 +63,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("refresh", refresh));
 
 
-        response.sendRedirect("https://localhost:8080/");
+        response.sendRedirect("https://"+envConfig.getMainServerIp()+":8080/");
     }
 
     private Cookie createCookie(String key, String value) {
