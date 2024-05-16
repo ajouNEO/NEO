@@ -24,7 +24,7 @@ public class OtherServerManagingService {
 
             MyServerInfoDto serverInfo = new MyServerInfoDto(
                     dockerServer.getServerName(),
-                    dockerServer.getEdgeServer().getIp(),
+                    dockerServer.getEdgeServer().getExternalIp(),
                     dockerServer.getPort(),
                     dockerServer.getGame().getGameName(),
                     dockerServer.getGame().getVersion(),
