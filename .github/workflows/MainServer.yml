@@ -69,6 +69,7 @@ jobs:
           GOOGLE_CLIENT_SECRET= ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
           edgeservers.ip= ${{ secrets.EDGESERVER_IP }}
+          edgeservers.externalIp= ${{ secrets.EDGESERVER_EXTERNAL_IP }}
           edgeservers.id= ${{ secrets.EDGESERVER_ID }}
           edgeservers.user.id= ${{ secrets.EDGESERVER_USER_ID }}
           edgeservers.password= ${{ secrets.EDGESERVER_PASSWORD }}
