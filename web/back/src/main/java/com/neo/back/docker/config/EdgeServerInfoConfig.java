@@ -25,6 +25,7 @@ public class EdgeServerInfoConfig {
     
 	@Value("#{'${edgeservers.id}'.split(',')}")private List<String> edgeServerName;
     @Value("#{'${edgeservers.ip}'.split(',')}")private List<String> edgeServerIp;
+    @Value("#{'${edgeservers.externalIp}'.split(',')}")private List<String> edgeServerExternalIp;
 	@Value("#{'${edgeservers.user.id}'.split(',')}")private List<String> edgeServerUser;
 	@Value("#{'${edgeservers.password}'.split(',')}")private List<String> edgeServerPassword;
 	@Value("#{'${edgeservers.memoryTotal}'.split(',')}")private List<String> edgeServerMemoryTotal;
@@ -46,6 +47,7 @@ public class EdgeServerInfoConfig {
 		for(int index = 0; index < edgeServerNumber ; index++){
             edgeServer.setEdgeServerName(edgeServerName.get(index));
             edgeServer.setIp(edgeServerIp.get(index));
+            edgeServer.setExternalIp(edgeServerExternalIp.get(index));
             edgeServer.setUser(edgeServerUser.get(index));
             edgeServer.setPassWord(edgeServerPassword.get(index));
             edgeServer.setMemoryTotal(Integer.parseInt(edgeServerMemoryTotal.get(index)));

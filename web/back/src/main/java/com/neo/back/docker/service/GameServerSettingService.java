@@ -81,7 +81,7 @@ public class GameServerSettingService {
                 if (result.length() > 0) {
                     result.append("\n");
                 }
-                result.append(entry.getKey()).append(" = ").append(entry.getValue());
+                result.append(entry.getKey()).append("=").append(entry.getValue());
             }
 
             System.out.println(result.toString());

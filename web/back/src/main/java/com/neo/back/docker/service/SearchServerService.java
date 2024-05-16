@@ -43,7 +43,7 @@ public class SearchServerService {
             if (dockerServer.isFreeAccess() == false) {
                 //허가받았는지 확인후 정보 전달
             } else {
-                ip = dockerServer.getEdgeServer().getIp();
+                ip = dockerServer.getEdgeServer().getExternalIp();
                 port = dockerServer.getPort();
             }
 
