@@ -31,4 +31,5 @@ public class CommunityController {
         User user = getCurrentUser.getUser();
         return searchServerService.getServerInfo(dockerNum, user);
     }
+
 }

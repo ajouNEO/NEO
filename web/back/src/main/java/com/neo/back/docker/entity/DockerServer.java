@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Setter
 @Getter
@@ -54,5 +56,13 @@ public class DockerServer {
     private boolean isPublic = false;
 
     private boolean isFreeAccess = false;
+
+    @ManyToMany
+    @JoinColumn(name = "applicant")
+    private List<User> applicants;
+
+    @ManyToMany
+    @JoinColumn(name = "participant")
+    private List<User> participants;
 
 }
