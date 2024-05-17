@@ -112,7 +112,7 @@ public class GameServerController {
     }
 
     @GetMapping("/api/server/applicants")
-    public SseEmitter getApplicants() {
+    public SseEmitter getApplicants(@RequestParam String token) {
         User user = getCurrentUser.getUser();
         return serverJoinService.getApplicants(user);
     }
@@ -121,12 +121,6 @@ public class GameServerController {
     public Mono<Object> getParticipants() {
         User user = getCurrentUser.getUser();
         return serverJoinService.getParticipants(user);
-    }
-
-    @PostMapping("/api/server/application/{dockerNum}")
-    public Mono<Object> application(@PathVariable Long dockerNum) {
-        User user = getCurrentUser.getUser();
-        return serverJoinService.application(dockerNum, user);
     }
 
     @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api

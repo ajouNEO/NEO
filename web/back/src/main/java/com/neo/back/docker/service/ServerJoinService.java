@@ -1,59 +1,64 @@
 package com.neo.back.docker.service;
 
+import com.neo.back.docker.entity.DockerServer;
 import com.neo.back.docker.repository.DockerServerRepository;
 import com.neo.back.springjwt.entity.User;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ServerJoinService {
-    private DockerServerRepository dockerServerRepo;
-    private final List<SseEmitter> getApplicantsEmitters = new CopyOnWriteArrayList<>();
+    private final DockerServerRepository dockerServerRepo;
+    private final Map<User, SseEmitter> getApplicantsEmitters = new ConcurrentHashMap<>();
 
     public SseEmitter getApplicants(User user) {
         SseEmitter emitter = new SseEmitter();
-        getApplicantsEmitters.add(emitter);
+        getApplicantsEmitters.put(user, emitter);
 
-        // 연결 종료 시 emitters 리스트에서 제거
-        emitter.onCompletion(() -> getApplicantsEmitters.remove(emitter));
-        emitter.onTimeout(() -> getApplicantsEmitters.remove(emitter));
-        emitter.onError(e -> getApplicantsEmitters.remove(emitter));
+        //연결 종료 시 emitters 리스트에서 제거
+        emitter.onCompletion(() -> getApplicantsEmitters.remove(user));
+        emitter.onTimeout(() -> getApplicantsEmitters.remove(user));
+        emitter.onError(e -> getApplicantsEmitters.remove(user));
 
-        sendApplicantsInitial(emitter, user);
+        sendApplicantsInitial(user, emitter);
 
         return emitter;
     }
 
-    private void sendApplicantsInitial(SseEmitter emitter, User user) {
+    private void sendApplicantsInitial(User user, SseEmitter emitter) {
             try {
-                // 초기 데이터 전송 (예: 데이터베이스에서 가져온 데이터)
-                String initialData = "초기 데이터"; // 여기서 실제 데이터를 가져옵니다.
-                emitter.send(SseEmitter.event().data(initialData));
+                DockerServer dockerServer = dockerServerRepo.findByUser(user);
+    
+                emitter.send(SseEmitter.event().data(dockerServer.getApplicantNames()));
             } catch (IOException e) {
                 emitter.completeWithError(e);
             }
     }
 
-    public void sendApplicantsUpdate(String message) {
-        List<SseEmitter> deadEmitters = new ArrayList<>();
-        for (SseEmitter emitter : getApplicantsEmitters) {
+    public void sendApplicantsUpdate(DockerServer dockerServer) {
+        SseEmitter emitter = getApplicantsEmitters.get(dockerServer.getUser());
+        if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().data(message));
+                emitter.send(SseEmitter.event().data(dockerServer.getApplicantNames()));
             } catch (IOException e) {
-                deadEmitters.add(emitter);
+                getApplicantsEmitters.remove(dockerServer.getUser());
             }
         }
-        getApplicantsEmitters.removeAll(deadEmitters);
     }
 
     public Mono<Object> getParticipants(User user) {
@@ -62,8 +67,22 @@ public class ServerJoinService {
     }
 
     public Mono<Object> application(Long dockerNum, User user) {
+        DockerServer dockerServer;
+        try {
+            Optional<DockerServer> optionalDockerServer = dockerServerRepo.findById(dockerNum);
+            if (optionalDockerServer.isPresent()) dockerServer = optionalDockerServer.get();
+            else throw new AccessDeniedException("");
 
-        return null;
+            if (!dockerServer.isPublic()) throw new AccessDeniedException("");
+
+            dockerServer.addApplicant(user);
+            dockerServerRepo.save(dockerServer);
+            this.sendApplicantsUpdate(dockerServer);
+
+            return Mono.just("success application");
+        } catch (AccessDeniedException e) {
+             return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body("Server that has not been disclosed or does not exist"));
+        }
     }
 
     public  Mono<Object> allowParticipation(User host, User participant) {

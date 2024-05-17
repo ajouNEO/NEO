@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 @Entity
 @Setter
@@ -58,11 +61,36 @@ public class DockerServer {
     private boolean isFreeAccess = false;
 
     @ManyToMany
-    @JoinColumn(name = "applicant")
-    private List<User> applicants;
+    private Set<User> applicants = new HashSet<>();
 
     @ManyToMany
-    @JoinColumn(name = "participant")
-    private List<User> participants;
+    private Set<User> participants = new HashSet<>();
 
+    public void addApplicant(User applicant) {
+        this.applicants.add(applicant);
+    }
+
+    public void removeApplicant(User applicant) {
+        this.applicants.remove(applicant);
+    }
+
+    public void addParticipant(User participant) {
+        this.applicants.add(participant);
+    }
+
+    public void removeParticipant(User participant) {
+        this.applicants.remove(participant);
+    }
+
+    public List<String> getApplicantNames() {
+        return applicants.stream()
+        .map(User::getUsername)
+        .collect(Collectors.toList());
+    }
+
+    public List<String> getParticipantNames() {
+        return participants.stream()
+        .map(User::getUsername)
+        .collect(Collectors.toList());
+    }
 }
