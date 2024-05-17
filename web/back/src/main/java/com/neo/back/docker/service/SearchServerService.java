@@ -12,6 +12,7 @@ import com.neo.back.docker.repository.DockerServerRepository;
 import com.neo.back.springjwt.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
@@ -35,13 +36,19 @@ public class SearchServerService {
     public Mono<Object> getServerInfo (Long id, User user) {
         String ip = null;
         int port = -1;
+        DockerServer dockerServer;
         try {
-            DockerServer dockerServer = dockerServerRepo.findById(id).get();
-            if (dockerServer == null) throw new AccessDeniedException("");
+            Optional<DockerServer> optionalDockerServer = dockerServerRepo.findById(id);
+            if (optionalDockerServer.isPresent()) dockerServer = optionalDockerServer.get();
+            else throw new AccessDeniedException("");
+
             if (!dockerServer.isPublic()) throw new AccessDeniedException("");
 
-            if (dockerServer.isFreeAccess() == false) {
-                //허가받았는지 확인후 정보 전달
+            if (!dockerServer.isFreeAccess()) {
+                if (isParticipant(user, dockerServer)) {
+                    ip = dockerServer.getEdgeServer().getExternalIp();
+                    port = dockerServer.getPort();
+                }
             } else {
                 ip = dockerServer.getEdgeServer().getExternalIp();
                 port = dockerServer.getPort();
@@ -62,4 +69,11 @@ public class SearchServerService {
              return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body("Server that has not been disclosed or does not exist"));
         }
     }
+
+    private boolean isParticipant(User user, DockerServer dockerServer) {
+        return dockerServer.getParticipants().stream()
+                .anyMatch(participant -> participant.equals(user));
+    }
+
+
 }

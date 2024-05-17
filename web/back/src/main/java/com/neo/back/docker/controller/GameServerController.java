@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.neo.back.docker.dto.FileDataDto;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class GameServerController {
     private final StartAndStopGameServerService startAndStopGameServerService;
     private final UploadAndDownloadService uploadAndDownloadService;
     private final OtherServerManagingService otherServerManagingService;
+    private final ServerJoinService serverJoinService;
     private final GetCurrentUser getCurrentUser;
 
     @PutMapping("/api/server/start")
@@ -107,6 +109,18 @@ public class GameServerController {
     public Mono<Object> setComment(@RequestBody String comment) {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.setComment(user, comment);
+    }
+
+    @GetMapping("/api/server/applicants")
+    public SseEmitter getApplicants(@RequestParam String token) {
+        User user = getCurrentUser.getUser();
+        return serverJoinService.getApplicants(user);
+    }
+
+    @GetMapping("/api/server/participants")
+    public Mono<Object> getParticipants() {
+        User user = getCurrentUser.getUser();
+        return serverJoinService.getParticipants(user);
     }
 
     @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api

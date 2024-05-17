@@ -306,6 +306,105 @@
         });
     </script>
 
+<!-- 신청자목록 -->
+<title>Applicants List</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    #container {
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f0f0;
+        overflow: hidden;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        margin-bottom: 10px;
+    }
+    button {
+        margin-left: 10px;
+    }
+</style>
+<div id="container">
+    <ul id="applicant-list"></ul>
+</div>
+<script>
+    const applicantList = document.getElementById('applicant-list');
+    let eventSource;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        openSSE();
+        window.addEventListener('beforeunload', () => {
+            closeSSE();
+        });
+    });
+
+    const openSSE = () => {
+        const token = localStorage.getItem('jwtToken');
+        eventSource = new EventSource(`api/server/applicants?token=Bearer ${encodeURIComponent(token)}`);
+
+        eventSource.onmessage = (event) => {
+            const updatedApplicants = JSON.parse(event.data);
+            console.log('Received updated applicants:', updatedApplicants);
+            updateApplicantList(updatedApplicants);
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('SSE error:', error);
+            eventSource.close();
+        };
+    };
+
+    const closeSSE = () => {
+        if (eventSource) {
+            eventSource.close();
+            console.log('SSE connection closed');
+        }
+    };
+
+    const updateApplicantList = (applicants) => {
+        applicantList.innerHTML = '';
+        applicants.forEach((applicant) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${applicant.username}`;
+
+            const acceptButton = document.createElement('button');
+            acceptButton.textContent = 'Accept';
+            acceptButton.onclick = () => updateApplicantStatus(applicant.id, 'Accepted');
+
+            const rejectButton = document.createElement('button');
+            rejectButton.textContent = 'Reject';
+            rejectButton.onclick = () => updateApplicantStatus(applicant.id, 'Rejected');
+
+            listItem.appendChild(acceptButton);
+            listItem.appendChild(rejectButton);
+            applicantList.appendChild(listItem);
+        });
+    };
+
+    const updateApplicantStatus = (applicantId, status) => {
+        fetch(`/api/applicants/${applicantId}/status?status=${status}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            if (!response.ok) {
+                console.error('Failed to update applicant status');
+            }
+        });
+    };
+</script>
+
 
 <!--    파일 목록 및 파일 관리-->
     <h3>해당 폴더에 있는 폴더 및 파일 목록:</h3>
