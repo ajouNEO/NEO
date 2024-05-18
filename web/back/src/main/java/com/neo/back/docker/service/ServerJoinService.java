@@ -1,8 +1,11 @@
 package com.neo.back.docker.service;
 
 import com.neo.back.docker.entity.DockerServer;
+import com.neo.back.docker.exception.DoNotHaveServerException;
+import com.neo.back.docker.exception.UserNotFoundException;
 import com.neo.back.docker.repository.DockerServerRepository;
 import com.neo.back.springjwt.entity.User;
+import com.neo.back.springjwt.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class ServerJoinService {
     private final DockerServerRepository dockerServerRepo;
+    private final UserRepository userRepo;
     private final Map<User, SseEmitter> getApplicantsEmitters = new ConcurrentHashMap<>();
+    private final Map<User, SseEmitter> getParticipantsEmitters = new ConcurrentHashMap<>();
 
     public SseEmitter getApplicants(User user) {
         SseEmitter emitter = new SseEmitter();
         getApplicantsEmitters.put(user, emitter);
 
-        //연결 종료 시 emitters 리스트에서 제거
         emitter.onCompletion(() -> getApplicantsEmitters.remove(user));
         emitter.onTimeout(() -> getApplicantsEmitters.remove(user));
         emitter.onError(e -> getApplicantsEmitters.remove(user));
@@ -61,9 +65,38 @@ public class ServerJoinService {
         }
     }
 
-    public Mono<Object> getParticipants(User user) {
+    public SseEmitter getParticipants(User user) {
+        SseEmitter emitter = new SseEmitter();
+        getParticipantsEmitters.put(user, emitter);
 
-        return null;
+        emitter.onCompletion(() -> getParticipantsEmitters.remove(user));
+        emitter.onTimeout(() -> getParticipantsEmitters.remove(user));
+        emitter.onError(e -> getParticipantsEmitters.remove(user));
+
+        sendParticipantsInitial(user, emitter);
+
+        return emitter;
+    }
+
+    private void sendParticipantsInitial(User user, SseEmitter emitter) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+
+            emitter.send(SseEmitter.event().data(dockerServer.getParticipantNames()));
+        } catch (IOException e) {
+            emitter.completeWithError(e);
+        }
+    }
+
+    public void sendParticipantsUpdate(DockerServer dockerServer) {
+        SseEmitter emitter = getParticipantsEmitters.get(dockerServer.getUser());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event().data(dockerServer.getParticipantNames()));
+            } catch (IOException e) {
+                getParticipantsEmitters.remove(dockerServer.getUser());
+            }
+        }
     }
 
     public Mono<Object> application(Long dockerNum, User user) {
@@ -85,13 +118,43 @@ public class ServerJoinService {
         }
     }
 
-    public  Mono<Object> allowParticipation(User host, User participant) {
+    public  Mono<Object> allowParticipation(User host, String participantName) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(host);
+            if (dockerServer == null) throw new DoNotHaveServerException();
 
-        return null;
+            User participant = userRepo.findByUsername(participantName);
+            if (participant == null) throw new UserNotFoundException();
+
+            dockerServer.addParticipant(participant);
+            dockerServer.removeApplicant(participant);
+            this.sendApplicantsUpdate(dockerServer);
+            this.sendParticipantsUpdate(dockerServer);
+
+            return Mono.just("success");
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        } catch (UserNotFoundException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist"));
+        }
     }
 
-    public  Mono<Object> refuseParticipation(User host, User participant) {
+    public  Mono<Object> refuseParticipation(User host, String participantName) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(host);
+            if (dockerServer == null) throw new DoNotHaveServerException();
 
-        return null;
+            User participant = userRepo.findByUsername(participantName);
+            if (participant == null) throw new UserNotFoundException();
+
+            dockerServer.removeApplicant(participant);
+            this.sendApplicantsUpdate(dockerServer);
+
+            return Mono.just("success");
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        } catch (UserNotFoundException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist"));
+        }
     }
 }
