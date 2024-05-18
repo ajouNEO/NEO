@@ -118,9 +118,21 @@ public class GameServerController {
     }
 
     @GetMapping("/api/server/participants")
-    public Mono<Object> getParticipants() {
+    public SseEmitter getParticipants() {
         User user = getCurrentUser.getUser();
         return serverJoinService.getParticipants(user);
+    }
+
+    @PostMapping("/api/server/allow/{userName}")
+    public Mono<Object> allowParticipation(@PathVariable String userName) {
+        User user = getCurrentUser.getUser();
+        return serverJoinService.allowParticipation(user, userName);
+    }
+
+    @PostMapping("/api/server/refuse/{userName}")
+    public Mono<Object> refuseParticipation(@PathVariable String userName) {
+        User user = getCurrentUser.getUser();
+        return serverJoinService.refuseParticipation(user, userName);
     }
 
     @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
