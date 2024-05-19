@@ -131,12 +131,16 @@ public class EdgeServerInfoConfig {
         delMeoStr.setCmd("rm\t-rf\tserver/");
         delMeoStr.setCmdId("delMeoStr");
 
+        GameDockerAPICMD gameLog = new GameDockerAPICMD();
+        delMeoStr.setCmd("sh\t-c\tcat control/output.txt");
+        delMeoStr.setCmdId("gameLog");
+
         gameDockerAPICMDRepo.save(CmdStartStr);
         gameDockerAPICMDRepo.save(CmdStartAckStr);
         gameDockerAPICMDRepo.save(CmdStopStr);
         gameDockerAPICMDRepo.save(CmdStopAckStr);
         gameDockerAPICMDRepo.save(makeDirStr);
         gameDockerAPICMDRepo.save(delMeoStr);
-
+        gameDockerAPICMDRepo.save(gameLog);
 	}
 }

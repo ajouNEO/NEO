@@ -40,12 +40,12 @@ public class UploadAndDownloadService {
 
     public Mono<String> upload(MultipartFile[] files, String path,User user){
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
-        String userId = user.getName(); 
+        String userId = String.valueOf(user.getId());
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient = makeWebClient.makeDockerWebClient(ip);
-        Path basePath = Paths.get("").toAbsolutePath().resolve("src/main/resources/test/"+userId);
-        Path tarPath = Paths.get("").toAbsolutePath().resolve("src/main/resources/test/"+userId+"/userTar.tar");
+        Path basePath = Paths.get("").toAbsolutePath().resolve("src/main/resources/gameserverfile/"+userId);
+        Path tarPath = Paths.get("").toAbsolutePath().resolve("src/main/resources/gameserverfile/"+userId+"/userTar.tar");
         byte[] tarFileBytes = null;
         
         saveUserFolder_file(files,basePath);
