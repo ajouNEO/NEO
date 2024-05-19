@@ -30,6 +30,7 @@ public class OtherServerManagingService {
                     dockerServer.getGame().getVersion(),
                     dockerServer.getRAMCapacity(),
                     dockerServer.isPublic(),
+                    dockerServer.isFreeAccess(),
                     dockerServer.getServerComment()
             );
 

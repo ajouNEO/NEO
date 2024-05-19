@@ -31,6 +31,7 @@ public class GameServerController {
     private final UploadAndDownloadService uploadAndDownloadService;
     private final OtherServerManagingService otherServerManagingService;
     private final ServerJoinService serverJoinService;
+    private final GameLog gameLog;
     private final GetCurrentUser getCurrentUser;
 
     @PutMapping("/api/server/start")
@@ -146,5 +147,12 @@ public class GameServerController {
                     return json.toString();
                 });
     }
+
+    @GetMapping("/api/server/gamelog")
+    public SseEmitter sendGameLog(@RequestParam String token) {
+        User user = getCurrentUser.getUser();
+        return gameLog.sendLogContinue(user); 
+    }
+
 
 }

@@ -70,6 +70,14 @@
         padding: 20px;
         margin: 20px auto;
     }
+    #containerGameLog { 
+        width: 1200px;
+        height: 600px;
+        overflow-y: scroll; /* 세로 스크롤바를 표시할지 여부를 지정합니다. */
+    }
+    #gameLog {
+        padding: 10px;
+    }
 </style>
 
 </head>
@@ -375,15 +383,15 @@
         applicantList.innerHTML = '';
         applicants.forEach((applicant) => {
             const listItem = document.createElement('li');
-            listItem.textContent = `${applicant.username}`;
+            listItem.textContent = `${applicant}`;
 
             const acceptButton = document.createElement('button');
             acceptButton.textContent = 'Accept';
-            acceptButton.onclick = () => updateApplicantStatus(applicant.id, 'Accepted');
+            acceptButton.onclick = () => updateApplicantStatus(applicant, 'allow');
 
             const rejectButton = document.createElement('button');
             rejectButton.textContent = 'Reject';
-            rejectButton.onclick = () => updateApplicantStatus(applicant.id, 'Rejected');
+            rejectButton.onclick = () => updateApplicantStatus(applicant, 'refuse');
 
             listItem.appendChild(acceptButton);
             listItem.appendChild(rejectButton);
@@ -392,10 +400,12 @@
     };
 
     const updateApplicantStatus = (applicantId, status) => {
-        fetch(`/api/applicants/${applicantId}/status?status=${status}`, {
+        const token = localStorage.getItem('jwtToken');
+        fetch(`/api/server/${status}/${applicantId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token  // JWT 토큰을 헤더에 추가
             }
         }).then((response) => {
             if (!response.ok) {
@@ -767,6 +777,61 @@
         }
     </script>
 
+<!--    게임 로그-->
+
+    <h1>Server-Sent gameLog</h1>
+    <div id="containerGameLog">
+        <div id="gameLog"></div>
+    </div>
+
+    <script>
+        const containerGameLog = document.getElementById("containerGameLog");
+        const gameLog = document.getElementById("gameLog");
+        const token = localStorage.getItem('jwtToken');
+        const encodedToken = encodeURIComponent(token);
+        const GameLogEvent = new EventSource(`/api/server/gamelog?token=Bearer ${encodedToken}`);
+
+        let isScrolledToBottom = true;
+
+        function handleScroll() {
+            isScrolledToBottom = containerGameLog.scrollHeight - containerGameLog.clientHeight <= containerGameLog.scrollTop + 1;
+        }
+
+        GameLogEvent.addEventListener('gameLogs', function(event) {
+            const newElement = document.createElement("div");
+            newElement.innerHTML = event.data.replace(/\n/g, "<br>");
+            document.getElementById("gameLog").appendChild(newElement);
+
+            if (isScrolledToBottom) {
+                containerGameLog.scrollTop = containerGameLog.scrollHeight;
+            }
+        });
+
+        containerGameLog.scrollTop = containerGameLog.scrollHeight;
+        
+        containerGameLog.addEventListener('scroll', function() {
+            isScrolledToBottom = containerGameLog.scrollHeight - containerGameLog.clientHeight <= containerGameLog.scrollTop + 1;
+        });
+
+        GameLogEvent.onerror = function(err) {
+            console.error("EventSource failed:", err);
+            GameLogEvent.close();
+        };
+
+        function scrollToBottom(element) {
+            element.scrollTop = element.scrollHeight;
+        }
+
+        // 새로운 내용이 추가될 때마다 스크롤을 아래로 이동
+        function addContentAndScroll() {
+            var container = document.getElementById('containerGameLog');
+            // 여기서 container에 내용을 추가하는 로직을 구현
+
+            // 새로운 내용이 추가될 때마다 스크롤을 아래로 이동
+            scrollToBottom(container);
+        }
+
+    </script>
 
 <!--    데이터 베이스-->
     <h1>데이터베이스 정보</h1>
@@ -832,6 +897,7 @@
         fetchData('dockerServer', '/test/dockerServer');
         fetchData('edgeServer', '/test/edgeServer');
     </script>
+    
 
 
 </body>

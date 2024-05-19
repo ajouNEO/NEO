@@ -14,11 +14,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.neo.back.docker.dto.UserSettingDto;
+import com.neo.back.docker.entity.DockerServer;
+import com.neo.back.docker.repository.DockerServerRepository;
+import com.neo.back.docker.repository.GameDockerAPICMDRepository;
+import com.neo.back.springjwt.entity.User;
+
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class DockerAPI {
+
+    private final DockerServerRepository dockerServerRepo;
+    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
 
     public Mono<String> createContainer(Map<String, Object> requestMap, WebClient dockerWebClient) {
         return dockerWebClient.post()
@@ -214,4 +225,23 @@ public class DockerAPI {
         }
     }
 
+    public UserSettingDto settingIDS(User user){
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        UserSettingDto setting = new UserSettingDto();
+        setting.setUserId(String.valueOf(user.getId()));
+        setting.setIp(dockerServer.getEdgeServer().getIp());
+        setting.setDockerId(dockerServer.getDockerId());
+        return setting;
+    }
+
+    public Mono<String> MAKEexec(String CmdId,String dockerId, WebClient dockerWebClient){
+        String Cmds = gameDockerAPICMDRepo.findBycmdId(CmdId).getCmd();
+        String[] CmdStrs =  split_tap(Cmds);
+        Map<String,Boolean> startExecRequest = makeExecStartInst();
+        Map<String,Object> setStopInst = makeExecInst(CmdStrs);
+        Mono<Map> AckStopStr = makeExec(dockerId, setStopInst, dockerWebClient);
+        String StopMeoStr = (String) AckStopStr.block().get("Id");
+        Mono<String> AckStopEND = startExec(StopMeoStr,startExecRequest, dockerWebClient);
+        return AckStopEND;
+    }
 }
