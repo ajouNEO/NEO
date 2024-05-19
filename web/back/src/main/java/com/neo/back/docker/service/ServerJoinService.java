@@ -32,16 +32,28 @@ public class ServerJoinService {
     private final Map<User, SseEmitter> getParticipantsEmitters = new ConcurrentHashMap<>();
 
     public SseEmitter getApplicants(User user) {
+        SseEmitter existingEmitter = getApplicantsEmitters.get(user);
+        if (existingEmitter != null) {
+            existingEmitter.complete();
+        } 
+
         SseEmitter emitter = new SseEmitter();
         getApplicantsEmitters.put(user, emitter);
 
-        emitter.onCompletion(() -> getApplicantsEmitters.remove(user));
-        emitter.onTimeout(() -> getApplicantsEmitters.remove(user));
-        emitter.onError(e -> getApplicantsEmitters.remove(user));
+        // emitter.onCompletion(() -> {
+        //     getApplicantsEmitters.remove(user);
+        // });
+        // emitter.onTimeout(() -> {
+        //     getApplicantsEmitters.remove(user);
+        // });
+        // emitter.onError(e -> {
+        //     getApplicantsEmitters.remove(user);
+        // });
 
         sendApplicantsInitial(user, emitter);
 
         return emitter;
+        
     }
 
     private void sendApplicantsInitial(User user, SseEmitter emitter) {
@@ -66,12 +78,17 @@ public class ServerJoinService {
     }
 
     public SseEmitter getParticipants(User user) {
+        SseEmitter existingEmitter = getApplicantsEmitters.get(user);
+        if (existingEmitter != null) {
+            existingEmitter.complete();
+        } 
+
         SseEmitter emitter = new SseEmitter();
         getParticipantsEmitters.put(user, emitter);
 
-        emitter.onCompletion(() -> getParticipantsEmitters.remove(user));
-        emitter.onTimeout(() -> getParticipantsEmitters.remove(user));
-        emitter.onError(e -> getParticipantsEmitters.remove(user));
+        // emitter.onCompletion(() -> getParticipantsEmitters.remove(user));
+        // emitter.onTimeout(() -> getParticipantsEmitters.remove(user));
+        // emitter.onError(e -> getParticipantsEmitters.remove(user));
 
         sendParticipantsInitial(user, emitter);
 

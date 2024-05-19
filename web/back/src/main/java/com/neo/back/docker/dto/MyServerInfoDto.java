@@ -17,5 +17,6 @@ public class MyServerInfoDto {
     String version;
     int RAMCapacity;
     boolean isPublic;
+    boolean isFreeAccess;
     String serverComment;
 }

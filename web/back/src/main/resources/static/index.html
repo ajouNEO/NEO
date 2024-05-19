@@ -375,15 +375,15 @@
         applicantList.innerHTML = '';
         applicants.forEach((applicant) => {
             const listItem = document.createElement('li');
-            listItem.textContent = `${applicant.username}`;
+            listItem.textContent = `${applicant}`;
 
             const acceptButton = document.createElement('button');
             acceptButton.textContent = 'Accept';
-            acceptButton.onclick = () => updateApplicantStatus(applicant.id, 'Accepted');
+            acceptButton.onclick = () => updateApplicantStatus(applicant, 'allow');
 
             const rejectButton = document.createElement('button');
             rejectButton.textContent = 'Reject';
-            rejectButton.onclick = () => updateApplicantStatus(applicant.id, 'Rejected');
+            rejectButton.onclick = () => updateApplicantStatus(applicant, 'refuse');
 
             listItem.appendChild(acceptButton);
             listItem.appendChild(rejectButton);
@@ -392,10 +392,12 @@
     };
 
     const updateApplicantStatus = (applicantId, status) => {
-        fetch(`/api/applicants/${applicantId}/status?status=${status}`, {
+        const token = localStorage.getItem('jwtToken');
+        fetch(`/api/server/${status}/${applicantId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token  // JWT 토큰을 헤더에 추가
             }
         }).then((response) => {
             if (!response.ok) {
