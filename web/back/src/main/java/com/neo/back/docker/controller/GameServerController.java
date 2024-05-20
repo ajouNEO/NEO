@@ -107,7 +107,7 @@ public class GameServerController {
     }
 
     @PutMapping("/api/server/comment")
-    public Mono<Object> setComment(@RequestBody String comment) {
+    public Mono<Object> setComment(@RequestBody(required = false) String comment) {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.setComment(user, comment);
     }

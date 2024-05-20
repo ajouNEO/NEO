@@ -33,19 +33,21 @@ public class GameLog {
             UserSettingDto UserSetting = dockerAPI.settingIDS(user);
             this.dockerWebClient = makeWebClient.makeDockerWebClient(UserSetting.getIp());
 
-            SseEmitter emitter = getUserAndSseEmitter.get(user);
-            ScheduledExecutorService executor = getuserAndSche.get(user);
+            SseEmitter existingEmitter = getUserAndSseEmitter.get(user);
+            ScheduledExecutorService existingExecutor = getuserAndSche.get(user);
             previousLogs.put(user, "");
 
-            if (emitter != null || executor != null) {
-                clear(user).run();
+            if (existingEmitter != null || existingEmitter != null) {
+                existingEmitter.complete();
+                existingExecutor.shutdown();
             }
-            emitter = new SseEmitter();
-            executor = Executors.newScheduledThreadPool(1);
+            
+            SseEmitter emitter = new SseEmitter();
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-            emitter.onCompletion(clear(user));
-            emitter.onTimeout(clear(user));
-            emitter.onError(e -> clear(user).run());
+            // emitter.onCompletion(clear(user));
+            // emitter.onTimeout(clear(user));
+            // emitter.onError(e -> clear(user).run());
 
             getUserAndSseEmitter.put(user, emitter);
             getuserAndSche.put(user, executor);
@@ -53,17 +55,6 @@ public class GameLog {
             
 
         return emitter;
-    }
-
-    private Runnable clear(User user) {
-        return () -> { 
-            SseEmitter emitter = getUserAndSseEmitter.get(user);
-            ScheduledExecutorService executor = getuserAndSche.get(user);
-            getUserAndSseEmitter.remove(user);
-            getuserAndSche.remove(user);
-            emitter.complete();
-            executor.shutdown();
-        };
     }
 
     private Runnable sendLogSche(User user, UserSettingDto UserSetting) {
