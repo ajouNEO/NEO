@@ -14,7 +14,7 @@ public class MakeWebClient {
 
     public WebClient makeDockerWebClient(String ip) {
         return webClientBuilder.baseUrl("http://" + ip + ":2375")
-                .filter(logRequestAndResponse())
+                // .filter(logRequestAndResponse())
                 .build();
     }
 
