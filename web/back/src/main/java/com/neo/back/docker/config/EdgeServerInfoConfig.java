@@ -132,8 +132,8 @@ public class EdgeServerInfoConfig {
         delMeoStr.setCmdId("delMeoStr");
 
         GameDockerAPICMD gameLog = new GameDockerAPICMD();
-        delMeoStr.setCmd("sh\t-c\tcat control/output.txt");
-        delMeoStr.setCmdId("gameLog");
+        gameLog.setCmd("sh\t-c\tcat control/output.txt");
+        gameLog.setCmdId("gameLog");
 
         gameDockerAPICMDRepo.save(CmdStartStr);
         gameDockerAPICMDRepo.save(CmdStartAckStr);
