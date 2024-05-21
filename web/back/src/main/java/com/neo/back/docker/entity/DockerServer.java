@@ -75,11 +75,11 @@ public class DockerServer {
     }
 
     public void addParticipant(User participant) {
-        this.applicants.add(participant);
+        this.participants.add(participant);
     }
 
     public void removeParticipant(User participant) {
-        this.applicants.remove(participant);
+        this.participants.remove(participant);
     }
 
     public List<String> getApplicantNames() {

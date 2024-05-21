@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neo.back.docker.dto.ServerInfoDto;
 import com.neo.back.docker.dto.ServerListDto;
 import com.neo.back.docker.service.SearchServerService;
 import com.neo.back.docker.service.ServerJoinService;
@@ -34,11 +35,21 @@ public class CommunityController {
         User user = getCurrentUser.getUser();
         return searchServerService.getServerInfo(dockerNum, user);
     }
+    @GetMapping("/api/User/Participant/server/list")
+    public List<ServerInfoDto> getParticipantServers() {
+        User user = getCurrentUser.getUser();
+        return searchServerService.getParticipantServers(user);
+    }
+
+    @GetMapping("/api/User/Applicant/server/list")
+    public List<ServerListDto> getApplicantServers() {
+        User user = getCurrentUser.getUser();
+        return searchServerService.getApplicantServersInfo(user);
+    }
 
     @PostMapping("/api/server/application/{dockerNum}")
     public Mono<Object> application(@PathVariable Long dockerNum) {
         User user = getCurrentUser.getUser();
         return serverJoinService.application(dockerNum, user);
     }
-
 }
