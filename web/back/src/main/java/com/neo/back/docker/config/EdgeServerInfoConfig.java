@@ -4,14 +4,21 @@ import java.util.List;
 
 import com.neo.back.docker.entity.MinecreftServerSetting;
 import com.neo.back.docker.repository.GameServerSettingRepository;
+import com.neo.back.springjwt.dto.JoinDTO;
+import com.neo.back.springjwt.entity.User;
+import com.neo.back.springjwt.repository.UserRepository;
+import com.neo.back.springjwt.service.JoinService;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import com.neo.back.docker.entity.DockerServer;
 import com.neo.back.docker.entity.EdgeServer;
 import com.neo.back.docker.entity.Game;
 import com.neo.back.docker.entity.GameDockerAPICMD;
+import com.neo.back.docker.repository.DockerServerRepository;
 import com.neo.back.docker.repository.EdgeServerRepository;
 import com.neo.back.docker.repository.GameDockerAPICMDRepository;
 import com.neo.back.docker.repository.GameRepository;
@@ -40,9 +47,15 @@ public class EdgeServerInfoConfig {
 
     private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
 
+    private final DockerServerRepository dockerServerRepo;
+
+    private final UserRepository UserRepo;
+
+    private final JoinService joinService;
+
 	@PostConstruct
 	private void init() {
-		EdgeServer edgeServer = new EdgeServer();
+        EdgeServer edgeServer = new EdgeServer();
         int edgeServerNumber = edgeServerIp.size();
 		for(int index = 0; index < edgeServerNumber ; index++){
             edgeServer.setEdgeServerName(edgeServerName.get(index));
@@ -59,14 +72,6 @@ public class EdgeServerInfoConfig {
         minecreftServerSetting.setSettingFilePath("/server/server.properties");
         gameServerSettingRepo.save(minecreftServerSetting);
 
-        // String[] CmdMemoryStr = new String[]{"sh","-c","echo 'java,-Xmx" + memory + "G,-jar,/server/craftbukkit-1.20.4.jar' >  /control/meomory.txt"};
-        
-        // "echo 'java,-Xms1G,-Xmx" + memory + "G,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.20.4.jar,nogui' >  /control/meomory.txt"
-        // String[] CmdStartStr = new String[]{"sh","-c","echo 'start' > /control/input.txt"};
-        // String[] CmdStartAckStr = new String[]{"sh","-c","/control/start.sh"};
-
-        // String[] CmdStopStr =  new String[]{"sh","-c","echo 'input stop' > /control/input.txt"};
-        // String[] CmdStopAckStr = new String[]{"sh","-c","/control/stop.sh"};
         Game mine1_16_5 = new Game();
         mine1_16_5.setGameName("Minecraft");
         mine1_16_5.setVersion("1.16.5");
@@ -88,6 +93,36 @@ public class EdgeServerInfoConfig {
         mine1_20_4.setDefaultSetting(minecreftServerSetting);
         gameRepo.save(mine1_20_4);
 
+        saveCMD(mine1_16_5, mine1_19_2, mine1_20_4);
+
+        // User INFO
+        User Sunwo = saveUser("SunWo","SunWo","Rmalen");
+        User Jihoon = saveUser("JiHoon","JiHoon1!","Jiman");
+        User Minseo = saveUser("Minseo","Minseo0O","Minseo");
+        User Haeun = saveUser("Haeun","Haeun000111!","Haeun");
+        User Seungmin = saveUser("Seungmin","Seungmin000111!","Seungmin");
+        // 5 User
+        User Jiwoo = saveUser("Jiwoo","SunJiwoo1!","Jiwoo");
+        User Seoyeon = saveUser("Seoyeon","Seoyeon1!","Seoyeon");
+        User Minjoon = saveUser("Minjoon","Minjoon0O","Minjoon");
+        User Yujin = saveUser("Yujin","Yujin000111!","Yujin");
+        User Jimin = saveUser("Jimin","Jimin000111!","Jimin");
+        // 10
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null), "선우의 서버",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"), 57918,
+        "jlkjasdfppjlj213412", 4 ,"놀러와요. 선우의 숲", true, true,
+                    Sunwo, Jihoon, Minseo, Seungmin, Seoyeon, Minjoon, Yujin, Jimin);
+ 
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null),"Yujin Server",edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        66781,"jlkasdasdjasdfppjlj213412",4,"놀러와요. Yujin의 숲",true, true,
+        Yujin,Sunwo,Jimin,Minjoon,Haeun,Minseo,Jiwoo,Seoyeon);
+
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null),"Jihoon Server",edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        88888,"51ssfsafasfafsdfppjlj213412",4,"놀러와요. Jihoon의 숲",true, true,
+        Jihoon,Minseo,Seungmin,Jiwoo,Sunwo,Haeun,Minjoon,Yujin);
+	}
+
+    private void saveCMD(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4) {
         GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
         CmdMemory_Mine_1_16_5Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.16.5.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_16_5Str.setCmdId("1.16.5_START");
@@ -142,5 +177,52 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(makeDirStr);
         gameDockerAPICMDRepo.save(delMeoStr);
         gameDockerAPICMDRepo.save(gameLog);
-	}
+    }
+
+    private void saveDocker(
+                    Game game, String ServerName, EdgeServer edge,
+                    int port, String DockerId, int Ram,
+                    String ServerComment, Boolean Public,
+                    Boolean FreeAccess,
+                    User serverUser, User user1, User user2, User user3,
+                    User user4, User user5, User user6, User user7) {
+        DockerServer docker = new DockerServer();
+        docker.setGame(game);
+        docker.setServerName(ServerName);
+        docker.setUser(serverUser);
+        docker.setBaseImage(null);
+        docker.setEdgeServer(edge);
+        docker.setPort(port); 
+        docker.setDockerId(DockerId); 
+        docker.setRAMCapacity(Ram); 
+        docker.setServerComment(ServerComment);
+        docker.setPublic(Public);
+        docker.setFreeAccess(FreeAccess);
+
+        docker.addApplicant(user1);
+        docker.addApplicant(user2);
+        docker.addApplicant(user3);
+
+        docker.addParticipant(user4);
+        docker.addParticipant(user5);
+        docker.addParticipant(user6);
+        docker.addParticipant(user7);
+
+        dockerServerRepo.save(docker);
+    }
+
+    private User saveUser(String Username,String password,String name) {
+        JoinDTO joinDTO = new JoinDTO();
+        joinDTO.setUsername(Username);
+        joinDTO.setPassword(password);
+        joinService.joinProcess(joinDTO);
+
+        User user = UserRepo.findByUsername(Username);
+
+        // user.setName(name);
+        // user.setPassword(password);
+        // user.setUsername(Username);
+        // UserRepo.save(user);
+        return user;
+    }
 }

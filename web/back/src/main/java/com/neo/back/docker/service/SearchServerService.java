@@ -75,5 +75,26 @@ public class SearchServerService {
                 .anyMatch(participant -> participant.equals(user));
     }
 
+    public  List<ServerInfoDto> getParticipantServers(User user) {
+        List<DockerServer> dockerServers = dockerServerRepo.findAllByParticipantUserId(user);
+        return dockerServers.stream()
+        .map(server -> new ServerInfoDto(server.getServerName(),
+            server.getEdgeServer().getIp(),
+            server.getPort(),
+            server.getUser().getUsername(),
+            server.getGame().getGameName(),
+            server.getGame().getVersion(),
+            server.isFreeAccess(),
+            server.getServerComment()))
+        .collect(Collectors.toList());
+    }
+
+    public  List<ServerListDto> getApplicantServersInfo(User user) {
+        List<DockerServer> dockerServers = dockerServerRepo.findAllByApplicantUserId(user);
+        
+        return dockerServers.stream()
+        .map(server -> new ServerListDto(server.getId(), server.getServerName(), server.getUser().getUsername(), server.getGame().getGameName(), server.getGame().getVersion(), server.isFreeAccess()))
+        .collect(Collectors.toList());
+    }
 
 }
