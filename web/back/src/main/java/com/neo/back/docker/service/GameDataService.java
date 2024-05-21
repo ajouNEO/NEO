@@ -58,7 +58,9 @@ public class GameDataService {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
-        this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375").filter(logRequestAndResponse()).build();
+        this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375")
+        // .filter(logRequestAndResponse())
+        .build();
 
         String[] cmdArray = new String[]{"ls", "-l","/server/" + path};
         
@@ -86,7 +88,9 @@ public class GameDataService {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String ip = dockerServer.getEdgeServer().getIp();
         String fileListInstId = parseExecInstanceId(fileListInst.block());
-        this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375").filter(logRequestAndResponse()).build();
+        this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375")
+        // .filter(logRequestAndResponse())
+        .build();
         
         var FileAndFolder = Map.of(
             "Detach", false,
