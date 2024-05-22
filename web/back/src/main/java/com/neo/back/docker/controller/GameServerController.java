@@ -125,7 +125,7 @@ public class GameServerController {
     }
 
     @GetMapping("/api/server/participants")
-    public SseEmitter getParticipants() {
+    public SseEmitter getParticipants(@RequestParam String token) {
         User user = getCurrentUser.getUser();
         return serverJoinService.getParticipants(user);
     }
