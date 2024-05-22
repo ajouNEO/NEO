@@ -1,5 +1,7 @@
 package com.neo.back.docker.entity;
 
+import org.springframework.data.redis.core.RedisHash;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

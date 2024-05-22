@@ -140,20 +140,46 @@ public class EdgeServerInfoConfig {
         saveGameTag("총기");
         saveGameTag("마법");
         
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null), "선우의 서버",
-        edgeServerInfo.findByEdgeServerName("edgeServer_1"), 57918,
-        "jlkjasdfppjlj213412", 4 ,"놀러와요. 선우의 숲", true, true,
-                    Sunwo, Jihoon, Minseo, Seungmin, Seoyeon, Minjoon, Yujin, Jimin,
-                    "좀비","성인서버","반야생");
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null), 
+        "선우의 서버",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        57918,
+        "jlkjasdfppjlj213412", 
+        4 ,
+        "놀러와요. 선우의 숲",
+        true,
+        true,
+        Sunwo,
+        Jihoon, Minseo, Seungmin,
+        Seoyeon, Minjoon, Yujin, Jimin,
+        "좀비","성인서버","반야생");
  
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null),"Yujin Server",edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        66781,"jlkasdasdjasdfppjlj213412",4,"놀러와요. Yujin의 숲",true, true,
-        Yujin,Sunwo,Jimin,Minjoon,Haeun,Minseo,Jiwoo,Seoyeon,
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        "Yujin Server",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        66781,
+        "jlkasdasdjasdfppjlj213412",
+        4,
+        "놀러와요. Yujin의 숲",
+        true, 
+        true,
+        Yujin,
+        Sunwo, Jimin, Minjoon,
+        Haeun, Minseo, Jiwoo, Seoyeon,
         "경제","마인팜","서바이벌");
 
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null),"Jihoon Server",edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        88888,"51ssfsafasfafsdfppjlj213412",4,"놀러와요. Jihoon의 숲",true, true,
-        Jihoon,Minseo,Seungmin,Jiwoo,Sunwo,Haeun,Minjoon,Yujin,
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        "Jihoon Server",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        88888,
+        "51ssfsafasfafsdfppjlj213412",
+        4,
+        "놀러와요. Jihoon의 숲",
+        true, 
+        true,
+        Jihoon,
+        Minseo, Seungmin, Jiwoo,
+        Sunwo, Haeun, Minjoon, Yujin,
         "모드","미니게임","건축");
 	}
 
@@ -221,11 +247,17 @@ public class EdgeServerInfoConfig {
     }
 
     private void saveDocker(
-                    Game game, String ServerName, EdgeServer edge,
-                    int port, String DockerId, int Ram,
-                    String ServerComment, Boolean Public,
+                    Game game, 
+                    String ServerName, 
+                    EdgeServer edge,
+                    int port, 
+                    String DockerId, 
+                    int Ram,
+                    String ServerComment, 
+                    Boolean Public,
                     Boolean FreeAccess,
-                    User serverUser, User user1, User user2, User user3,
+                    User serverUser, 
+                    User user1, User user2, User user3,
                     User user4, User user5, User user6, User user7,
                     String tag1, String tag2, String tag3 ) {
         DockerServer docker = new DockerServer();

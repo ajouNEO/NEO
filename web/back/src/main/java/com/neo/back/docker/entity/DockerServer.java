@@ -89,7 +89,7 @@ public class DockerServer {
         this.tags.add(tag);
     }
 
-    public void removeaddGameTag(User tag) {
+    public void removeGameTag(GameTag tag) {
         this.tags.remove(tag);
     }
 
