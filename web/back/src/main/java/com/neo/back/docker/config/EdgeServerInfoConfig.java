@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.neo.back.docker.entity.MinecreftServerSetting;
 import com.neo.back.docker.repository.GameServerSettingRepository;
+import com.neo.back.docker.repository.GameTagRepository;
 import com.neo.back.springjwt.dto.JoinDTO;
 import com.neo.back.springjwt.entity.User;
 import com.neo.back.springjwt.repository.UserRepository;
@@ -18,6 +19,7 @@ import com.neo.back.docker.entity.DockerServer;
 import com.neo.back.docker.entity.EdgeServer;
 import com.neo.back.docker.entity.Game;
 import com.neo.back.docker.entity.GameDockerAPICMD;
+import com.neo.back.docker.entity.GameTag;
 import com.neo.back.docker.repository.DockerServerRepository;
 import com.neo.back.docker.repository.EdgeServerRepository;
 import com.neo.back.docker.repository.GameDockerAPICMDRepository;
@@ -52,6 +54,8 @@ public class EdgeServerInfoConfig {
     private final UserRepository UserRepo;
 
     private final JoinService joinService;
+
+    private final GameTagRepository gameTagRepo;
 
 	@PostConstruct
 	private void init() {
@@ -109,7 +113,83 @@ public class EdgeServerInfoConfig {
         User Jimin = saveUser("Jimin","Jimin000111!","Jimin");
         // 10
 
+        saveGameTag("포켓몬");
+        saveGameTag("모드");
+        saveGameTag("모드팩");
+        saveGameTag("미니게임");
+        saveGameTag("농사");
+        saveGameTag("건축");
+        saveGameTag("크리에이티브 건축");
+        saveGameTag("경제");
+        saveGameTag("현실경제");
+        saveGameTag("마인팜");
+        saveGameTag("RPG");
+        saveGameTag("PVP");
+        saveGameTag("서바이벌");
+        saveGameTag("좀비");
+        saveGameTag("쿠키런");
+        saveGameTag("마을");
+        saveGameTag("요리");
+        saveGameTag("파쿠르");
+        saveGameTag("성인서버");
+        saveGameTag("야생");
+        saveGameTag("반야생");
+        saveGameTag("스카이블럭");
+        saveGameTag("개미굴");
+        saveGameTag("mcMMO");
+        saveGameTag("하드코어");
+        saveGameTag("총기");
+        saveGameTag("마법");
+        
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null), 
+        "선우의 서버",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        57918,
+        "jlkjasdfppjlj213412", 
+        4 ,
+        "놀러와요. 선우의 숲",
+        true,
+        true,
+        Sunwo,
+        Jihoon, Minseo, Seungmin,
+        Seoyeon, Minjoon, Yujin, Jimin,
+        "좀비","성인서버","반야생");
+ 
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        "Yujin Server",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        66781,
+        "jlkasdasdjasdfppjlj213412",
+        4,
+        "놀러와요. Yujin의 숲",
+        true, 
+        true,
+        Yujin,
+        Sunwo, Jimin, Minjoon,
+        Haeun, Minseo, Jiwoo, Seoyeon,
+        "경제","마인팜","서바이벌");
+
+        this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        "Jihoon Server",
+        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        88888,
+        "51ssfsafasfafsdfppjlj213412",
+        4,
+        "놀러와요. Jihoon의 숲",
+        true, 
+        true,
+        Jihoon,
+        Minseo, Seungmin, Jiwoo,
+        Sunwo, Haeun, Minjoon, Yujin,
+        "모드","미니게임","건축");
+
 	}
+
+    private void saveGameTag(String tag) {
+        GameTag game = new GameTag();
+        game.setTag(tag);
+        gameTagRepo.save(game);
+    }
 
     private void saveCMD(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4) {
         GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
@@ -168,37 +248,49 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(gameLog);
     }
 
-//    private void saveDocker(
-//                    Game game, String ServerName, EdgeServer edge,
-//                    int port, String DockerId, int Ram,
-//                    String ServerComment, Boolean Public,
-//                    Boolean FreeAccess,
-//                    User serverUser, User user1, User user2, User user3,
-//                    User user4, User user5, User user6, User user7) {
-//        DockerServer docker = new DockerServer();
-//        docker.setGame(game);
-//        docker.setServerName(ServerName);
-//        docker.setUser(serverUser);
-//        docker.setBaseImage(null);
-//        docker.setEdgeServer(edge);
-//        docker.setPort(port);
-//        docker.setDockerId(DockerId);
-//        docker.setRAMCapacity(Ram);
-//        docker.setServerComment(ServerComment);
-//        docker.setPublic(Public);
-//        docker.setFreeAccess(FreeAccess);
-//
-//        docker.addApplicant(user1);
-//        docker.addApplicant(user2);
-//        docker.addApplicant(user3);
-//
-//        docker.addParticipant(user4);
-//        docker.addParticipant(user5);
-//        docker.addParticipant(user6);
-//        docker.addParticipant(user7);
-//
-//        dockerServerRepo.save(docker);
-//    }
+
+    private void saveDocker(
+                    Game game, 
+                    String ServerName, 
+                    EdgeServer edge,
+                    int port, 
+                    String DockerId, 
+                    int Ram,
+                    String ServerComment, 
+                    Boolean Public,
+                    Boolean FreeAccess,
+                    User serverUser, 
+                    User user1, User user2, User user3,
+                    User user4, User user5, User user6, User user7,
+                    String tag1, String tag2, String tag3 ) {
+        DockerServer docker = new DockerServer();
+        docker.setGame(game);
+        docker.setServerName(ServerName);
+        docker.setUser(serverUser);
+        docker.setBaseImage(null);
+        docker.setEdgeServer(edge);
+        docker.setPort(port); 
+        docker.setDockerId(DockerId); 
+        docker.setRAMCapacity(Ram); 
+        docker.setServerComment(ServerComment);
+        docker.setPublic(Public);
+        docker.setFreeAccess(FreeAccess);
+
+        docker.addApplicant(user1);
+        docker.addApplicant(user2);
+        docker.addApplicant(user3);
+
+        docker.addParticipant(user4);
+        docker.addParticipant(user5);
+        docker.addParticipant(user6);
+        docker.addParticipant(user7);
+        
+        docker.addGameTag(gameTagRepo.findByTag(tag1));
+        docker.addGameTag(gameTagRepo.findByTag(tag2));
+        docker.addGameTag(gameTagRepo.findByTag(tag3));
+        dockerServerRepo.save(docker);
+    }
+
 
     private User saveUser(String Username,String password,String name) {
         JoinDTO joinDTO = new JoinDTO();
