@@ -1,5 +1,7 @@
 package com.neo.back.docker.controller;
 
+import com.neo.back.docker.dto.UserSettingDto;
+import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.docker.utility.GetCurrentUser;
 import com.neo.back.springjwt.entity.User;
 
@@ -32,10 +34,19 @@ public class DockerManagingController {
     private final CloseDockerService closeDockerService;
     private final GetCurrentUser getCurrentUser;
 
+
+
+
     @GetMapping("/api/container/list")
     public Mono<List<MyServerListDto>> getMyServerList() {
         User user = getCurrentUser.getUser();
         return Mono.just(userServerService.getServerList(user));
+    }
+
+    @GetMapping("/api/container/containerid")
+    public Mono<List<UserSettingDto>> getMyContainerid(){
+        User user = getCurrentUser.getUser();
+        return Mono.just(userServerService.getUserContainerId(user));
     }
 
     @DeleteMapping("/api/container/{imageNum}")
