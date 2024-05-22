@@ -415,6 +415,40 @@
     };
 </script>
 
+<script>
+    const applicantList_ = document.getElementById('applicant-list');
+    let eventSource_;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        openSSE_();
+        window.addEventListener('beforeunload', () => {
+            closeSSE_();
+        });
+    });
+
+    const openSSE_ = () => {
+        const token = localStorage.getItem('jwtToken');
+        eventSource_ = new EventSource(`api/server/participants?token=Bearer ${encodeURIComponent(token)}`);
+
+        eventSource_.onmessage = (event) => {
+            const updatedApplicants_ = JSON.parse(event.data);
+            console.log('Received updated applicants:', updatedApplicants_);
+            updateApplicantList(updatedApplicants_);
+        };
+
+        eventSource_.onerror = (error) => {
+            console.error('SSE error:', error);
+            eventSource_.close();
+        };
+    };
+
+    const closeSSE_ = () => {
+        if (eventSource_) {
+            eventSource_.close();
+            console.log('SSE connection closed');
+        }
+    };
+    </script>
 
 <!--    파일 목록 및 파일 관리-->
     <h3>해당 폴더에 있는 폴더 및 파일 목록:</h3>

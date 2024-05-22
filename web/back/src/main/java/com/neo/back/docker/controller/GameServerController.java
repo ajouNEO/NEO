@@ -119,13 +119,13 @@ public class GameServerController {
     }
 
     @GetMapping("/api/server/applicants")
-    public SseEmitter getApplicants(@RequestParam String token) {
+    public SseEmitter getApplicants() {
         User user = getCurrentUser.getUser();
         return serverJoinService.getApplicants(user);
     }
 
     @GetMapping("/api/server/participants")
-    public SseEmitter getParticipants(@RequestParam String token) {
+    public SseEmitter getParticipants() {
         User user = getCurrentUser.getUser();
         return serverJoinService.getParticipants(user);
     }
