@@ -108,18 +108,7 @@ public class EdgeServerInfoConfig {
         User Yujin = saveUser("Yujin","Yujin000111!","Yujin");
         User Jimin = saveUser("Jimin","Jimin000111!","Jimin");
         // 10
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null), "선우의 서버",
-        edgeServerInfo.findByEdgeServerName("edgeServer_1"), 57918,
-        "jlkjasdfppjlj213412", 4 ,"놀러와요. 선우의 숲", true, true,
-                    Sunwo, Jihoon, Minseo, Seungmin, Seoyeon, Minjoon, Yujin, Jimin);
- 
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null),"Yujin Server",edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        66781,"jlkasdasdjasdfppjlj213412",4,"놀러와요. Yujin의 숲",true, true,
-        Yujin,Sunwo,Jimin,Minjoon,Haeun,Minseo,Jiwoo,Seoyeon);
 
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null),"Jihoon Server",edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        88888,"51ssfsafasfafsdfppjlj213412",4,"놀러와요. Jihoon의 숲",true, true,
-        Jihoon,Minseo,Seungmin,Jiwoo,Sunwo,Haeun,Minjoon,Yujin);
 	}
 
     private void saveCMD(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4) {
@@ -179,37 +168,37 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(gameLog);
     }
 
-    private void saveDocker(
-                    Game game, String ServerName, EdgeServer edge,
-                    int port, String DockerId, int Ram,
-                    String ServerComment, Boolean Public,
-                    Boolean FreeAccess,
-                    User serverUser, User user1, User user2, User user3,
-                    User user4, User user5, User user6, User user7) {
-        DockerServer docker = new DockerServer();
-        docker.setGame(game);
-        docker.setServerName(ServerName);
-        docker.setUser(serverUser);
-        docker.setBaseImage(null);
-        docker.setEdgeServer(edge);
-        docker.setPort(port); 
-        docker.setDockerId(DockerId); 
-        docker.setRAMCapacity(Ram); 
-        docker.setServerComment(ServerComment);
-        docker.setPublic(Public);
-        docker.setFreeAccess(FreeAccess);
-
-        docker.addApplicant(user1);
-        docker.addApplicant(user2);
-        docker.addApplicant(user3);
-
-        docker.addParticipant(user4);
-        docker.addParticipant(user5);
-        docker.addParticipant(user6);
-        docker.addParticipant(user7);
-
-        dockerServerRepo.save(docker);
-    }
+//    private void saveDocker(
+//                    Game game, String ServerName, EdgeServer edge,
+//                    int port, String DockerId, int Ram,
+//                    String ServerComment, Boolean Public,
+//                    Boolean FreeAccess,
+//                    User serverUser, User user1, User user2, User user3,
+//                    User user4, User user5, User user6, User user7) {
+//        DockerServer docker = new DockerServer();
+//        docker.setGame(game);
+//        docker.setServerName(ServerName);
+//        docker.setUser(serverUser);
+//        docker.setBaseImage(null);
+//        docker.setEdgeServer(edge);
+//        docker.setPort(port);
+//        docker.setDockerId(DockerId);
+//        docker.setRAMCapacity(Ram);
+//        docker.setServerComment(ServerComment);
+//        docker.setPublic(Public);
+//        docker.setFreeAccess(FreeAccess);
+//
+//        docker.addApplicant(user1);
+//        docker.addApplicant(user2);
+//        docker.addApplicant(user3);
+//
+//        docker.addParticipant(user4);
+//        docker.addParticipant(user5);
+//        docker.addParticipant(user6);
+//        docker.addParticipant(user7);
+//
+//        dockerServerRepo.save(docker);
+//    }
 
     private User saveUser(String Username,String password,String name) {
         JoinDTO joinDTO = new JoinDTO();
