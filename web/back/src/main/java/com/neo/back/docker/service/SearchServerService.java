@@ -29,7 +29,13 @@ public class SearchServerService {
         List<DockerServer> dockerServers = dockerServerRepo.findByIsPublic(true);
 
         return dockerServers.stream()
-            .map(server -> new ServerListDto(server.getId(), server.getServerName(), server.getUser().getUsername(), server.getGame().getGameName(), server.getGame().getVersion(), server.isFreeAccess()))
+            .map(server -> new ServerListDto(server.getId(), 
+            server.getServerName(), 
+            server.getUser().getUsername(), 
+            server.getGame().getGameName(), 
+            server.getGame().getVersion(), 
+            server.isFreeAccess(),
+            server.getGameTagNames()))
             .collect(Collectors.toList());
     }
 
@@ -62,7 +68,8 @@ public class SearchServerService {
                 dockerServer.getGame().getGameName(),
                 dockerServer.getGame().getVersion(),
                 dockerServer.isFreeAccess(),
-                dockerServer.getServerComment()
+                dockerServer.getServerComment(),
+                dockerServer.getGameTagNames()
             );
             return Mono.just(serverInfo);
         } catch (AccessDeniedException e) {
@@ -85,7 +92,9 @@ public class SearchServerService {
             server.getGame().getGameName(),
             server.getGame().getVersion(),
             server.isFreeAccess(),
-            server.getServerComment()))
+            server.getServerComment(),
+            server.getGameTagNames())
+            )
         .collect(Collectors.toList());
     }
 
@@ -93,7 +102,13 @@ public class SearchServerService {
         List<DockerServer> dockerServers = dockerServerRepo.findAllByApplicantUserId(user);
         
         return dockerServers.stream()
-        .map(server -> new ServerListDto(server.getId(), server.getServerName(), server.getUser().getUsername(), server.getGame().getGameName(), server.getGame().getVersion(), server.isFreeAccess()))
+        .map(server -> new ServerListDto(server.getId(),
+         server.getServerName(),
+          server.getUser().getUsername(), 
+          server.getGame().getGameName(), 
+          server.getGame().getVersion(), 
+          server.isFreeAccess(),
+          server.getGameTagNames()))
         .collect(Collectors.toList());
     }
 

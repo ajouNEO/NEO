@@ -2,8 +2,10 @@ package com.neo.back.docker.service;
 
 import com.neo.back.docker.dto.MyServerInfoDto;
 import com.neo.back.docker.entity.DockerServer;
+import com.neo.back.docker.entity.GameTag;
 import com.neo.back.docker.exception.DoNotHaveServerException;
 import com.neo.back.docker.repository.DockerServerRepository;
+import com.neo.back.docker.repository.GameTagRepository;
 import com.neo.back.springjwt.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import java.util.List;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class OtherServerManagingService {
     private final DockerServerRepository dockerServerRepo;
+    private final GameTagRepository gameTagRepo;
     public Mono<Object> getServerInfo (User user) {
         try {
             DockerServer dockerServer = dockerServerRepo.findByUser(user);
@@ -76,4 +80,28 @@ public class OtherServerManagingService {
         }
     }
 
+    public  Mono<Object> setTags (User user, List<String> tags) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
+            dockerServer.getGameTagNames()
+            .forEach(tag ->{
+                dockerServer.removeGameTag(gameTagRepo.findByTag(tag));
+            });
+            tags.forEach(tag ->{
+                if(gameTagRepo.findByTag(tag) == null){
+                    GameTag game = new GameTag();
+                    game.setTag(tag);
+                    gameTagRepo.save(game);
+                    dockerServer.addGameTag(game);
+                }
+                else{
+                    dockerServer.addGameTag(gameTagRepo.findByTag(tag));
+                }
+            });
+            return Mono.just("success set setTags");
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        }
+    }
 }
