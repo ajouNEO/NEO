@@ -36,7 +36,7 @@ public class CommunityController {
         return searchServerService.getServerInfo(dockerNum, user);
     }
     @GetMapping("/api/User/Participant/server/list")
-    public List<ServerInfoDto> getParticipantServers() {
+    public List<ServerListDto> getParticipantServers() {
         User user = getCurrentUser.getUser();
         return searchServerService.getParticipantServers(user);
     }
