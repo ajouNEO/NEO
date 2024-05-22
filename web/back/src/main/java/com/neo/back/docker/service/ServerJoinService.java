@@ -61,7 +61,7 @@ public class ServerJoinService {
                 DockerServer dockerServer = dockerServerRepo.findByUser(user);
     
                 emitter.send(SseEmitter.event().data(dockerServer.getApplicantNames()));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 emitter.completeWithError(e);
             }
     }
@@ -71,7 +71,7 @@ public class ServerJoinService {
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event().data(dockerServer.getApplicantNames()));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 getApplicantsEmitters.remove(dockerServer.getUser());
             }
         }
@@ -100,7 +100,7 @@ public class ServerJoinService {
             DockerServer dockerServer = dockerServerRepo.findByUser(user);
 
             emitter.send(SseEmitter.event().data(dockerServer.getParticipantNames()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             emitter.completeWithError(e);
         }
     }
@@ -110,7 +110,7 @@ public class ServerJoinService {
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event().data(dockerServer.getParticipantNames()));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 getParticipantsEmitters.remove(dockerServer.getUser());
             }
         }
