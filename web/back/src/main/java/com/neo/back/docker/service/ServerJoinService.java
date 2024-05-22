@@ -78,7 +78,7 @@ public class ServerJoinService {
     }
 
     public SseEmitter getParticipants(User user) {
-        SseEmitter existingEmitter = getApplicantsEmitters.get(user);
+        SseEmitter existingEmitter = getParticipantsEmitters.get(user);
         if (existingEmitter != null) {
             existingEmitter.complete();
         } 
