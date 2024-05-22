@@ -1,11 +1,14 @@
 package com.neo.back.docker.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.nio.file.*;
 import java.util.NoSuchElementException;
 
+import com.neo.back.docker.dto.UserSettingDto;
+import com.neo.back.docker.middleware.DockerAPI;
 import com.neo.back.springjwt.entity.User;
 
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class UserServerListService {
     private final DockerImageRepository dockerImageRepo;
+
+    private final DockerAPI dockerAPI;
 
     public List<MyServerListDto> getServerList(User user) {
         List<DockerImage> dockerImages = dockerImageRepo.findByUser(user);
@@ -59,6 +64,12 @@ public class UserServerListService {
         } catch (Exception e) {
             return Mono.error(e);
         }
+    }
+
+    public List<UserSettingDto>  getUserContainerId(User user) {
+        UserSettingDto UserSetting = dockerAPI.settingIDS(user);
+        List<UserSettingDto> userSettingsList = Collections.singletonList(UserSetting);
+        return userSettingsList;
     }
 
     // public Mono<String> renameServer() {
