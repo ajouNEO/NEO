@@ -112,6 +112,7 @@ public class EdgeServerInfoConfig {
         User Yujin = saveUser("Yujin","Yujin000111!","Yujin");
         User Jimin = saveUser("Jimin","Jimin000111!","Jimin");
         // 10
+
         saveGameTag("포켓몬");
         saveGameTag("모드");
         saveGameTag("모드팩");
@@ -181,6 +182,7 @@ public class EdgeServerInfoConfig {
         Minseo, Seungmin, Jiwoo,
         Sunwo, Haeun, Minjoon, Yujin,
         "모드","미니게임","건축");
+
 	}
 
     private void saveGameTag(String tag) {
@@ -246,6 +248,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(gameLog);
     }
 
+
     private void saveDocker(
                     Game game, 
                     String ServerName, 
@@ -287,6 +290,7 @@ public class EdgeServerInfoConfig {
         docker.addGameTag(gameTagRepo.findByTag(tag3));
         dockerServerRepo.save(docker);
     }
+
 
     private User saveUser(String Username,String password,String name) {
         JoinDTO joinDTO = new JoinDTO();

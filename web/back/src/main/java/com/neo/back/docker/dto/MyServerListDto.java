@@ -16,5 +16,5 @@ public class MyServerListDto {
     String version;
     String serverName;
     String date;
-    
+
 }
