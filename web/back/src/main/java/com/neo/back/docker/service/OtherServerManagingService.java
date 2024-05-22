@@ -76,4 +76,16 @@ public class OtherServerManagingService {
         }
     }
 
+    public  Mono<Object> setTags (User user) {
+        // try {
+        //     DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        //     if (dockerServer == null) throw new DoNotHaveServerException();
+
+        //     dockerServer.setServerComment(comment);
+        //     return Mono.just("success set comment");
+        // } catch (DoNotHaveServerException e) {
+        //     return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        // }
+        return null;
+    }
 }

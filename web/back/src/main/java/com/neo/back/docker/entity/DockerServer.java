@@ -66,6 +66,9 @@ public class DockerServer {
     @ManyToMany
     private Set<User> participants = new HashSet<>();
 
+    @ManyToMany
+    private Set<GameTag> tags = new HashSet<>();
+
     public void addApplicant(User applicant) {
         this.applicants.add(applicant);
     }
@@ -78,8 +81,16 @@ public class DockerServer {
         this.participants.add(participant);
     }
 
-    public void removeParticipant(User participant) {
+    public void removeParticipant(GameTag participant) {
         this.participants.remove(participant);
+    }
+
+    public void addGameTag(GameTag tag) {
+        this.tags.add(tag);
+    }
+
+    public void removeaddGameTag(User tag) {
+        this.tags.remove(tag);
     }
 
     public List<String> getApplicantNames() {
@@ -93,4 +104,11 @@ public class DockerServer {
         .map(User::getUsername)
         .collect(Collectors.toList());
     }
+
+    public List<String> getGameTagNames() {
+        return tags.stream()
+            .map(GameTag::getTag)
+            .collect(Collectors.toList());
+    }
+
 }
