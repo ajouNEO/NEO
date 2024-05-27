@@ -234,14 +234,29 @@ public class DockerAPI {
         return setting;
     }
 
+    private String replaceCHECK(String Input, String CHECK,String change){
+        return Input.replace(CHECK,change);
+    }
     public Mono<String> MAKEexec(String CmdId,String dockerId, WebClient dockerWebClient){
         String Cmds = gameDockerAPICMDRepo.findBycmdId(CmdId).getCmd();
         String[] CmdStrs =  split_tap(Cmds);
         Map<String,Boolean> startExecRequest = makeExecStartInst();
-        Map<String,Object> setStopInst = makeExecInst(CmdStrs);
-        Mono<Map> AckStopStr = makeExec(dockerId, setStopInst, dockerWebClient);
-        String StopMeoStr = (String) AckStopStr.block().get("Id");
-        Mono<String> AckStopEND = startExec(StopMeoStr,startExecRequest, dockerWebClient);
-        return AckStopEND;
+        Map<String,Object> setInst = makeExecInst(CmdStrs);
+        Mono<Map> AckStr = makeExec(dockerId, setInst, dockerWebClient);
+        String MeoStr = (String) AckStr.block().get("Id");
+        Mono<String> AckEND = startExec(MeoStr,startExecRequest, dockerWebClient);
+        return AckEND;
+    }
+
+    public Mono<String> MAKEexec(String CmdId,String dockerId, WebClient dockerWebClient,String CHECK,String input){
+        String Cmds = gameDockerAPICMDRepo.findBycmdId(CmdId).getCmd();
+        Cmds = replaceCHECK(Cmds,CHECK,input);
+        String[] CmdStrs =  split_tap(Cmds);
+        Map<String,Boolean> startExecRequest = makeExecStartInst();
+        Map<String,Object> setInst = makeExecInst(CmdStrs);
+        Mono<Map> AckStr = makeExec(dockerId, setInst, dockerWebClient);
+        String MeoStr = (String) AckStr.block().get("Id");
+        Mono<String> AckEND = startExec(MeoStr,startExecRequest, dockerWebClient);
+        return AckEND;
     }
 }

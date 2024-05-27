@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neo.back.service.dto.FileDataDto;
+import com.neo.back.service.dto.ServerInputDto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -142,17 +143,17 @@ public class GameServerController {
         return serverJoinService.refuseParticipation(user, userName);
     }
 
-    @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
-    public Mono<String> readAndConvertToJson(String containerId, String filePath) {
-        String command = "cat " + filePath;
-        return serverSettingService.executeCommand(containerId, command)
-                .map(content -> {
-                    // 파일 내용을 JSON 객체로 변환
-                    JSONObject json = new JSONObject();
-                    json.put("content", content);
-                    return json.toString();
-                });
-    }
+    // @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
+    // public Mono<String> readAndConvertToJson(String containerId, String filePath) {
+    //     String command = "cat " + filePath;
+    //     return serverSettingService.executeCommand(containerId, command)
+    //             .map(content -> {
+    //                 // 파일 내용을 JSON 객체로 변환
+    //                 JSONObject json = new JSONObject();
+    //                 json.put("content", content);
+    //                 return json.toString();
+    //             });
+    // }
 
     @GetMapping("/api/server/gamelog")
     public SseEmitter sendGameLog(@RequestParam String token) {
@@ -160,5 +161,11 @@ public class GameServerController {
         return gameLog.sendLogContinue(user); 
     }
 
+
+    @PostMapping("/api/server/input")
+    public Mono<String> sentInputToServer(@RequestBody ServerInputDto input) {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.sendInputToServer(user, input);
+    }
 
 }
