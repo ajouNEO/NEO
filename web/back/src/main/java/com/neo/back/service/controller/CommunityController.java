@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neo.back.service.dto.ServerFilterDto;
+import com.neo.back.service.dto.ServerInputDto;
 import com.neo.back.service.dto.ServerListDto;
 import com.neo.back.service.service.SearchServerService;
 import com.neo.back.service.service.ServerJoinService;
@@ -24,9 +27,9 @@ public class CommunityController {
     private final ServerJoinService serverJoinService;
 
     @GetMapping("/api/server/list")
-    public List<ServerListDto> getServerList() {
+    public List<ServerListDto> getServerList(@RequestBody ServerFilterDto filter) {
 
-        return searchServerService.getServerList();
+        return searchServerService.getServerList(filter);
     }
 
     @GetMapping("/api/server/info/{dockerNum}")
