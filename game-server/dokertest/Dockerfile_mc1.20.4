@@ -17,9 +17,7 @@ RUN sed -i 's/eula=false/eula=true/g' /server/eula.txt
 
 WORKDIR /
 
-CMD ["sleep", "infinity"]
-
-# CMD ["java", "/control/inputAndOutput.java"]
+CMD ["java", "/control/inputAndOutput.java"]
 
 
 # CMD ["java", "-Xmx2G", "-jar", "/server/craftbukkit-1.20.4.jar"]

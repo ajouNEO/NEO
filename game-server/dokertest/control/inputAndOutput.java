@@ -206,16 +206,67 @@ public class inputAndOutput {
         public RunningPrintThrRunnable(Process minecraftServerProcess) {
             this.serverOutput = new BufferedReader(new InputStreamReader(minecraftServerProcess.getInputStream()));
         }
+        
+        public void userList(int userCount, Set<String> userSet ,String line, String[] UserParts){
+            try {
+                BufferedWriter writer_user = new BufferedWriter(new FileWriter("/control/user.txt"));
+                // System.out.println(line);
+    
+                // 유저 체킹하기
+                // "joined" 이벤트 처리
+                if (line.contains(UserParts[1])) {
+                    System.out.println(UserParts[1]);
+                    // 유저 수 증가
+                    userCount++;
+                    // 누가 들어왔는지를 기록
+                    String username = line.substring(line.lastIndexOf(UserParts[0]) + UserParts[0].length(), line.indexOf(UserParts[1]));
+                    System.out.println(username);
+                    userSet.add(username); // 유저 목록에 추가
+                }
+    
+                // "left" 이벤트 처리
+                if (line.contains(UserParts[3])) {
+                    System.out.println(UserParts[3]);
+                    // 누가 나갔는지를 찾음
+                    String username = line.substring(line.lastIndexOf(UserParts[2]) + UserParts[2].length(), line.indexOf(UserParts[3]));
+                    System.out.println(username);
+                    if (userSet.contains(username)) {
+                        // 유저 수 감소
+                        userCount--;
+                        // 유저 목록에서 제거
+                        userSet.remove(username);
+                    }
+                }
+    
+                // 파일에 결과를 쓰기
+                writer_user.write("Users : " + userCount + "\n");
+                for (String user : userSet) {
+                    writer_user.write(user + "\n");
+                }
+                writer_user.flush();
+                writer_user.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         @Override
         public void run() {
             try(BufferedWriter writer = new BufferedWriter(new FileWriter("/control/output.txt"))){
                 BufferedReader dataSplit = new BufferedReader(new FileReader("/control/user_cmd.txt"));
-                String cmd = dataSplit.readLine();
-                dataSplit.close();
-                String[] UserParts = cmd.split(",");
+                Boolean flag = true;
+                String[] UserParts = null;
                 int userCount = 0;
                 Set<String> userSet = new HashSet<>();
+                String cmd = dataSplit.readLine();
+                dataSplit.close();
+                if(cmd == null){
+                    flag = false;
+                }
+                else{
+                    UserParts = cmd.split(",");
+                }
+
                 while (outputFlag.get()) {
                     if (serverOutput.ready()) {
                         String line;
@@ -224,42 +275,9 @@ public class inputAndOutput {
                             continue;
                         }
 
-                        BufferedWriter writer_user = new BufferedWriter(new FileWriter("/control/user.txt"));
-                        // System.out.println(line);
-
-                        // 유저 체킹하기
-                        // "joined" 이벤트 처리
-                        if (line.contains(" joined the game")) {
-                            System.out.println("joined the game");
-                            // 유저 수 증가
-                            userCount++;
-                            // 누가 들어왔는지를 기록
-                            String username = line.substring(line.lastIndexOf(UserParts[0]) + UserParts[0].length(), line.indexOf(UserParts[1]));
-                            System.out.println(username);
-                            userSet.add(username); // 유저 목록에 추가
+                        if(flag){
+                            userList(userCount,userSet,line,UserParts);
                         }
-
-                        // "left" 이벤트 처리
-                        if (line.contains(" left the game")) {
-                            System.out.println("left the game");
-                            // 누가 나갔는지를 찾음
-                            String username = line.substring(line.lastIndexOf(UserParts[2]) + UserParts[2].length(), line.indexOf(UserParts[3]));
-                            System.out.println(username);
-                            if (userSet.contains(username)) {
-                                // 유저 수 감소
-                                userCount--;
-                                // 유저 목록에서 제거
-                                userSet.remove(username);
-                            }
-                        }
-
-                        // 파일에 결과를 쓰기
-                        writer_user.write("Users : " + userCount + "\n");
-                        for (String user : userSet) {
-                            writer_user.write(user + "\n");
-                        }
-                        writer_user.flush();
-                        writer_user.close();
 
                         // 게임 로그 넣기
                         writer.write(line);
