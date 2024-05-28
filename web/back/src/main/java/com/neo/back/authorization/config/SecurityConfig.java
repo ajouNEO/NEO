@@ -125,7 +125,7 @@ public class SecurityConfig {
                 //       .requestMatchers("/api/**").authenticated()
                .requestMatchers("/api/admin").hasRole("ADMIN")
                .requestMatchers("/reissue").permitAll()
-        //        .anyRequest().authenticated());
+                //        .anyRequest().authenticated());
                .anyRequest().permitAll());
 
 

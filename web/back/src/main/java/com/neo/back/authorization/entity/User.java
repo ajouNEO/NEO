@@ -23,6 +23,7 @@ public class User {
 
     private String email;
     private String role;
+    private Long points;
 
     @Override
     public boolean equals(Object o) {
