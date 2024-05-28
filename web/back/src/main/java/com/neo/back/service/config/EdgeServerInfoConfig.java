@@ -113,33 +113,33 @@ public class EdgeServerInfoConfig {
         User Jimin = saveUser("Jimin","Jimin000111!","Jimin");
         // 10
 
-        saveGameTag("포켓몬");
-        saveGameTag("모드");
-        saveGameTag("모드팩");
-        saveGameTag("미니게임");
-        saveGameTag("농사");
-        saveGameTag("건축");
-        saveGameTag("크리에이티브 건축");
-        saveGameTag("경제");
-        saveGameTag("현실경제");
-        saveGameTag("마인팜");
-        saveGameTag("RPG");
-        saveGameTag("PVP");
-        saveGameTag("서바이벌");
-        saveGameTag("좀비");
-        saveGameTag("쿠키런");
-        saveGameTag("마을");
-        saveGameTag("요리");
-        saveGameTag("파쿠르");
-        saveGameTag("성인서버");
-        saveGameTag("야생");
-        saveGameTag("반야생");
-        saveGameTag("스카이블럭");
-        saveGameTag("개미굴");
-        saveGameTag("mcMMO");
-        saveGameTag("하드코어");
-        saveGameTag("총기");
-        saveGameTag("마법");
+        // saveGameTag("포켓몬");
+        // saveGameTag("모드");
+        // saveGameTag("모드팩");
+        // saveGameTag("미니게임");
+        // saveGameTag("농사");
+        // saveGameTag("건축");
+        // saveGameTag("크리에이티브 건축");
+        // saveGameTag("경제");
+        // saveGameTag("현실경제");
+        // saveGameTag("마인팜");
+        // saveGameTag("RPG");
+        // saveGameTag("PVP");
+        // saveGameTag("서바이벌");
+        // saveGameTag("좀비");
+        // saveGameTag("쿠키런");
+        // saveGameTag("마을");
+        // saveGameTag("요리");
+        // saveGameTag("파쿠르");
+        // saveGameTag("성인서버");
+        // saveGameTag("야생");
+        // saveGameTag("반야생");
+        // saveGameTag("스카이블럭");
+        // saveGameTag("개미굴");
+        // saveGameTag("mcMMO");
+        // saveGameTag("하드코어");
+        // saveGameTag("총기");
+        // saveGameTag("마법");
         
         // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         // "선우의 서버",
@@ -185,11 +185,11 @@ public class EdgeServerInfoConfig {
 
 	}
 
-    private void saveGameTag(String tag) {
-        GameTag game = new GameTag();
-        game.setTag(tag);
-        gameTagRepo.save(game);
-    }
+    // private void saveGameTag(String tag) {
+    //     GameTag game = new GameTag();
+    //     game.setTag(tag);
+    //     gameTagRepo.save(game);
+    // }
 
     private void saveCMD(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4) {
         GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
