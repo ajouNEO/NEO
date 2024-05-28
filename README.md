@@ -28,45 +28,15 @@
 
 ## 3. 시스템 구조
 
-사진 넣고 설명
+![전체시스템개요 소프트콘_Readme drawio](https://github.com/ajouNEO/NEO/assets/128200788/2da3e8ac-c401-4fc1-8f7b-62a7493ae10d)
 
+Main Server : 유저의 요청에 따라 백엔드 기능 및 Edge Server 내에 유저의 도커 서버와 게임 서버를 관리한다.
+Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는 서버, 여러 Edge Server를 둘 수 있으며, 이 중에 Main Server에서 적절한<???> 알고리즘에 따라 도커 서버를 할당한다.
 
 ### Teck Stack
 ***
 |분야|기술|
-|:---:|:---:|
-|**BackEnd**|Spring Boot, Gradle, Naver Cloud Web Server, Shell|
-|**FrontEnd**|Framer, React|
-|**Database**|MySQL, Naver Cloud Storage|
-|**Docker**| DockerAPI, Prometheus|
-|**DevOps**| Github, Github Actions|
-
-## 4. 팀원 소개
-
-|이름|역할|이메일|깃허브|
-|:---:|:---:|:---:|:---:|
-|이선우|백엔드 개발|malenwater@ajou.ac.kr|https://github.com/malenwater|
-|이은구|백엔드 개발 & 인프라 & DevOps|???|???|
-|박병하|백엔드 개발|???|???|
-|박건희|프론트 개발|???|???|
-|권초염(영어이름)|프론트 개발|???|???|
-
-## 5. 프로젝트 포스터
-
-2024-1학기 아주대학교 소프트콘에 제출한 포스터입니다.
-
-## 6. 백엔드 사용법
-
-### env.properties 세팅
- web/back/src/main/resources/env.properties 파일에 환경 설정을 세팅해야합니다.
- 
-    SPRING_JWT_SECRET=...
-
-    NAVER_CLIENT_ID = ...
-    NAVER_CLIENT_SECRET = ...
-    GOOGLE_CLIENT_ID = ...
-    GOOGLE_CLIENT_SECRET = ...
-    
+|:--능
     edgeservers.ip=...
     edgeservers.id=...
     edgeservers.user.id=...
