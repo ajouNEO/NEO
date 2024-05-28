@@ -5,12 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import com.neo.back.service.dto.ServerFilterDto;
 import com.neo.back.service.dto.ServerInfoDto;
 import com.neo.back.service.dto.ServerListDto;
 import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.entity.GameTag;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.authorization.entity.User;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,8 +26,32 @@ import reactor.core.publisher.Mono;
 public class SearchServerService {
     private final DockerServerRepository dockerServerRepo;
 
-    public List<ServerListDto> getServerList () {
+    public List<ServerListDto> getServerList (ServerFilterDto filter) {
         List<DockerServer> dockerServers = dockerServerRepo.findByIsPublic(true);
+        Iterator<DockerServer> iterator = dockerServers.iterator();
+        while (iterator.hasNext()) {
+            DockerServer dockerServer = iterator.next();
+            if (checkGameName(dockerServer,filter)) {
+                iterator.remove(); 
+                continue;
+            }
+
+            if (checkVersion(dockerServer,filter)) {
+                iterator.remove(); 
+                continue;
+            }
+
+            if (checkIs_free_access(dockerServer,filter)) {
+                iterator.remove(); 
+                continue;
+            }
+
+            if (checkTags(dockerServer,filter)) {
+                iterator.remove(); 
+                continue;
+            }
+
+        }
 
         return dockerServers.stream()
             .map(server -> new ServerListDto(server.getId(), 
@@ -37,6 +64,47 @@ public class SearchServerService {
             .collect(Collectors.toList());
     }
 
+    private Boolean checkTags(DockerServer dockerServer,ServerFilterDto filter){
+        Boolean flagPass = false;
+        Boolean flagIS = false;
+        if(filter.getTags() == null){
+            return false;
+        }
+        for(String tag_filter : filter.getTags()){
+            flagIS = false;
+            for(GameTag tag_server : dockerServer.getTags()){
+                if(tag_filter.equals(tag_server.getTag())){
+                    flagIS = true;
+                    break;
+                }
+            }
+            if(!flagIS){
+                flagPass = true;
+                break;
+            }
+        }
+        return flagPass;
+    }
+
+    private Boolean checkGameName(DockerServer dockerServer,ServerFilterDto filter){
+        if(filter.getGame_name() == null){
+            return false;
+        }
+        return !filter.getGame_name().equals(dockerServer.getGame().getGameName());
+    }
+    private Boolean checkVersion(DockerServer dockerServer,ServerFilterDto filter){
+        if(filter.getVersion() == null){
+            return false;
+        }
+        return !filter.getVersion().equals(dockerServer.getGame().getVersion());
+    }
+    private Boolean checkIs_free_access(DockerServer dockerServer,ServerFilterDto filter){
+        if(filter.getIs_free_access() == null){
+            return false;
+        }
+        return !filter.getIs_free_access().equals(dockerServer.isFreeAccess());
+    }
+ 
     public Mono<Object> getServerInfo (Long id, User user) {
         String ip = null;
         int port = -1;

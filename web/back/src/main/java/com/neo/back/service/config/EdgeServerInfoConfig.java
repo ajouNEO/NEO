@@ -100,7 +100,7 @@ public class EdgeServerInfoConfig {
         saveCMD(mine1_16_5, mine1_19_2, mine1_20_4);
 
         // User INFO
-        User Sunwo = saveUser("SunWo","SunWo","Rmalen");
+        User Sunwo = saveUser("sunwo","sunwo","malenwater");
         User Jihoon = saveUser("JiHoon","JiHoon1!","Jiman");
         User Minseo = saveUser("Minseo","Minseo0O","Minseo");
         User Haeun = saveUser("Haeun","Haeun000111!","Haeun");
@@ -141,11 +141,11 @@ public class EdgeServerInfoConfig {
         saveGameTag("총기");
         saveGameTag("마법");
         
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null), 
+        this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         "선우의 서버",
         edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        57918,
-        "jlkjasdfppjlj213412", 
+        53053,
+        "ffd9fe5b46b1642bef13b974cf038203407750064dd750e522d795da2e8f7204", 
         4 ,
         "놀러와요. 선우의 숲",
         true,
@@ -239,6 +239,14 @@ public class EdgeServerInfoConfig {
         gameLog.setCmd("sh\t-c\tcat control/output.txt");
         gameLog.setCmdId("gameLog");
 
+        GameDockerAPICMD input = new GameDockerAPICMD();
+        input.setCmd("sh\t-c\techo 'input INPUT' > control/input.txt");
+        input.setCmdId("input");
+
+        GameDockerAPICMD banlist = new GameDockerAPICMD();
+        banlist.setCmd("sh\t-c\tcat server/banned-players.json");
+        banlist.setCmdId("banlist");
+
         gameDockerAPICMDRepo.save(CmdStartStr);
         gameDockerAPICMDRepo.save(CmdStartAckStr);
         gameDockerAPICMDRepo.save(CmdStopStr);
@@ -246,6 +254,8 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(makeDirStr);
         gameDockerAPICMDRepo.save(delMeoStr);
         gameDockerAPICMDRepo.save(gameLog);
+        gameDockerAPICMDRepo.save(input);
+        gameDockerAPICMDRepo.save(banlist);
     }
 
 
@@ -299,7 +309,8 @@ public class EdgeServerInfoConfig {
         joinService.joinProcess(joinDTO);
 
         User user = UserRepo.findByUsername(Username);
-
+        user.setName(name);
+        UserRepo.save(user);
         // user.setName(name);
         // user.setPassword(password);
         // user.setUsername(Username);
