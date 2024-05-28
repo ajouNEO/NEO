@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neo.back.service.dto.FileDataDto;
+import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.ServerInputDto;
 
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,12 @@ public class GameServerController {
     public Mono<Object> serverStop() {
         User user = getCurrentUser.getUser();
         return startAndStopGameServerService.getStopGameServer(user);
+    }
 
+    @GetMapping("/api/server/Running")
+    public Mono<GameServerRunDto> getServerRunning() {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.getServerRunning(user);
     }
 
     @GetMapping("/api/server/setting")

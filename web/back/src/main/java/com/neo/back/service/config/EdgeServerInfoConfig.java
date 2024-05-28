@@ -144,8 +144,8 @@ public class EdgeServerInfoConfig {
         this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         "선우의 서버",
         edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        53053,
-        "ffd9fe5b46b1642bef13b974cf038203407750064dd750e522d795da2e8f7204", 
+        51936,
+        "b997c7db6bdc0c36203db5407ca08ee2880d081883a1426bf4f79feae9ac1b9c", 
         4 ,
         "놀러와요. 선우의 숲",
         true,
@@ -247,6 +247,10 @@ public class EdgeServerInfoConfig {
         banlist.setCmd("sh\t-c\tcat server/banned-players.json");
         banlist.setCmdId("banlist");
 
+        GameDockerAPICMD running_mine = new GameDockerAPICMD();
+        running_mine.setCmd("sh\t-c\tps | grep /server/craftbukkit-");
+        running_mine.setCmdId("running_mine");
+
         gameDockerAPICMDRepo.save(CmdStartStr);
         gameDockerAPICMDRepo.save(CmdStartAckStr);
         gameDockerAPICMDRepo.save(CmdStopStr);
@@ -256,6 +260,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(gameLog);
         gameDockerAPICMDRepo.save(input);
         gameDockerAPICMDRepo.save(banlist);
+        gameDockerAPICMDRepo.save(running_mine);
     }
 
 

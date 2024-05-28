@@ -9,6 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StartGameServerDto {
-    Boolean isWorking;
+public class UserServerListDto {
+    String name;
+    String usernameORother;
+    String Source;
+    String time;
+    String expires;
+    String reason;
 }
