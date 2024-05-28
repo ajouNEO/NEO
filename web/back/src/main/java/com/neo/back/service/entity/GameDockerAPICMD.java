@@ -24,6 +24,9 @@ public class GameDockerAPICMD {
     @Column(length = 700)
     private String cmd;
 
+    @Column(length = 700)
+    private String gameTag;
+
     @ManyToOne
     @JoinColumn(name = "game_id")
     private Game game;

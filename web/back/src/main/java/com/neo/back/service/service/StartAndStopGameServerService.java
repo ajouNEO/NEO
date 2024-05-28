@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.neo.back.service.dto.StartGameServerDto;
+import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
@@ -38,7 +38,7 @@ public class StartAndStopGameServerService {
             String dockerId = dockerServer.getDockerId();
             int memory = dockerServer.getRAMCapacity();
             String memoryToStr = Integer.toString(memory);
-            StartGameServerDto startGameServerDto = new StartGameServerDto();
+            GameServerRunDto startGameServerDto = new GameServerRunDto();
             this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(ip);
             
             String gameVersion = dockerServer.getGame().getVersion() + "_START";
@@ -82,7 +82,7 @@ public class StartAndStopGameServerService {
 
             String ip = dockerServer.getEdgeServer().getIp();
             String dockerId = dockerServer.getDockerId();
-            StartGameServerDto startGameServerDto = new StartGameServerDto();
+            GameServerRunDto startGameServerDto = new GameServerRunDto();
             this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(ip);
 
             String CmdStop = this.gameDockerAPICMDRepo.findBycmdId("CmdStopStr").getCmd();

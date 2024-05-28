@@ -247,6 +247,10 @@ public class EdgeServerInfoConfig {
         banlist.setCmd("sh\t-c\tcat server/banned-players.json");
         banlist.setCmdId("banlist");
 
+        GameDockerAPICMD running_mine = new GameDockerAPICMD();
+        running_mine.setCmd("sh\t-c\tps | grep /server/craftbukkit-");
+        running_mine.setCmdId("running_mine");
+
         gameDockerAPICMDRepo.save(CmdStartStr);
         gameDockerAPICMDRepo.save(CmdStartAckStr);
         gameDockerAPICMDRepo.save(CmdStopStr);
@@ -256,6 +260,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(gameLog);
         gameDockerAPICMDRepo.save(input);
         gameDockerAPICMDRepo.save(banlist);
+        gameDockerAPICMDRepo.save(running_mine);
     }
 
 
