@@ -243,6 +243,10 @@ public class EdgeServerInfoConfig {
         input.setCmd("sh\t-c\techo 'input INPUT' > control/input.txt");
         input.setCmdId("input");
 
+        GameDockerAPICMD banlist = new GameDockerAPICMD();
+        banlist.setCmd("sh\t-c\tcat server/banned-players.json");
+        banlist.setCmdId("banlist");
+
         gameDockerAPICMDRepo.save(CmdStartStr);
         gameDockerAPICMDRepo.save(CmdStartAckStr);
         gameDockerAPICMDRepo.save(CmdStopStr);
@@ -251,6 +255,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(delMeoStr);
         gameDockerAPICMDRepo.save(gameLog);
         gameDockerAPICMDRepo.save(input);
+        gameDockerAPICMDRepo.save(banlist);
     }
 
 

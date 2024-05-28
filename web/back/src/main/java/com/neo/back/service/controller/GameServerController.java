@@ -32,8 +32,9 @@ public class GameServerController {
     private final UploadAndDownloadService uploadAndDownloadService;
     private final OtherServerManagingService otherServerManagingService;
     private final ServerJoinService serverJoinService;
-    private final GameLog gameLog;
+    private final GameLogService gameLog;
     private final GetCurrentUser getCurrentUser;
+    private final GameUserListService gameUserListService;
 
     @PutMapping("/api/server/start")
     public Mono<Object> serverStart() {
@@ -142,6 +143,13 @@ public class GameServerController {
         User user = getCurrentUser.getUser();
         return serverJoinService.refuseParticipation(user, userName);
     }
+
+    @GetMapping("/api/server/User_banlist")//특정 파일 읽어오 는 용도 api
+    public Mono<Object> getUser_banlist() {
+        User user = getCurrentUser.getUser();
+        return gameUserListService.getUser_banlist(user);
+    }
+
 
     // @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
     // public Mono<String> readAndConvertToJson(String containerId, String filePath) {

@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class GameLog {
+public class GameLogService {
     private final Map<User, SseEmitter> getUserAndSseEmitter = new ConcurrentHashMap<>();
     private final Map<User, ScheduledExecutorService> getuserAndSche = new ConcurrentHashMap<>();
     private Map<User, String> previousLogs = new ConcurrentHashMap<>();

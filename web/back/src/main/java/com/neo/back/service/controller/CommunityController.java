@@ -54,4 +54,5 @@ public class CommunityController {
         User user = getCurrentUser.getUser();
         return serverJoinService.application(dockerNum, user);
     }
+
 }
