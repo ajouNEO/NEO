@@ -141,47 +141,47 @@ public class EdgeServerInfoConfig {
         saveGameTag("총기");
         saveGameTag("마법");
         
-        this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
-        "선우의 서버",
-        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        51936,
-        "b997c7db6bdc0c36203db5407ca08ee2880d081883a1426bf4f79feae9ac1b9c", 
-        4 ,
-        "놀러와요. 선우의 숲",
-        true,
-        true,
-        Sunwo,
-        Jihoon, Minseo, Seungmin,
-        Seoyeon, Minjoon, Yujin, Jimin,
-        "좀비","성인서버","반야생");
+        // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
+        // "선우의 서버",
+        // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        // 51936,
+        // "b997c7db6bdc0c36203db5407ca08ee2880d081883a1426bf4f79feae9ac1b9c", 
+        // 4 ,
+        // "놀러와요. 선우의 숲",
+        // true,
+        // true,
+        // Sunwo,
+        // Jihoon, Minseo, Seungmin,
+        // Seoyeon, Minjoon, Yujin, Jimin,
+        // "좀비","성인서버","반야생");
  
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null),
-        "Yujin Server",
-        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        66781,
-        "jlkasdasdjasdfppjlj213412",
-        4,
-        "놀러와요. Yujin의 숲",
-        true, 
-        true,
-        Yujin,
-        Sunwo, Jimin, Minjoon,
-        Haeun, Minseo, Jiwoo, Seoyeon,
-        "경제","마인팜","서바이벌");
+        // this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        // "Yujin Server",
+        // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        // 66781,
+        // "jlkasdasdjasdfppjlj213412",
+        // 4,
+        // "놀러와요. Yujin의 숲",
+        // true, 
+        // true,
+        // Yujin,
+        // Sunwo, Jimin, Minjoon,
+        // Haeun, Minseo, Jiwoo, Seoyeon,
+        // "경제","마인팜","서바이벌");
 
-        this.saveDocker(gameRepo.findById((long) 1).orElse(null),
-        "Jihoon Server",
-        edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        88888,
-        "51ssfsafasfafsdfppjlj213412",
-        4,
-        "놀러와요. Jihoon의 숲",
-        true, 
-        true,
-        Jihoon,
-        Minseo, Seungmin, Jiwoo,
-        Sunwo, Haeun, Minjoon, Yujin,
-        "모드","미니게임","건축");
+        // this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        // "Jihoon Server",
+        // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        // 88888,
+        // "51ssfsafasfafsdfppjlj213412",
+        // 4,
+        // "놀러와요. Jihoon의 숲",
+        // true, 
+        // true,
+        // Jihoon,
+        // Minseo, Seungmin, Jiwoo,
+        // Sunwo, Haeun, Minjoon, Yujin,
+        // "모드","미니게임","건축");
 
 	}
 
@@ -264,47 +264,47 @@ public class EdgeServerInfoConfig {
     }
 
 
-    private void saveDocker(
-                    Game game, 
-                    String ServerName, 
-                    EdgeServer edge,
-                    int port, 
-                    String DockerId, 
-                    int Ram,
-                    String ServerComment, 
-                    Boolean Public,
-                    Boolean FreeAccess,
-                    User serverUser, 
-                    User user1, User user2, User user3,
-                    User user4, User user5, User user6, User user7,
-                    String tag1, String tag2, String tag3 ) {
-        DockerServer docker = new DockerServer();
-        docker.setGame(game);
-        docker.setServerName(ServerName);
-        docker.setUser(serverUser);
-        docker.setBaseImage(null);
-        docker.setEdgeServer(edge);
-        docker.setPort(port); 
-        docker.setDockerId(DockerId); 
-        docker.setRAMCapacity(Ram); 
-        docker.setServerComment(ServerComment);
-        docker.setPublic(Public);
-        docker.setFreeAccess(FreeAccess);
+    // private void saveDocker(
+    //                 Game game, 
+    //                 String ServerName, 
+    //                 EdgeServer edge,
+    //                 int port, 
+    //                 String DockerId, 
+    //                 int Ram,
+    //                 String ServerComment, 
+    //                 Boolean Public,
+    //                 Boolean FreeAccess,
+    //                 User serverUser, 
+    //                 User user1, User user2, User user3,
+    //                 User user4, User user5, User user6, User user7,
+    //                 String tag1, String tag2, String tag3 ) {
+    //     DockerServer docker = new DockerServer();
+    //     docker.setGame(game);
+    //     docker.setServerName(ServerName);
+    //     docker.setUser(serverUser);
+    //     docker.setBaseImage(null);
+    //     docker.setEdgeServer(edge);
+    //     docker.setPort(port); 
+    //     docker.setDockerId(DockerId); 
+    //     docker.setRAMCapacity(Ram); 
+    //     docker.setServerComment(ServerComment);
+    //     docker.setPublic(Public);
+    //     docker.setFreeAccess(FreeAccess);
 
-        docker.addApplicant(user1);
-        docker.addApplicant(user2);
-        docker.addApplicant(user3);
+    //     docker.addApplicant(user1);
+    //     docker.addApplicant(user2);
+    //     docker.addApplicant(user3);
 
-        docker.addParticipant(user4);
-        docker.addParticipant(user5);
-        docker.addParticipant(user6);
-        docker.addParticipant(user7);
+    //     docker.addParticipant(user4);
+    //     docker.addParticipant(user5);
+    //     docker.addParticipant(user6);
+    //     docker.addParticipant(user7);
         
-        docker.addGameTag(gameTagRepo.findByTag(tag1));
-        docker.addGameTag(gameTagRepo.findByTag(tag2));
-        docker.addGameTag(gameTagRepo.findByTag(tag3));
-        dockerServerRepo.save(docker);
-    }
+    //     docker.addGameTag(gameTagRepo.findByTag(tag1));
+    //     docker.addGameTag(gameTagRepo.findByTag(tag2));
+    //     docker.addGameTag(gameTagRepo.findByTag(tag3));
+    //     dockerServerRepo.save(docker);
+    // }
 
 
     private User saveUser(String Username,String password,String name) {
