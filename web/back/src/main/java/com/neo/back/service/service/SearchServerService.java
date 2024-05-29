@@ -26,7 +26,21 @@ import reactor.core.publisher.Mono;
 public class SearchServerService {
     private final DockerServerRepository dockerServerRepo;
 
-    public List<ServerListDto> getServerList (ServerFilterDto filter) {
+    public List<ServerListDto> getServerList () {
+        List<DockerServer> dockerServers = dockerServerRepo.findByIsPublic(true);
+
+        return dockerServers.stream()
+            .map(server -> new ServerListDto(server.getId(), 
+            server.getServerName(), 
+            server.getUser().getUsername(), 
+            server.getGame().getGameName(), 
+            server.getGame().getVersion(), 
+            server.isFreeAccess(),
+            server.getGameTagNames()))
+            .collect(Collectors.toList());
+    }
+
+    public List<ServerListDto> getServerList_filter(ServerFilterDto filter) {
         List<DockerServer> dockerServers = dockerServerRepo.findByIsPublic(true);
         Iterator<DockerServer> iterator = dockerServers.iterator();
         while (iterator.hasNext()) {
