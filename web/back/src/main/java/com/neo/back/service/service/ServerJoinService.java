@@ -142,6 +142,7 @@ public class ServerJoinService {
 
             dockerServer.addParticipant(participant);
             dockerServer.removeApplicant(participant);
+            dockerServerRepo.save(dockerServer);
             this.sendApplicantsUpdate(dockerServer);
             this.sendParticipantsUpdate(dockerServer);
 
@@ -162,6 +163,7 @@ public class ServerJoinService {
             if (participant == null) throw new UserNotFoundException();
 
             dockerServer.removeApplicant(participant);
+            dockerServerRepo.save(dockerServer);
             this.sendApplicantsUpdate(dockerServer);
 
             return Mono.just("success");
