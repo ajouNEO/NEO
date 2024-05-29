@@ -49,7 +49,7 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 |이름|역할|이메일|깃허브|
 |:---:|:---:|:---:|:---:|
 |이선우|백엔드 개발|malenwater@ajou.ac.kr|https://github.com/malenwater|
-|이은구|백엔드 개발 & 인프라 & DevOps|???|???|
+|이은구|백엔드 개발 & 인프라 & DevOps|mueg12@ajou.ac.kr|https://github.com/mueg12|
 |박병하|백엔드 개발|akdl4045@ajou.ac.kr|https://github.com/ArkBB|
 |박건희|프론트 개발|gun9679@ajou.ac.kr|https://github.com/bobmari1004|
 |권초염(QUANCHUYAN)|프론트 개발|shikuawo@ajou.ac.kr|https://github.com/shikuawo|
