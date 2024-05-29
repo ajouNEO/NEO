@@ -1,6 +1,7 @@
 package com.neo.back.authorization.controller;
 
 import com.neo.back.authorization.dto.PasswordChangeRequestDTO;
+import com.neo.back.authorization.dto.resetRequest;
 import com.neo.back.authorization.service.UserService;
 import com.neo.back.authorization.dto.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,9 @@ public class UserController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        String username = userDetails.getUsername();
+    public ResponseEntity<?> resetPassword(@RequestBody resetRequest request) {
+        String username = request.getUsername();
+        System.out.println(username);
         boolean success = userService.resetPassword(username);
 
         if (success) {

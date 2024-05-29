@@ -67,7 +67,6 @@ public class EmailService {
     public void sendEmail(String toEmail) throws MessagingException {
         if (redisUtil.existData(toEmail)) {
             redisUtil.deleteData(toEmail);
-
         }
 
         MimeMessage emailForm = createEmailForm(toEmail);
@@ -82,7 +81,12 @@ public class EmailService {
         if (codeFoundByEmail == null) {
             return false;
         }
-        return codeFoundByEmail.equals(code);
+
+        if(codeFoundByEmail.equals(code)){
+            redisUtil.deleteData(email);
+            return true;
+        }
+        else return false;
     }
 
 
