@@ -25,7 +25,7 @@ public class EmailController {
         return ResponseEntity.ok("이메일을 확인하세요");
     }
 
-    @PostMapping("/{email_addr}/authcode")
+    @PostMapping("/authcode")
     public ResponseEntity<String> sendEmailAndCode(@RequestBody EmailRequestDTO dto) throws NoSuchAlgorithmException {
         if (emailService.verifyEmailCode(dto.getEmail(), dto.getCode())) {
 

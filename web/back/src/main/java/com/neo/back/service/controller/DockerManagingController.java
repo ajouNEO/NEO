@@ -3,11 +3,14 @@ package com.neo.back.service.controller;
 import com.neo.back.service.dto.ScheduledTaskDto;
 import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.exception.UserCapacityExceededException;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.service.ScheduleService;
 import com.neo.back.service.utility.GetCurrentUser;
 import com.neo.back.authorization.entity.User;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,7 @@ import com.neo.back.service.service.CreateDockerService;
 import com.neo.back.service.service.UserServerListService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -63,27 +67,21 @@ public class DockerManagingController {
     }
 
     @PostMapping("/api/container/create")
-    public Mono<String> createContainer(@RequestBody CreateDockerDto config) {
+    public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
 
-        return createDockerService.createContainer(config, user)
-                .flatMap(result -> Mono.fromCallable(() -> {
+            return createDockerService.createContainer(config, user)
+                    .flatMap(result -> Mono.fromCallable(() -> {
+                        Instant startTime = Instant.now();
+                        System.out.println(user);
+                        DockerServer dockerServer = dockerServerRepository.findByUser(user);
+                        String dockerId = dockerServer.getDockerId();
+                        Long points = user.getPoints();
+                        scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
+                        return ResponseEntity.ok("Container created successfully");
+                    }));
 
-                    Instant startTime = Instant.now();
-                    System.out.println(user);
-                    DockerServer dockerServer = dockerServerRepository.findByUser(user);
-                    String dockerId = dockerServer.getDockerId();
-                    Long points = user.getPoints();
-                    scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
-                    return "Container created successfully"; // containerId 포함하여 반환
-                }))
-                .onErrorResume(e -> {
-                    // 에러 처리 로직
-                    return Mono.just("Error creating container: " + e.getMessage());
-                });
     }
-
-
 
     @PostMapping("/api/container/recreate")
     public Mono<Object> recreateContainer(@RequestBody CreateDockerDto config) {
