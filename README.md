@@ -15,33 +15,34 @@
 **NEO**의 주요 기능은 3가지로 나뉩니다.
 
 **1. 게임 서버 관리**
-* 서버 시작, 정지, 게임 맵 & 모드 & 플러그인 추가, 게임 서버 로그,서버 상태등의 서버 운영에 필요한 UI 제공한다
+* 서버 시작, 정지, 게임 맵 & 모드 & 플러그인 추가, 게임 서버 로그,서버 상태 등의 서버 운영에 필요한 UI 제공합니다
 
 **2. 게임 서버 커뮤니티**
-* 서버 관리자가 연 서버 목록을 서버 관리자가 원할 경우, 다른 사용자가 볼 수 있다
-* 서버 참여, 서버 참여를 희망한 인원의 승인/거절, 참여 인원등의 서버 인원에 대한 관리 UI를 제공한다
+* 서버 관리자가 연 서버 목록을 서버 관리자가 원할 경우, 다른 사용자가 볼 수 있습니다
+* 서버 참여, 서버 참여를 희망한 인원의 승인/거절, 참여 인원등의 서버 인원에 대한 관리 UI를 제공합니다
 
 **3. 게임 서버 대여**
-* 저희가 선정한 게임 서버 용량(메모리) 선택지를 서버 관리자에게 추천한다
-* 서버 관리자가 사용했던 서버를 다시 대여 가능하다
-* 서버 대여시, 결제한 요금제에 따라 시간제일 경우 대여한 시간에 따라 가격을 받고, 기간제일 경우 기간에 맞게 요금을 받는다 
+* 저희가 선정한 게임 서버 용량(메모리) 선택지를 서버 관리자에게 추천합니다
+* 서버 관리자가 사용했던 서버를 다시 대여 가능합니다
+* 서버 대여시, 결제한 요금제에 따라 시간제일 경우 대여한 시간에 따라 가격을 받고, 기간제일 경우 기간에 맞게 요금을 받습니다
 
 ## 3. 시스템 구조
 
-![전체시스템개요 소프트콘_Readme drawio](https://github.com/ajouNEO/NEO/assets/128200788/2da3e8ac-c401-4fc1-8f7b-62a7493ae10d)
+![전체시스템개요 소프트콘_Readme drawio](https://github.com/ajouNEO/NEO/assets/128200788/46e7d1d8-612e-4700-82de-f63dc49f0f50)
 
-Main Server : 유저의 요청에 따라 백엔드 기능 및 Edge Server 내에 유저의 도커 서버와 게임 서버를 관리한다.
-Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는 서버, 여러 Edge Server를 둘 수 있으며, 이 중에 Main Server에서 적절한<???> 알고리즘에 따라 도커 서버를 할당한다.
+Main Server : 유저의 요청에 따라 백엔드 기능 및 Edge Server 내에 유저의 도커 서버와 게임 서버를 관리합니다.    
+Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는 서버, 여러 Edge Server를 둘 수 있으며, 이 중에 Main Server에서 메모리를 기준으로 Edge Server를 선택하고, 도커 서버를 할당하여 게임 서버를 Managing process를 통해 관리합니다.
+
+***
 
 ### Teck Stack
-***
 |분야|기술|
-|:---:|:---:|
-|**BackEnd**|Spring Boot, Gradle, Naver Cloud Web Server, Shell|
-|**FrontEnd**|Framer, React|
-|**Database**|MySQL, Naver Cloud Storage|
-|**Docker**| DockerAPI, Prometheus|
+|:---|:---|
 |**DevOps**| Github, Github Actions|
+|**Docker**| DockerAPI, Prometheus|
+|**Database**|MySQL, Naver Cloud Storage|
+|**FrontEnd**|Framer, React|
+|**BackEnd**|Spring Boot, Gradle, Naver Cloud Web Server, Shell|
 
 ## 4. 팀원 소개
 
@@ -51,13 +52,15 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 |이은구|백엔드 개발 & 인프라 & DevOps|???|???|
 |박병하|백엔드 개발|akdl4045@ajou.ac.kr|https://github.com/ArkBB|
 |박건희|프론트 개발|gun9679@ajou.ac.kr|https://github.com/bobmari1004|
-|권초염(영어이름)|프론트 개발|???|???|
+|권초염(QUANCHUYAN)|프론트 개발|shikuawo@ajou.ac.kr|https://github.com/shikuawo|
 
 ## 5. 프로젝트 포스터
 
 2024-1학기 아주대학교 소프트콘에 제출한 포스터입니다.
 
-## 6. 백엔드 사용법
+![포스터최신버전1 1_page-0001](https://github.com/ajouNEO/NEO/assets/128200788/18021a57-b2b2-4406-8ea1-f3ddd0bf4024)
+
+## 6. 백엔드 사용법 
 
 ### env.properties 세팅
  web/back/src/main/resources/env.properties 파일에 환경 설정을 세팅해야합니다.
@@ -92,7 +95,7 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
     ./gradlew bootrun
 
 ### EdgeServer 실행
- Edge Server에 게임 서버 도커 이미지를 만들어야 Edge Server에 게임 서버를 생성할 수 있다.
+ Edge Server에 게임 서버 도커 이미지를 만들어야 Edge Server에 게임 서버를 생성할 수 있습니다.
  해당 Edge Server에 이동하고, 깃허브의 game-server/dockertest/ 폴더에 있는 모든 데이터를 옮겨와서
  
      docker build -t mc1.16.5 -f Dockerfile_mc1.16.5 .
@@ -103,18 +106,17 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 
     docker build -t 폴더명 -f Dockerfile_폴더명 .
     
-으로 도커이미지를 생성해준다.
+으로 도커이미지를 생성해줍니다.
 
-## 7. 프론트
+## 7. 프론트 설명
 프론트는 Framer를 이용하여 웹 디자인과 기능을 개발하였습니다.
-특히 기능 부분은 Framer 안에서 React, Typescript, JSX를 통해 개발하였습니다.
-
-### Framer란 무엇인가?
-Framer는 강력한 디자인 도구입니다.
-화면 드로잉, 애니메이션, 페이징, 스크롤 다양한 제스처 기능 등 디지털 화면 디자인에 필요한 모든 기능을 제공합니다.
+특히 기능 부분은 Framer 안에서 React, Typescript, JSX를 통해 개발했습니다.
 
 ### Framer 사용 이유
 디지털 화면에서 디자인 요소들은 상호작용을 통해 바뀌는 특징이 있습니다.
 일반 그래픽 툴을 이용하여 디자인하면 상호작용하는 화면 요소들을 하나하나 다 그려내야만 합니다.
 하지만 Framer는 이 상호작용 과정을 코드를 사용하지 않고 쉽게 도와줍니다.
 그리고 Framer 툴 내에서 협업할 수 있는 특징이 있어, 개발할 때 사용하는 많은 툴들을 줄여줄 수 있는 특징이 있습니다.
+
+### Framer URL
+https://framer.com/projects/NEO--H1Fqms6Su09vkk1kjXSR-6Qbvu
