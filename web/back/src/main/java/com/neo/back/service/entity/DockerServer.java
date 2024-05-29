@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 @Setter
 @Getter
 @NoArgsConstructor
-public class DockerServer {
+
+public class DockerServer extends BaseTime{
     
     //서버 생성시
     public DockerServer(String serverName, User user, EdgeServer edgeServer, int port, String containerId, int ramCapacity, Game game) {

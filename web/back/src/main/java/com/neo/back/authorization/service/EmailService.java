@@ -67,6 +67,7 @@ public class EmailService {
     public void sendEmail(String toEmail) throws MessagingException {
         if (redisUtil.existData(toEmail)) {
             redisUtil.deleteData(toEmail);
+
         }
 
         MimeMessage emailForm = createEmailForm(toEmail);

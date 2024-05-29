@@ -142,11 +142,6 @@ public class CreateDockerService {
         }
     }
 
-
-
-
-
-    
     private Mono<String> createContainerRequest(Map<String, Object> createContainerRequest) {
         return this.dockerAPI.createContainer(createContainerRequest, this.dockerWebClient)
             .flatMap(createResponse -> Mono.defer(() -> {
