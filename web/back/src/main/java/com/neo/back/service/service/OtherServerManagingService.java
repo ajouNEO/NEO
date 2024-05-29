@@ -62,6 +62,7 @@ public class OtherServerManagingService {
             if (dockerServer == null) throw new DoNotHaveServerException();
 
             dockerServer.setPublic(!dockerServer.isPublic());
+            dockerServerRepo.save(dockerServer);
             return  Mono.just(dockerServer.isPublic());
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
@@ -74,6 +75,7 @@ public class OtherServerManagingService {
             if (dockerServer == null) throw new DoNotHaveServerException();
 
             dockerServer.setFreeAccess(!dockerServer.isFreeAccess());
+            dockerServerRepo.save(dockerServer);
             return  Mono.just(dockerServer.isFreeAccess());
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
