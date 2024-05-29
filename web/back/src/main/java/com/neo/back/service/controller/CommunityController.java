@@ -27,10 +27,17 @@ public class CommunityController {
     private final ServerJoinService serverJoinService;
 
     @GetMapping("/api/server/list")
-    public List<ServerListDto> getServerList(@RequestBody ServerFilterDto filter) {
+    public List<ServerListDto> getServerList() {
 
-        return searchServerService.getServerList(filter);
+        return searchServerService.getServerList();
     }
+
+    @GetMapping("/api/server/list_filter")
+    public List<ServerListDto> getServerList_filter(@RequestBody ServerFilterDto filter) {
+
+        return searchServerService.getServerList_filter(filter);
+    }
+
 
     @GetMapping("/api/server/info/{dockerNum}")
     public Mono<Object> getServerList(@PathVariable Long dockerNum) {
