@@ -49,7 +49,7 @@ public class GameServerController {
         return startAndStopGameServerService.getStopGameServer(user);
     }
 
-    @GetMapping("/api/server/Running")
+    @GetMapping("/api/server/running")
     public Mono<GameServerRunDto> getServerRunning() {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.getServerRunning(user);
@@ -169,14 +169,14 @@ public class GameServerController {
     //             });
     // }
 
-    @GetMapping("/api/server/gamelog")
-    public SseEmitter sendGameLog(@RequestParam String token) {
+    @GetMapping("/api/server/console")
+    public SseEmitter sendGameLog() {
         User user = getCurrentUser.getUser();
         return gameLog.sendLogContinue(user); 
     }
 
 
-    @PostMapping("/api/server/input")
+    @PostMapping("/api/server/console")
     public Mono<String> sentInputToServer(@RequestBody ServerInputDto input) {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.sendInputToServer(user, input);
