@@ -64,7 +64,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
         System.out.println(envConfig.getMainServerIp());
-        response.sendRedirect("https://"+envConfig.getMainServerIp()+":8080");
+        response.sendRedirect("https://neo.framer.media");
     }
 
     private Cookie createCookie(String key, String value) {
