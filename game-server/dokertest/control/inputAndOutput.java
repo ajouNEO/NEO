@@ -37,7 +37,10 @@ public class inputAndOutput {
                         if (input == null)continue;
                         if(manageGame != null && !manageGame.isAlive()){
                             System.out.println("minecraftServerProcess down in inputThread");
+                            startFlag.set(false);
                             manageGame.join();
+                            manageGame = null;
+                            inputQueue.clear();
                         }
                         System.out.println("input : " + input);
                         parts = input.split("\\s+");
@@ -47,7 +50,7 @@ public class inputAndOutput {
                             startFlag.set(true);
                             manageGame =  new Thread(new ManageGameRunnable());
                             manageGame.start();
-                        } else if (parts[0].equals("quit") && startFlag.get()) {
+                        } else if (manageGame != null && parts[0].equals("quit") && startFlag.get()) {
                             System.out.println("input th end");
                             startFlag.set(false);
                             inputQueue.offer("quit");
@@ -69,10 +72,7 @@ public class inputAndOutput {
                             inputQueue.offer(combinedString);
 
                             if(parts.length >= 2 && parts[1].equals("stop")){
-                                System.out.println("stop in input thr");
-                                startFlag.set(false);
-                                manageGame.join();
-                                manageGame = null;
+                                inputQueue.clear();
                             }
                         }
                     }
