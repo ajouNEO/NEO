@@ -15,7 +15,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.neo.back.service.dto.UserSettingDto;
+import com.neo.back.service.dto.UserSettingCMDDto;
 import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.repository.GameDockerAPICMDRepository;
 import com.neo.back.authorization.entity.User;
@@ -227,10 +229,23 @@ public class DockerAPI {
 
     public UserSettingDto settingIDS(User user){
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) throw new DoNotHaveServerException();
         UserSettingDto setting = new UserSettingDto();
         setting.setUserId(String.valueOf(user.getId()));
         setting.setIp(dockerServer.getEdgeServer().getIp());
         setting.setDockerId(dockerServer.getDockerId());
+        return setting;
+    }
+
+    public UserSettingCMDDto settingIDS_CMD(User user){
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) throw new DoNotHaveServerException();
+        UserSettingCMDDto setting = new UserSettingCMDDto();
+        setting.setUserId(String.valueOf(user.getId()));
+        setting.setIp(dockerServer.getEdgeServer().getIp());
+        setting.setDockerId(dockerServer.getDockerId());
+        setting.setMemory( Integer.toString(dockerServer.getRAMCapacity()));
+        setting.setGameDockerAPICMDs(dockerServer.getGame().getGameDockerAPICMDs());
         return setting;
     }
 

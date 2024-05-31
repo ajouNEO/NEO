@@ -1,15 +1,16 @@
 package com.neo.back.service.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,7 +43,16 @@ public class Game {
     @JoinColumn
     private GameServerSetting defaultSetting;
 
-    @OneToMany(mappedBy = "game")
-    private List<GameDockerAPICMD> gameDockerAPICMDs = new ArrayList<>();
+    @ManyToMany
+    private Set<GameDockerAPICMD> gameDockerAPICMDs = new HashSet<>();
+
+    
+    public void addCMD(GameDockerAPICMD cmd) {
+        this.gameDockerAPICMDs.add(cmd);
+    }
+
+    public void removeCMD(GameDockerAPICMD cmd) {
+        this.gameDockerAPICMDs.remove(cmd);
+    }
 
 }

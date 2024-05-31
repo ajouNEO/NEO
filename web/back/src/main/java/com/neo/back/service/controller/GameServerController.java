@@ -49,7 +49,7 @@ public class GameServerController {
         return startAndStopGameServerService.getStopGameServer(user);
     }
 
-    @GetMapping("/api/server/Running")
+    @GetMapping("/api/server/running")
     public Mono<GameServerRunDto> getServerRunning() {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.getServerRunning(user);
@@ -120,7 +120,7 @@ public class GameServerController {
         return otherServerManagingService.setComment(user, comment);
     }
 
-    @PutMapping("/api/server/tags")
+    @PutMapping("/api/server/settags")
     public Mono<Object> setTags(@RequestBody List<String> tags) {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.setTags(user,tags);
@@ -169,7 +169,7 @@ public class GameServerController {
     //             });
     // }
 
-    @GetMapping("/api/server/gamelog")
+    @GetMapping("/api/server/console")
     public SseEmitter sendGameLog(@RequestParam String token) {
         User user = getCurrentUser.getUser();
         return gameLog.sendLogContinue(user); 
