@@ -34,30 +34,25 @@ public class inputAndOutput {
                                 .collect(Collectors.joining("\n"))).equals("")) {
                         FileWriter fileWriter = new FileWriter("/control/input.txt");
                         fileWriter.close();
-                        if (input == null)continue;
                         if(manageGame != null && !manageGame.isAlive()){
                             System.out.println("minecraftServerProcess down in inputThread");
-                            startFlag.set(false);
                             manageGame.join();
+                            startFlag.set(false);
                             manageGame = null;
                             inputQueue.clear();
                         }
+
+                        if (input == null)continue;
+
                         System.out.println("input : " + input);
                         parts = input.split("\\s+");
                         System.out.println("parts[0] : " + parts[0]);
+                        
                         if (parts[0].equals("start") && !startFlag.get()) {
                             System.out.println("input th start");
                             startFlag.set(true);
                             manageGame =  new Thread(new ManageGameRunnable());
                             manageGame.start();
-                        } else if (manageGame != null && parts[0].equals("quit") && startFlag.get()) {
-                            System.out.println("input th end");
-                            startFlag.set(false);
-                            inputQueue.offer("quit");
-                            manageGame.join();
-                            manageGame = null;
-                            exit = true;
-                            break;
                         } else if (parts[0].equals("input")) {
                             System.out.println("input th input");
 
@@ -70,10 +65,6 @@ public class inputAndOutput {
                             }
                             String combinedString = sb.toString();
                             inputQueue.offer(combinedString);
-
-                            if(parts.length >= 2 && parts[1].equals("stop")){
-                                inputQueue.clear();
-                            }
                         }
                     }
                     inputReader.close();
@@ -134,6 +125,7 @@ public class inputAndOutput {
                         startFlag.set(false);
                         break;
                     }
+
                     String input;
                     input = inputQueue.poll(); // 큐에서 요소를 꺼내오고, 비어있으면 null 반환
                     if (input == null) {
@@ -159,39 +151,10 @@ public class inputAndOutput {
                         serverInput.println(arguments);
                         if("stop".equals(arguments)){
                             System.out.println("stop in manage");
-                            // 특정 배쉬를 실행해서 끝나고 난 뒤에 이 뒤에 코드를 실행하기
-                            Process checkEnd = new ProcessBuilder("sh","./control/stop.sh").start();
-
-                            // 외부 프로세스의 출력을 읽어오기 위한 BufferedReader 생성
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(checkEnd.getInputStream()));
-
-                            // 외부 프로세스의 출력을 출력
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                System.out.println(line);
-                            }
-
-                            // 외부 프로세스가 완료될 때까지 대기
-                            int exitCode = checkEnd.waitFor();
-                            Thread.sleep(10000);
-                            System.out.println("외부 프로세스 종료 코드: " + exitCode);
-                            outputFlag.set(false);
-                            runningPrintThr.join();
-                            break;
                         }
                     }
-                    // 입력이 "quit"이면 종료
-                    else if ("quit".equals(command)) {
-                        System.out.println("manage th quit");
-                        minecraftServerProcess.destroy();
-                        outputFlag.set(false);
-                        runningPrintThr.join();
-                        startFlag.set(false);
-                        break;
-                    }
-                    
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }finally{
                 System.out.println("End manageGame");
