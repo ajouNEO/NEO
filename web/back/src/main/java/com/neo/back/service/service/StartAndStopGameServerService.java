@@ -1,7 +1,5 @@
 package com.neo.back.service.service;
 
-import java.util.Map;
-
 import com.neo.back.authorization.entity.User;
 import lombok.RequiredArgsConstructor;
 
@@ -12,8 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.UserSettingCMDDto;
-import com.neo.back.service.dto.UserSettingDto;
-import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerServerRepository;
@@ -25,11 +21,10 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class StartAndStopGameServerService {
-    private final DockerServerRepository dockerServerRepo;
     private WebClient dockerWebClient;
     private final MakeWebClient makeWebClient;
     private final DockerAPI dockerAPI;
-    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
+    private final GameUserListService gameUserListService;
 
     public Mono<Object> getStartGameServer(User user) {
         try {
@@ -54,6 +49,8 @@ public class StartAndStopGameServerService {
                 }
             });
             
+            this.gameUserListService.setUserListCMD(user);
+
             this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_MEM], UserSetting.getDockerId(), this.dockerWebClient,"MEMORY",UserSetting.getMemory())
             .block();
 

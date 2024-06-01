@@ -28,11 +28,12 @@
 
      private final CloseDockerService closeDockerService;
 
+     private final GameUserListService gameUserListService;
+     
      // 사용자 서비스 시작 및 종료 시간 스케줄링(포인트 기반)
      public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime,Long points){
 
          Instant endTime = calculateEndTime(points);
-
          scheduleTask(user,dockerId,startTime,endTime);
      }
 
@@ -113,6 +114,7 @@
              return endTime;
          }
      }
+
  /*
      // 사용자 서비스 시작 및 종료 시간 스케줄링(기간권)
 
