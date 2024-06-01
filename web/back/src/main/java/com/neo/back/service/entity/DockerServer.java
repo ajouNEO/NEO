@@ -82,7 +82,7 @@ public class DockerServer extends BaseTime{
         this.participants.add(participant);
     }
 
-    public void removeParticipant(GameTag participant) {
+    public void removeParticipant(User participant) {
         this.participants.remove(participant);
     }
 

@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserServerListDto {
+public class UserBanMineDto {
+    String uuid;
     String name;
-    String usernameORother;
-    String Source;
-    String time;
+    String created;
+    String source;
     String expires;
     String reason;
 }

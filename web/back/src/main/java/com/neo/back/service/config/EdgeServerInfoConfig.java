@@ -81,23 +81,25 @@ public class EdgeServerInfoConfig {
         mine1_16_5.setVersion("1.16.5");
         mine1_16_5.setDockerImage("mc1.16.5");
         mine1_16_5.setDefaultSetting(minecreftServerSetting);
-        gameRepo.save(mine1_16_5);
 
         Game mine1_19_2 = new Game();
         mine1_19_2.setGameName("Minecraft");
         mine1_19_2.setVersion("1.19.2");
         mine1_19_2.setDockerImage("mc1.19.2");
         mine1_19_2.setDefaultSetting(minecreftServerSetting);
-        gameRepo.save(mine1_19_2);
 
         Game mine1_20_4 = new Game();
         mine1_20_4.setGameName("Minecraft");
         mine1_20_4.setVersion("1.20.4");
         mine1_20_4.setDockerImage("mc1.20.4");
         mine1_20_4.setDefaultSetting(minecreftServerSetting);
+
+        gameRepo.save(mine1_16_5);
+        gameRepo.save(mine1_19_2);
         gameRepo.save(mine1_20_4);
 
-        saveCMD(mine1_16_5, mine1_19_2, mine1_20_4);
+        saveCMD_common();
+        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4);
 
         // User INFO
         User Sunwo = saveUser("sunwo","sunwo","malenwater");
@@ -144,8 +146,8 @@ public class EdgeServerInfoConfig {
         // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         // "선우의 서버",
         // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        // 51936,
-        // "b997c7db6bdc0c36203db5407ca08ee2880d081883a1426bf4f79feae9ac1b9c", 
+        // 40218,
+        // "????", 
         // 4 ,
         // "놀러와요. 선우의 숲",
         // true,
@@ -190,77 +192,114 @@ public class EdgeServerInfoConfig {
     //     game.setTag(tag);
     //     gameTagRepo.save(game);
     // }
+    private void saveCMD_common() {
+        GameDockerAPICMD CmdStartStr = new GameDockerAPICMD();
+        CmdStartStr.setCmd("sh\t-c\techo 'start' > /control/input.txt");
+        CmdStartStr.setCmdId("CmdStartStr");
+        CmdStartStr.setCmdKind("common");
 
-    private void saveCMD(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4) {
+        GameDockerAPICMD CmdStopStr = new GameDockerAPICMD();
+        CmdStopStr.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
+        CmdStopStr.setCmdId("CmdStopStr");
+        CmdStopStr.setCmdKind("common");
+
+        GameDockerAPICMD makeDirStr = new GameDockerAPICMD();
+        makeDirStr.setCmd("mkdir\tserver/");
+        makeDirStr.setCmdId("makeDirStr");
+        makeDirStr.setCmdKind("common");
+
+        GameDockerAPICMD delMeoStr = new GameDockerAPICMD();
+        delMeoStr.setCmd("rm\t-rf\tserver/");
+        delMeoStr.setCmdId("delMeoStr");
+        delMeoStr.setCmdKind("common");
+
+        GameDockerAPICMD gameLog = new GameDockerAPICMD();
+        gameLog.setCmd("sh\t-c\tcat control/output.txt");
+        gameLog.setCmdId("gameLog");
+        gameLog.setCmdKind("common");
+
+
+        GameDockerAPICMD input = new GameDockerAPICMD();
+        input.setCmd("sh\t-c\techo 'input INPUT' > control/input.txt");
+        input.setCmdId("input");
+        input.setCmdKind("common");
+
+        gameDockerAPICMDRepo.save(makeDirStr);
+        gameDockerAPICMDRepo.save(delMeoStr);
+        gameDockerAPICMDRepo.save(gameLog);
+        gameDockerAPICMDRepo.save(input);
+        gameDockerAPICMDRepo.save(CmdStartStr);
+        gameDockerAPICMDRepo.save(CmdStopStr);
+
+    }
+    private void saveCMD_mine(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4) {
         GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
         CmdMemory_Mine_1_16_5Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.16.5.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_16_5Str.setCmdId("1.16.5_START");
-        CmdMemory_Mine_1_16_5Str.setGame(mine1_16_5);
+        CmdMemory_Mine_1_16_5Str.setCmdKind("execCMD");
 
         GameDockerAPICMD CmdMemory_Mine_1_19_2Str = new GameDockerAPICMD();
         CmdMemory_Mine_1_19_2Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.19.2.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_19_2Str.setCmdId("1.19.2_START");
-        CmdMemory_Mine_1_19_2Str.setGame(mine1_19_2);
+        CmdMemory_Mine_1_19_2Str.setCmdKind("execCMD");
         
         GameDockerAPICMD CmdMemory_Mine_1_20_4Str = new GameDockerAPICMD();
         CmdMemory_Mine_1_20_4Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.20.4.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_20_4Str.setCmdId("1.20.4_START");
-        CmdMemory_Mine_1_20_4Str.setGame(mine1_20_4);
+        CmdMemory_Mine_1_20_4Str.setCmdKind("execCMD");
 
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_16_5Str);
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_19_2Str);
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_20_4Str);
 
-        GameDockerAPICMD CmdStartStr = new GameDockerAPICMD();
-        CmdStartStr.setCmd("sh\t-c\techo 'start' > /control/input.txt");
-        CmdStartStr.setCmdId("CmdStartStr");
+
         
-        GameDockerAPICMD CmdStartAckStr = new GameDockerAPICMD();
-        CmdStartAckStr.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Done\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
-        CmdStartAckStr.setCmdId("CmdStartAckStr");
-        
-        GameDockerAPICMD CmdStopStr = new GameDockerAPICMD();
-        CmdStopStr.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
-        CmdStopStr.setCmdId("CmdStopStr");
+        GameDockerAPICMD CmdStartAckStr_mine = new GameDockerAPICMD();
+        CmdStartAckStr_mine.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Done\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
+        CmdStartAckStr_mine.setCmdId("CmdStartAckStr");
+        CmdStartAckStr_mine.setCmdKind("start_ack");
 
-        GameDockerAPICMD CmdStopAckStr = new GameDockerAPICMD();
-        CmdStopAckStr.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Saving worlds\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
-        CmdStopAckStr.setCmdId("CmdStopAckStr");
+        GameDockerAPICMD CmdStopAckStr_mine = new GameDockerAPICMD();
+        CmdStopAckStr_mine.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Saving worlds\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
+        CmdStopAckStr_mine.setCmdId("CmdStopAckStr");
+        CmdStopAckStr_mine.setCmdKind("stop_ack");
 
-        GameDockerAPICMD makeDirStr = new GameDockerAPICMD();
-        makeDirStr.setCmd("mkdir\tserver/");
-        makeDirStr.setCmdId("makeDirStr");
-
-        GameDockerAPICMD delMeoStr = new GameDockerAPICMD();
-        delMeoStr.setCmd("rm\t-rf\tserver/");
-        delMeoStr.setCmdId("delMeoStr");
-
-        GameDockerAPICMD gameLog = new GameDockerAPICMD();
-        gameLog.setCmd("sh\t-c\tcat control/output.txt");
-        gameLog.setCmdId("gameLog");
-
-        GameDockerAPICMD input = new GameDockerAPICMD();
-        input.setCmd("sh\t-c\techo 'input INPUT' > control/input.txt");
-        input.setCmdId("input");
-
-        GameDockerAPICMD banlist = new GameDockerAPICMD();
-        banlist.setCmd("sh\t-c\tcat server/banned-players.json");
-        banlist.setCmdId("banlist");
+        GameDockerAPICMD banlist_mine = new GameDockerAPICMD();
+        banlist_mine.setCmd("sh\t-c\tcat server/banned-players.json");
+        banlist_mine.setCmdId("banlist");
+        banlist_mine.setCmdKind("userBan");
 
         GameDockerAPICMD running_mine = new GameDockerAPICMD();
         running_mine.setCmd("sh\t-c\tps | grep /server/craftbukkit-");
         running_mine.setCmdId("running_mine");
+        running_mine.setCmdKind("serverRun");
 
-        gameDockerAPICMDRepo.save(CmdStartStr);
-        gameDockerAPICMDRepo.save(CmdStartAckStr);
-        gameDockerAPICMDRepo.save(CmdStopStr);
-        gameDockerAPICMDRepo.save(CmdStopAckStr);
-        gameDockerAPICMDRepo.save(makeDirStr);
-        gameDockerAPICMDRepo.save(delMeoStr);
-        gameDockerAPICMDRepo.save(gameLog);
-        gameDockerAPICMDRepo.save(input);
-        gameDockerAPICMDRepo.save(banlist);
+        gameDockerAPICMDRepo.save(CmdStartAckStr_mine);
+        gameDockerAPICMDRepo.save(CmdStopAckStr_mine);
+        gameDockerAPICMDRepo.save(banlist_mine);
         gameDockerAPICMDRepo.save(running_mine);
+
+        mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
+        mine1_16_5.addCMD(CmdStartAckStr_mine);
+        mine1_16_5.addCMD(CmdStopAckStr_mine);
+        mine1_16_5.addCMD(banlist_mine);
+        mine1_16_5.addCMD(running_mine);
+
+        mine1_19_2.addCMD(CmdMemory_Mine_1_19_2Str);
+        mine1_19_2.addCMD(CmdStartAckStr_mine);
+        mine1_19_2.addCMD(CmdStopAckStr_mine);
+        mine1_19_2.addCMD(banlist_mine);
+        mine1_19_2.addCMD(running_mine);
+
+        mine1_20_4.addCMD(CmdMemory_Mine_1_20_4Str);
+        mine1_20_4.addCMD(CmdStartAckStr_mine);
+        mine1_20_4.addCMD(CmdStopAckStr_mine);
+        mine1_20_4.addCMD(banlist_mine);
+        mine1_20_4.addCMD(running_mine);
+
+        gameRepo.save(mine1_16_5);
+        gameRepo.save(mine1_19_2);
+        gameRepo.save(mine1_20_4);
     }
 
 
@@ -315,6 +354,7 @@ public class EdgeServerInfoConfig {
 
         User user = UserRepo.findByUsername(Username);
         user.setName(name);
+        user.setPoints((long)9999999);
         UserRepo.save(user);
         // user.setName(name);
         // user.setPassword(password);
