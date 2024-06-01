@@ -103,7 +103,7 @@ public class EdgeServerInfoConfig {
 
         // User INFO
         User Sunwo = saveUser("sunwo","sunwo","malenwater");
-        User Jihoon = saveUser("JiHoon","JiHoon1!","Jiman");
+        User Jihoon = saveUser("misu","misu","Jiman_misu");
         User Minseo = saveUser("Minseo","Minseo0O","Minseo");
         User Haeun = saveUser("Haeun","Haeun000111!","Haeun");
         User Seungmin = saveUser("Seungmin","Seungmin000111!","Seungmin");
@@ -146,7 +146,7 @@ public class EdgeServerInfoConfig {
         // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         // "선우의 서버",
         // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        // 40218,
+        // 43556,
         // "????", 
         // 4 ,
         // "놀러와요. 선우의 숲",
@@ -192,6 +192,7 @@ public class EdgeServerInfoConfig {
     //     game.setTag(tag);
     //     gameTagRepo.save(game);
     // }
+
     private void saveCMD_common() {
         GameDockerAPICMD CmdStartStr = new GameDockerAPICMD();
         CmdStartStr.setCmd("sh\t-c\techo 'start' > /control/input.txt");
@@ -274,28 +275,47 @@ public class EdgeServerInfoConfig {
         running_mine.setCmdId("running_mine");
         running_mine.setCmdKind("serverRun");
 
+        GameDockerAPICMD UserListcmd_mine = new GameDockerAPICMD();
+        UserListcmd_mine.setCmd("sh\t-c\techo '[Server thread/INFO]: , joined the game,[Server thread/INFO]: , left the game' > control/user_cmd.txt");
+        UserListcmd_mine.setCmdId("userListCMD_mine");
+        UserListcmd_mine.setCmdKind("userListCMD");
+
+        GameDockerAPICMD UserList_mine = new GameDockerAPICMD();
+        UserList_mine.setCmd("sh\t-c\tcat control/user.txt");
+        UserList_mine.setCmdId("userList_mine");
+        UserList_mine.setCmdKind("userList");
+
+
         gameDockerAPICMDRepo.save(CmdStartAckStr_mine);
         gameDockerAPICMDRepo.save(CmdStopAckStr_mine);
         gameDockerAPICMDRepo.save(banlist_mine);
         gameDockerAPICMDRepo.save(running_mine);
+        gameDockerAPICMDRepo.save(UserListcmd_mine);
+        gameDockerAPICMDRepo.save(UserList_mine);
 
         mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
         mine1_16_5.addCMD(CmdStartAckStr_mine);
         mine1_16_5.addCMD(CmdStopAckStr_mine);
         mine1_16_5.addCMD(banlist_mine);
         mine1_16_5.addCMD(running_mine);
+        mine1_16_5.addCMD(UserListcmd_mine);
+        mine1_16_5.addCMD(UserList_mine);
 
         mine1_19_2.addCMD(CmdMemory_Mine_1_19_2Str);
         mine1_19_2.addCMD(CmdStartAckStr_mine);
         mine1_19_2.addCMD(CmdStopAckStr_mine);
         mine1_19_2.addCMD(banlist_mine);
         mine1_19_2.addCMD(running_mine);
+        mine1_19_2.addCMD(UserListcmd_mine);
+        mine1_19_2.addCMD(UserList_mine);
 
         mine1_20_4.addCMD(CmdMemory_Mine_1_20_4Str);
         mine1_20_4.addCMD(CmdStartAckStr_mine);
         mine1_20_4.addCMD(CmdStopAckStr_mine);
         mine1_20_4.addCMD(banlist_mine);
         mine1_20_4.addCMD(running_mine);
+        mine1_20_4.addCMD(UserListcmd_mine);
+        mine1_20_4.addCMD(UserList_mine);
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);

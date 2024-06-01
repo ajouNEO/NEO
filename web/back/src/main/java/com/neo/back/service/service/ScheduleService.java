@@ -34,7 +34,6 @@
      public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime,Long points){
 
          Instant endTime = calculateEndTime(points);
-        checkUserList(user);
          scheduleTask(user,dockerId,startTime,endTime);
      }
 
@@ -116,9 +115,6 @@
          }
      }
 
-    private void checkUserList(User user){
-
-     }
  /*
      // 사용자 서비스 시작 및 종료 시간 스케줄링(기간권)
 

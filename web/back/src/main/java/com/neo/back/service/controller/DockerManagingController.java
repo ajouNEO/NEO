@@ -47,7 +47,6 @@ public class DockerManagingController {
     private final ScheduleService scheduleService;
 
     private final DockerServerRepository dockerServerRepository;
-    private final GameUserListService gameUserListService;
 
 
     @GetMapping("/api/container/list")
@@ -79,7 +78,6 @@ public class DockerManagingController {
                     DockerServer dockerServer = dockerServerRepository.findByUser(user);
                     String dockerId = dockerServer.getDockerId();
                     Long points = user.getPoints();
-                    this.gameUserListService.setUserListCMD(user);
                     scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
                     return ResponseEntity.ok("Container created successfully");
                 }));

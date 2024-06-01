@@ -24,6 +24,7 @@ public class StartAndStopGameServerService {
     private WebClient dockerWebClient;
     private final MakeWebClient makeWebClient;
     private final DockerAPI dockerAPI;
+    private final GameUserListService gameUserListService;
 
     public Mono<Object> getStartGameServer(User user) {
         try {
@@ -48,6 +49,8 @@ public class StartAndStopGameServerService {
                 }
             });
             
+            this.gameUserListService.setUserListCMD(user);
+
             this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_MEM], UserSetting.getDockerId(), this.dockerWebClient,"MEMORY",UserSetting.getMemory())
             .block();
 
