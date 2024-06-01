@@ -12,6 +12,7 @@ import com.neo.back.service.dto.FileDataDto;
 import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.ServerInputDto;
 import com.neo.back.service.dto.UserBanServerListDto;
+import com.neo.back.service.dto.UserListDto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -163,6 +164,11 @@ public class GameServerController {
         return gameUserListService.getUser_banlist(user);
     }
 
+    @GetMapping("/api/server/userlist")//특정 파일 읽어오 는 용도 api
+    public Mono<UserListDto> getUserlist() {
+        User user = getCurrentUser.getUser();
+        return gameUserListService.getUserlist(user);
+    }
 
     // @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
     // public Mono<String> readAndConvertToJson(String containerId, String filePath) {

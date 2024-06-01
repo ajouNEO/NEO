@@ -26,6 +26,7 @@ import com.neo.back.service.dto.CreateDockerDto;
 import com.neo.back.service.dto.MyServerListDto;
 import com.neo.back.service.service.CloseDockerService;
 import com.neo.back.service.service.CreateDockerService;
+import com.neo.back.service.service.GameUserListService;
 import com.neo.back.service.service.UserServerListService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class DockerManagingController {
     private final ScheduleService scheduleService;
 
     private final DockerServerRepository dockerServerRepository;
+    private final GameUserListService gameUserListService;
 
 
     @GetMapping("/api/container/list")
@@ -69,17 +71,18 @@ public class DockerManagingController {
     @PostMapping("/api/container/create")
     public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
-
-            return createDockerService.createContainer(config, user)
-                    .flatMap(result -> Mono.fromCallable(() -> {
-                        Instant startTime = Instant.now();
-                        System.out.println(user);
-                        DockerServer dockerServer = dockerServerRepository.findByUser(user);
-                        String dockerId = dockerServer.getDockerId();
-                        Long points = user.getPoints();
-                        scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
-                        return ResponseEntity.ok("Container created successfully");
-                    }));
+        
+        return createDockerService.createContainer(config, user)
+                .flatMap(result -> Mono.fromCallable(() -> {
+                    Instant startTime = Instant.now();
+                    System.out.println(user);
+                    DockerServer dockerServer = dockerServerRepository.findByUser(user);
+                    String dockerId = dockerServer.getDockerId();
+                    Long points = user.getPoints();
+                    this.gameUserListService.setUserListCMD(user);
+                    scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
+                    return ResponseEntity.ok("Container created successfully");
+                }));
 
     }
 

@@ -170,7 +170,7 @@ public class inputAndOutput {
             this.serverOutput = new BufferedReader(new InputStreamReader(minecraftServerProcess.getInputStream()));
         }
         
-        public void userList(int userCount, Set<String> userSet ,String line, String[] UserParts){
+        public void userList(int[] userCount, Set<String> userSet ,String line, String[] UserParts){
             try {
                 BufferedWriter writer_user = new BufferedWriter(new FileWriter("/control/user.txt"));
                 // System.out.println(line);
@@ -180,7 +180,7 @@ public class inputAndOutput {
                 if (line.contains(UserParts[1])) {
                     System.out.println(UserParts[1]);
                     // 유저 수 증가
-                    userCount++;
+                    userCount[0]++;
                     // 누가 들어왔는지를 기록
                     String username = line.substring(line.lastIndexOf(UserParts[0]) + UserParts[0].length(), line.indexOf(UserParts[1]));
                     System.out.println(username);
@@ -195,16 +195,16 @@ public class inputAndOutput {
                     System.out.println(username);
                     if (userSet.contains(username)) {
                         // 유저 수 감소
-                        userCount--;
+                        userCount[0]--;
                         // 유저 목록에서 제거
                         userSet.remove(username);
                     }
                 }
     
                 // 파일에 결과를 쓰기
-                writer_user.write("Users : " + userCount + "\n");
+                writer_user.write("Users: " + userCount[0] + "\n");
                 for (String user : userSet) {
-                    writer_user.write(user + "\n");
+                    writer_user.write("name: "+user + "\n");
                 }
                 writer_user.flush();
                 writer_user.close();
@@ -219,7 +219,7 @@ public class inputAndOutput {
                 BufferedReader dataSplit = new BufferedReader(new FileReader("/control/user_cmd.txt"));
                 Boolean flag = true;
                 String[] UserParts = null;
-                int userCount = 0;
+                int[] userCount =  new int[1];
                 Set<String> userSet = new HashSet<>();
                 String cmd = dataSplit.readLine();
                 dataSplit.close();

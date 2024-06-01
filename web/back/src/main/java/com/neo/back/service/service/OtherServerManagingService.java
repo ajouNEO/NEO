@@ -125,6 +125,7 @@ public class OtherServerManagingService {
             .forEach(tag ->{
                 dockerServer.removeGameTag(gameTagRepo.findByTag(tag));
             });
+            
             tags.forEach(tag ->{
                 if(gameTagRepo.findByTag(tag) == null){
                     GameTag game = new GameTag();
