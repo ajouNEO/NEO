@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 
     //jpa 구문 존재하는지
     Boolean existsByUsername(String username);
-
+    Boolean existsByname(String name);
 
     User save(User user);
     Optional<User> findById(Long id);
