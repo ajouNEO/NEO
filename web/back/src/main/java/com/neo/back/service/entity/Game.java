@@ -20,11 +20,11 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class Game {
-    public Game(String gameName, String version, String defaultPort, String dockerImage, String settingFilePath, String settingFileName) {
+    public Game(String gameName, String version, String dockerImage, String defaultPort, String settingFilePath, String settingFileName) {
         this.gameName = gameName;
         this.version = version;
-        this.defaultPort = defaultPort;
         this.dockerImage = dockerImage;
+        this.defaultPort = defaultPort;
         this.settingFilePath = settingFilePath;
         this.settingFileName = settingFileName;
     }
