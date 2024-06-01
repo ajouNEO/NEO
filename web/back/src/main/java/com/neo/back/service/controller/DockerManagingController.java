@@ -70,16 +70,16 @@ public class DockerManagingController {
     @PostMapping("/api/container/create")
     public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
-        return createDockerService.createContainer(config, user)
-                .flatMap(result -> {
-                    Instant startTime = Instant.now();
-                    System.out.println(user);
-                    DockerServer dockerServer = dockerServerRepository.findByUser(user);
-                    String dockerId = dockerServer.getDockerId();
-                    Long points = user.getPoints();
-                    scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
-                    return Mono.just(ResponseEntity.ok("Container created successfully"));
-                });
+        return createDockerService.createContainer(config, user);
+                // .flatMap(result -> {
+                //     Instant startTime = Instant.now();
+                //     System.out.println(user);
+                //     DockerServer dockerServer = dockerServerRepository.findByUser(user);
+                //     String dockerId = dockerServer.getDockerId();
+                //     Long points = user.getPoints();
+                //     scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
+                //     return Mono.just(ResponseEntity.ok("Container created successfully"));
+                // });
     }
 
     @PostMapping("/api/container/recreate")
