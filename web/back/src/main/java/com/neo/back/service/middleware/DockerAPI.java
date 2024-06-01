@@ -11,6 +11,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -237,6 +238,7 @@ public class DockerAPI {
         return setting;
     }
 
+    @Transactional
     public UserSettingCMDDto settingIDS_CMD(User user){
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         if (dockerServer == null) throw new DoNotHaveServerException();
@@ -245,7 +247,7 @@ public class DockerAPI {
         setting.setIp(dockerServer.getEdgeServer().getIp());
         setting.setDockerId(dockerServer.getDockerId());
         setting.setMemory( Integer.toString(dockerServer.getRAMCapacity()));
-        setting.setGameDockerAPICMDs(dockerServer.getGame().getGameDockerAPICMDs());
+        setting.getGameDockerAPICMDs_settings().addAll(dockerServer.getGame().getGameDockerAPICMDs());
         return setting;
     }
 

@@ -16,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserSettingCMDDto extends UserSettingDto  {
     private String memory;
-    private Set<GameDockerAPICMD> gameDockerAPICMDs = new HashSet<>();
+    private Set<GameDockerAPICMD> gameDockerAPICMDs_settings = new HashSet<>();
 }
 
 

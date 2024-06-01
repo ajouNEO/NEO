@@ -43,7 +43,7 @@ public class StartAndStopGameServerService {
             CMD_exec[CMD_exec_send] = "CmdStartStr";
             GameServerRunDto startGameServerDto = new GameServerRunDto();
 
-            UserSetting.getGameDockerAPICMDs()
+            UserSetting.getGameDockerAPICMDs_settings()
             .stream()
             .forEach(gameDockerAPICMD-> {
                 if(gameDockerAPICMD.getCmdKind().equals("execCMD")){
@@ -81,7 +81,7 @@ public class StartAndStopGameServerService {
             CMD_exec[CMD_exec_send] = "CmdStopStr";
             GameServerRunDto startGameServerDto = new GameServerRunDto();
 
-            UserSetting.getGameDockerAPICMDs()
+            UserSetting.getGameDockerAPICMDs_settings()
             .stream()
             .forEach(gameDockerAPICMD-> {
                 if(gameDockerAPICMD.getCmdKind().equals("stop_ack")){
