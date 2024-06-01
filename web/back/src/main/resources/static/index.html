@@ -823,7 +823,7 @@
         const gameLog = document.getElementById("gameLog");
         const token = localStorage.getItem('jwtToken');
         const encodedToken = encodeURIComponent(token);
-        const GameLogEvent = new EventSource(`/api/server/gamelog?token=Bearer ${encodedToken}`);
+        const GameLogEvent = new EventSource(`/api/server/console?token=Bearer ${encodedToken}`);
 
         let isScrolledToBottom = true;
 

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.neo.back.service.dto.GameServerRunDto;
+import com.neo.back.service.dto.UserSettingCMDDto;
+import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
@@ -31,44 +33,37 @@ public class StartAndStopGameServerService {
 
     public Mono<Object> getStartGameServer(User user) {
         try {
-            DockerServer dockerServer = this.dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
-
-            String ip = dockerServer.getEdgeServer().getIp();
-            String dockerId = dockerServer.getDockerId();
-            int memory = dockerServer.getRAMCapacity();
-            String memoryToStr = Integer.toString(memory);
+            UserSettingCMDDto UserSetting = dockerAPI.settingIDS_CMD(user);
+            this.dockerWebClient = makeWebClient.makeDockerWebClient(UserSetting.getIp());
+            String[] CMD_exec = new String[3];
+            int CMD_exec_MEM = 0;
+            int CMD_exec_send = 1;
+            int CMD_exec_ACK = 2;
+            String ack = null;
+            CMD_exec[CMD_exec_send] = "CmdStartStr";
             GameServerRunDto startGameServerDto = new GameServerRunDto();
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(ip);
+
+            UserSetting.getGameDockerAPICMDs_settings()
+            .stream()
+            .forEach(gameDockerAPICMD-> {
+                if(gameDockerAPICMD.getCmdKind().equals("execCMD")){
+                    CMD_exec[CMD_exec_MEM] = gameDockerAPICMD.getCmdId();
+                }
+                else if(gameDockerAPICMD.getCmdKind().equals("start_ack")){
+                    CMD_exec[CMD_exec_ACK] = gameDockerAPICMD.getCmdId();
+                }
+            });
             
-            String gameVersion = dockerServer.getGame().getVersion() + "_START";
-            String CmdMemory = this.gameDockerAPICMDRepo.findBycmdId(gameVersion).getCmd();
-            CmdMemory = CmdMemory.replace("MEMORY",memoryToStr);
-            String[] CmdMemoryStr = this.dockerAPI.split_tap(CmdMemory);
-            Map<String,Boolean> startExecRequest = this.dockerAPI.makeExecStartInst();
-            Map<String,Object> setMemoryInst = this.dockerAPI.makeExecInst(CmdMemoryStr);
-            Mono<Map> AckMemoryStr = this.dockerAPI.makeExec(dockerId, setMemoryInst, this.dockerWebClient);
-            String MemoryMeoStr = (String) AckMemoryStr.block().get("Id");
-            Mono<String> AckMeomoryEND = this.dockerAPI.startExec(MemoryMeoStr,startExecRequest, this.dockerWebClient);
-            AckMeomoryEND.block();
+            this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_MEM], UserSetting.getDockerId(), this.dockerWebClient,"MEMORY",UserSetting.getMemory())
+            .block();
 
-            String CmdStart = this.gameDockerAPICMDRepo.findBycmdId("CmdStartStr").getCmd();
-            String[] CmdStartStr = this.dockerAPI.split_tap(CmdStart);
-            Map<String,Object> setStartInst = this.dockerAPI.makeExecInst(CmdStartStr);
-            Mono<Map> AckStartStr = this.dockerAPI.makeExec(dockerId, setStartInst, this.dockerWebClient);
-            String startMeoStr = (String) AckStartStr.block().get("Id");
-            Mono<String> AckStartEND = this.dockerAPI.startExec(startMeoStr,startExecRequest, this.dockerWebClient);
-            AckStartEND.block();
+            this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send], UserSetting.getDockerId(), this.dockerWebClient)
+            .block();
 
-            String CmdStartAck = this.gameDockerAPICMDRepo.findBycmdId("CmdStartAckStr").getCmd();
-            String[] CmdStartAckStr = this.dockerAPI.split_tap(CmdStartAck);
-            Map<String,Object> setAckInst = this.dockerAPI.makeExecInst(CmdStartAckStr);
-            Mono<Map> AckAckInfoStr = this.dockerAPI.makeExec(dockerId, setAckInst, this.dockerWebClient);
-            String AckMeoStr = (String) AckAckInfoStr.block().get("Id");
-            Mono<String> AckAckInfoEND = this.dockerAPI.startExec(AckMeoStr,startExecRequest, this.dockerWebClient);
-            String Ack = (String)AckAckInfoEND.block();
-            startGameServerDto.setIsWorking(Ack.equals("startAck"));
-            System.out.println(startGameServerDto.getIsWorking());
+            ack = this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_ACK], UserSetting.getDockerId(), this.dockerWebClient)
+            .block();
+
+            startGameServerDto.setIsWorking(ack.equals("startAck\n"));
             return Mono.just(startGameServerDto);
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
@@ -77,34 +72,30 @@ public class StartAndStopGameServerService {
 
     public Mono<Object> getStopGameServer(User user) {
         try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
-
-            String ip = dockerServer.getEdgeServer().getIp();
-            String dockerId = dockerServer.getDockerId();
+            UserSettingCMDDto UserSetting = dockerAPI.settingIDS_CMD(user);
+            this.dockerWebClient = makeWebClient.makeDockerWebClient(UserSetting.getIp());
+            String[] CMD_exec = new String[2];
+            int CMD_exec_send = 0;
+            int CMD_exec_ACK = 1;
+            String ack = null;
+            CMD_exec[CMD_exec_send] = "CmdStopStr";
             GameServerRunDto startGameServerDto = new GameServerRunDto();
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(ip);
 
-            String CmdStop = this.gameDockerAPICMDRepo.findBycmdId("CmdStopStr").getCmd();
-            String[] CmdStopStr =  this.dockerAPI.split_tap(CmdStop);
-            Map<String,Boolean> startExecRequest = this.dockerAPI.makeExecStartInst();
-            Map<String,Object> setStopInst = this.dockerAPI.makeExecInst(CmdStopStr);
-            Mono<Map> AckStopStr = this.dockerAPI.makeExec(dockerId, setStopInst, this.dockerWebClient);
-            String StopMeoStr = (String) AckStopStr.block().get("Id");
-            Mono<String> AckStopEND = this.dockerAPI.startExec(StopMeoStr,startExecRequest, this.dockerWebClient);
-            AckStopEND.block();
+            UserSetting.getGameDockerAPICMDs_settings()
+            .stream()
+            .forEach(gameDockerAPICMD-> {
+                if(gameDockerAPICMD.getCmdKind().equals("stop_ack")){
+                    CMD_exec[CMD_exec_ACK] = gameDockerAPICMD.getCmdId();
+                }
+            });
 
-            String CmdStopAck = this.gameDockerAPICMDRepo.findBycmdId("CmdStopAckStr").getCmd();
-            String[] CmdStopAckStr = this.dockerAPI.split_tap(CmdStopAck);
-            Map<String,Object> setAckInst = this.dockerAPI.makeExecInst(CmdStopAckStr);
-            Mono<Map> AckAckInfoStr = this.dockerAPI.makeExec(dockerId, setAckInst, this.dockerWebClient);
-            String AckMeoStr = (String) AckAckInfoStr.block().get("Id");
-            Mono<String> AckAckInfoEND = this.dockerAPI.startExec(AckMeoStr,startExecRequest, this.dockerWebClient);
-            AckAckInfoEND.block();
+            this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send], UserSetting.getDockerId(), this.dockerWebClient)
+            .block();
 
-            String Ack = (String)AckAckInfoEND.block();
-            startGameServerDto.setIsWorking(Ack.equals("stopAck"));
-            System.out.println(startGameServerDto.getIsWorking());
+            ack = this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_ACK], UserSetting.getDockerId(), this.dockerWebClient)
+            .block();
+
+            startGameServerDto.setIsWorking(ack.equals("stopAck\n"));
             return Mono.just(startGameServerDto);
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));

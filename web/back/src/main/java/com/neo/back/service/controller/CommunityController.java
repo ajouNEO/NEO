@@ -38,7 +38,6 @@ public class CommunityController {
         return searchServerService.getServerList_filter(filter);
     }
 
-
     @GetMapping("/api/server/info/{dockerNum}")
     public Mono<Object> getServerList(@PathVariable Long dockerNum) {
         User user = getCurrentUser.getUser();
