@@ -71,15 +71,15 @@ public class DockerManagingController {
         User user = getCurrentUser.getUser();
 
             return createDockerService.createContainer(config, user)
-                    .flatMap(result -> Mono.fromCallable(() -> {
+                    .flatMap(result -> {
                         Instant startTime = Instant.now();
                         System.out.println(user);
                         DockerServer dockerServer = dockerServerRepository.findByUser(user);
                         String dockerId = dockerServer.getDockerId();
                         Long points = user.getPoints();
                         scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
-                        return ResponseEntity.ok("Container created successfully");
-                    }));
+                        return Mono.just(ResponseEntity.ok("Container created successfully"));
+                    });
 
     }
 
