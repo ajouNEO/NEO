@@ -19,6 +19,10 @@ public class User {
 
     @Column(unique = true) // 이메일 중복되지 않게 설정.
     private String username;
+
+    @Column(unique = true) // 이메일 중복되지 않게 설정.
+    private String email;
+
     @Column(unique = true) // 유저네임 중복되지 않게 설정.
     private String name;
     private String password;
