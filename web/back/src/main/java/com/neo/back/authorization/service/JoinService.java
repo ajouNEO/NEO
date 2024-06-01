@@ -51,10 +51,11 @@ public class JoinService {
 
         User User = new User();
 
-        User.setUsername(username);
         User.setPassword(bCryptPasswordEncoder.encode(password));
         User.setRole("ROLE_ADMIN");
+        User.setName(name);
         User.setUsername(username);
+        User.setEmail(username);
 
 
         userRepository.save(User);
