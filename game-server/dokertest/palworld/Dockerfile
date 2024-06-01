@@ -1,0 +1,67 @@
+FROM ubuntu:20.04
+
+# 환경변수 설정
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 기본 패키지 설치 및 i386 아키텍처 추가 (루트 사용자로 실행)
+RUN apt-get update && \
+    apt-get install -y sudo curl software-properties-common wget git locales dialog nano software-properties-common apt-transport-https ca-certificates gnupg2 lib32gcc1 && \
+    dpkg --add-architecture i386 && \
+    add-apt-repository multiverse && \
+    apt-get update
+
+RUN useradd -m -d /home/steam steam && \
+    echo "steam:steam" | chpasswd && \
+    usermod -aG sudo steam && \
+    chsh -s /bin/bash steam
+
+USER steam
+
+# SteamCMD 설치
+RUN mkdir -p /home/steam/steamcmd && \
+    cd /home/steam/steamcmd && \
+    wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
+    tar -xvzf steamcmd_linux.tar.gz && \
+    chmod +x /home/steam/steamcmd/steamcmd.sh
+
+# 환경 변수 설정
+ENV PATH="/home/steam/steamcmd:$PATH"
+
+# SteamCMD 업데이트 및 앱 설치
+RUN /home/steam/steamcmd/steamcmd.sh +login anonymous +app_update 2394010 validate +quit
+
+# 필요한 디렉토리 생성 및 Steamworks SDK 복사
+RUN mkdir -p /home/steam/.steam/sdk64/ && \
+    /home/steam/steamcmd/steamcmd.sh +login anonymous +app_update 1007 validate +quit && \
+    find /home/steam/steamcmd -name "steamclient.so" -exec cp {} /home/steam/.steam/sdk64/ \;
+
+RUN /home/steam/Steam/steamapps/common/PalServer/PalServer.sh & \
+    sleep 10 && \
+    pkill -f PalServer.sh
+
+RUN echo "[/Script/Pal.PalGameWorldSettings]" > /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "OptionSettings=(" >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "Difficulty=None,DayTimeSpeedRate=1.000000,NightTimeSpeedRate=1.000000,ExpRate=1.000000,PalCaptureRate=1.000000,PalSpawnNumRate=1.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "PalDamageRateAttack=1.000000,PalDamageRateDefense=1.000000,PlayerDamageRateAttack=1.000000,PlayerDamageRateDefense=1.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "PlayerStomachDecreaceRate=1.000000,PlayerStaminaDecreaceRate=1.000000,PlayerAutoHPRegeneRate=1.000000,PlayerAutoHpRegeneRateInSleep=1.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "PalStomachDecreaceRate=1.000000,PalStaminaDecreaceRate=1.000000,PalAutoHPRegeneRate=1.000000,PalAutoHpRegeneRateInSleep=1.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "BuildObjectDamageRate=1.000000,BuildObjectDeteriorationDamageRate=1.000000,CollectionDropRate=1.000000,CollectionObjectHpRate=1.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "CollectionObjectRespawnSpeedRate=1.000000,EnemyDropItemRate=1.000000,DeathPenalty=All,bEnablePlayerToPlayerDamage=False," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "bEnableFriendlyFire=False,bEnableInvaderEnemy=True,bActiveUNKO=False,bEnableAimAssistPad=True,bEnableAimAssistKeyboard=False," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "DropItemMaxNum=3000,DropItemMaxNum_UNKO=100,BaseCampMaxNum=128,BaseCampWorkerMaxNum=15,DropItemAliveMaxHours=1.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "bAutoResetGuildNoOnlinePlayers=False,AutoResetGuildTimeNoOnlinePlayers=72.000000,GuildPlayerMaxNum=20,PalEggDefaultHatchingTime=72.000000," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "WorkSpeedRate=1.000000,bIsMultiplay=False,bIsPvP=False,bCanPickupOtherGuildDeathPenaltyDrop=False,bEnableNonLoginPenalty=True," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "bEnableFastTravel=True,bIsStartLocationSelectByMap=True,bExistPlayerAfterLogout=False,bEnableDefenseOtherGuildPlayer=False," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "CoopPlayerMaxNum=4,ServerPlayerMaxNum=32,ServerName=\"Default Palworld Server\",ServerDescription=\"\",AdminPassword=\"\"," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
+    echo "ServerPassword=\"\",PublicPort=8211,PublicIP=\"\",RCONEnabled=False,RCONPort=25575,Region=\"\",bUseAuth=True,BanListURL=\"https://api.palworldgame.com/api/banlist.txt\")" >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini
+
+# RUN chmod +x /control/start.sh
+# RUN chmod +x /control/stop.sh
+
+WORKDIR /
+
+CMD ["sleep", "infinity"]
+
+# CMD [ "./server/PalServer.exe" ]
+
+# CMD ["java", "/control/inputAndOutput.java"]

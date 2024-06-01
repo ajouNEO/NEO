@@ -76,34 +76,62 @@ public class EdgeServerInfoConfig {
         minecreftServerSetting.setSettingFilePath("/server/server.properties");
         gameServerSettingRepo.save(minecreftServerSetting);
 
-        Game mine1_16_5 = new Game();
-        mine1_16_5.setGameName("Minecraft");
-        mine1_16_5.setVersion("1.16.5");
-        mine1_16_5.setDockerImage("mc1.16.5");
-        mine1_16_5.setDefaultSetting(minecreftServerSetting);
+        Game mine1_16_5 = new Game(
+            "Minecraft",
+            "1.16.5",
+            "mc1.16.5",
+            "25565/tcp",
+            "/server",
+            "/server.properties"
+        );
 
-        Game mine1_19_2 = new Game();
-        mine1_19_2.setGameName("Minecraft");
-        mine1_19_2.setVersion("1.19.2");
-        mine1_19_2.setDockerImage("mc1.19.2");
-        mine1_19_2.setDefaultSetting(minecreftServerSetting);
+        Game mine1_19_2 = new Game(
+            "Minecraft",
+            "1.19.2",
+            "mc1.19.2",
+            "25565/tcp",
+            "/server",
+            "/server.properties"
+        );
 
-        Game mine1_20_4 = new Game();
-        mine1_20_4.setGameName("Minecraft");
-        mine1_20_4.setVersion("1.20.4");
-        mine1_20_4.setDockerImage("mc1.20.4");
-        mine1_20_4.setDefaultSetting(minecreftServerSetting);
+        Game mine1_20_4 = new Game(
+            "Minecraft",
+            "1.20.4",
+            "mc1.20.4",
+            "25565/tcp",
+            "/server",
+            "/server.properties"
+        );
+
+        Game palworld = new Game(
+            "Palworld",
+            null,
+            "palworld",
+            "8211/udp",
+            "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
+            "/PalWorldSettings.ini"
+        );
+
+        Game terraria = new Game(
+            "Terraria",
+            null,
+            "terraria",
+            "7777/tcp",
+            "/config",
+            "/serverconfig.txt"
+        );
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);
         gameRepo.save(mine1_20_4);
+        gameRepo.save(palworld);
 
         saveCMD_common();
         saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4);
 
         // User INFO
         User Sunwo = saveUser("sunwo","sunwo","malenwater");
-        User Jihoon = saveUser("JiHoon","JiHoon1!","Jiman");
+        User Jihoon = saveUser("misu","misu","Jiman_misu");
         User Minseo = saveUser("Minseo","Minseo0O","Minseo");
         User Haeun = saveUser("Haeun","Haeun000111!","Haeun");
         User Seungmin = saveUser("Seungmin","Seungmin000111!","Seungmin");
@@ -146,7 +174,7 @@ public class EdgeServerInfoConfig {
         // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         // "선우의 서버",
         // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-        // 40218,
+        // 43556,
         // "????", 
         // 4 ,
         // "놀러와요. 선우의 숲",
@@ -192,6 +220,7 @@ public class EdgeServerInfoConfig {
     //     game.setTag(tag);
     //     gameTagRepo.save(game);
     // }
+
     private void saveCMD_common() {
         GameDockerAPICMD CmdStartStr = new GameDockerAPICMD();
         CmdStartStr.setCmd("sh\t-c\techo 'start' > /control/input.txt");
@@ -274,28 +303,47 @@ public class EdgeServerInfoConfig {
         running_mine.setCmdId("running_mine");
         running_mine.setCmdKind("serverRun");
 
+        GameDockerAPICMD UserListcmd_mine = new GameDockerAPICMD();
+        UserListcmd_mine.setCmd("sh\t-c\techo '[Server thread/INFO]: , joined the game,[Server thread/INFO]: , left the game' > control/user_cmd.txt");
+        UserListcmd_mine.setCmdId("userListCMD_mine");
+        UserListcmd_mine.setCmdKind("userListCMD");
+
+        GameDockerAPICMD UserList_mine = new GameDockerAPICMD();
+        UserList_mine.setCmd("sh\t-c\tcat control/user.txt");
+        UserList_mine.setCmdId("userList_mine");
+        UserList_mine.setCmdKind("userList");
+
+
         gameDockerAPICMDRepo.save(CmdStartAckStr_mine);
         gameDockerAPICMDRepo.save(CmdStopAckStr_mine);
         gameDockerAPICMDRepo.save(banlist_mine);
         gameDockerAPICMDRepo.save(running_mine);
+        gameDockerAPICMDRepo.save(UserListcmd_mine);
+        gameDockerAPICMDRepo.save(UserList_mine);
 
         mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
         mine1_16_5.addCMD(CmdStartAckStr_mine);
         mine1_16_5.addCMD(CmdStopAckStr_mine);
         mine1_16_5.addCMD(banlist_mine);
         mine1_16_5.addCMD(running_mine);
+        mine1_16_5.addCMD(UserListcmd_mine);
+        mine1_16_5.addCMD(UserList_mine);
 
         mine1_19_2.addCMD(CmdMemory_Mine_1_19_2Str);
         mine1_19_2.addCMD(CmdStartAckStr_mine);
         mine1_19_2.addCMD(CmdStopAckStr_mine);
         mine1_19_2.addCMD(banlist_mine);
         mine1_19_2.addCMD(running_mine);
+        mine1_19_2.addCMD(UserListcmd_mine);
+        mine1_19_2.addCMD(UserList_mine);
 
         mine1_20_4.addCMD(CmdMemory_Mine_1_20_4Str);
         mine1_20_4.addCMD(CmdStartAckStr_mine);
         mine1_20_4.addCMD(CmdStopAckStr_mine);
         mine1_20_4.addCMD(banlist_mine);
         mine1_20_4.addCMD(running_mine);
+        mine1_20_4.addCMD(UserListcmd_mine);
+        mine1_20_4.addCMD(UserList_mine);
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);

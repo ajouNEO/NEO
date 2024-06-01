@@ -70,6 +70,11 @@ public class DockerServer extends BaseTime{
     @ManyToMany
     private Set<GameTag> tags = new HashSet<>();
 
+    private int userNumber;
+
+    @ElementCollection
+    private Set<String> userNameInGame = new HashSet<>();
+
     public void addApplicant(User applicant) {
         this.applicants.add(applicant);
     }
@@ -92,6 +97,14 @@ public class DockerServer extends BaseTime{
 
     public void removeGameTag(GameTag tag) {
         this.tags.remove(tag);
+    }
+    
+    public void addUserName(String name) {
+        this.userNameInGame.add(name);
+    }
+
+    public void removeUserName(String name) {
+        this.userNameInGame.remove(name);
     }
 
     public List<String> getApplicantNames() {
