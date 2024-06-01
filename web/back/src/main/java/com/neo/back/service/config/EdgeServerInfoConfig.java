@@ -76,27 +76,55 @@ public class EdgeServerInfoConfig {
         minecreftServerSetting.setSettingFilePath("/server/server.properties");
         gameServerSettingRepo.save(minecreftServerSetting);
 
-        Game mine1_16_5 = new Game();
-        mine1_16_5.setGameName("Minecraft");
-        mine1_16_5.setVersion("1.16.5");
-        mine1_16_5.setDockerImage("mc1.16.5");
-        mine1_16_5.setDefaultSetting(minecreftServerSetting);
+        Game mine1_16_5 = new Game(
+            "Minecraft",
+            "1.16.5",
+            "mc1.16.5",
+            "25565/tcp",
+            "/server",
+            "/server.properties"
+        );
 
-        Game mine1_19_2 = new Game();
-        mine1_19_2.setGameName("Minecraft");
-        mine1_19_2.setVersion("1.19.2");
-        mine1_19_2.setDockerImage("mc1.19.2");
-        mine1_19_2.setDefaultSetting(minecreftServerSetting);
+        Game mine1_19_2 = new Game(
+            "Minecraft",
+            "1.19.2",
+            "mc1.19.2",
+            "25565/tcp",
+            "/server",
+            "/server.properties"
+        );
 
-        Game mine1_20_4 = new Game();
-        mine1_20_4.setGameName("Minecraft");
-        mine1_20_4.setVersion("1.20.4");
-        mine1_20_4.setDockerImage("mc1.20.4");
-        mine1_20_4.setDefaultSetting(minecreftServerSetting);
+        Game mine1_20_4 = new Game(
+            "Minecraft",
+            "1.20.4",
+            "mc1.20.4",
+            "25565/tcp",
+            "/server",
+            "/server.properties"
+        );
+
+        Game palworld = new Game(
+            "Palworld",
+            null,
+            "palworld",
+            "8211/udp",
+            "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
+            "/PalWorldSettings.ini"
+        );
+
+        Game terraria = new Game(
+            "Terraria",
+            null,
+            "terraria",
+            "7777/tcp",
+            "/config",
+            "/serverconfig.txt"
+        );
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);
         gameRepo.save(mine1_20_4);
+        gameRepo.save(palworld);
 
         saveCMD_common();
         saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4);
