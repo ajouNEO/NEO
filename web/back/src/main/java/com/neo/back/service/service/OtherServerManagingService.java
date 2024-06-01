@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -90,6 +93,24 @@ public class OtherServerManagingService {
             dockerServer.setServerComment(comment);
             dockerServerRepo.save(dockerServer);
             return Mono.just("success set comment");
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        }
+    }
+
+    public  Mono<Object> getTags (User user) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(user);
+            if (dockerServer == null) throw new DoNotHaveServerException();
+            Set<GameTag> tags = dockerServer.getTags();
+            List<String> tags_data = new ArrayList<>();
+            tags
+            .stream()
+            .forEach(data->{
+                tags_data.add(data.getTag());
+                
+            });
+            return Mono.just(tags_data);
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
         }

@@ -121,7 +121,13 @@ public class GameServerController {
         return otherServerManagingService.setComment(user, comment);
     }
 
-    @PutMapping("/api/server/settags")
+    @GetMapping("/api/server/tags")
+    public Mono<Object> getTags() {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.getTags(user);
+    }
+
+    @PutMapping("/api/server/tags")
     public Mono<Object> setTags(@RequestBody List<String> tags) {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.setTags(user,tags);
