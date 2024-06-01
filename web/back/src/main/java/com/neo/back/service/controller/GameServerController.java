@@ -177,13 +177,13 @@ public class GameServerController {
     // }
 
     @GetMapping("/api/server/console")
-    public SseEmitter sendGameLog(@RequestParam String token) {
+    public SseEmitter sendGameLog() {
         User user = getCurrentUser.getUser();
         return gameLog.sendLogContinue(user); 
     }
 
 
-    @PostMapping("/api/server/input")
+    @PostMapping("/api/server/console")
     public Mono<String> sentInputToServer(@RequestBody ServerInputDto input) {
         User user = getCurrentUser.getUser();
         return otherServerManagingService.sendInputToServer(user, input);
