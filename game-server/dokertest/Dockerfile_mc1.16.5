@@ -8,8 +8,8 @@ COPY mc1.16.5/craftbukkit-1.16.5.jar /server/
 
 COPY control/. /control/
 
-RUN chmod +x /control/start.sh
-RUN chmod +x /control/stop.sh
+# RUN chmod +x /control/start.sh
+# RUN chmod +x /control/stop.sh
 
 RUN java -jar /server/craftbukkit-1.16.5.jar 
 

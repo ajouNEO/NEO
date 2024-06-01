@@ -14,8 +14,11 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.neo.back.service.dto.FileDataDto;
+import com.neo.back.service.dto.UserSettingCMDDto;
 import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerServerRepository;
+import com.neo.back.service.repository.GameDockerAPICMDRepository;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -27,6 +30,8 @@ public class GameDataService {
     private final DockerServerRepository dockerServerRepo;
     private final WebClient.Builder webClientBuilder;
     private WebClient dockerWebClient;
+    private final DockerAPI dockerAPI;
+    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
     
     public ExchangeFilterFunction logRequestAndResponse() {
         return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
@@ -61,8 +66,19 @@ public class GameDataService {
         this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375")
         // .filter(logRequestAndResponse())
         .build();
+        UserSettingCMDDto UserSetting = dockerAPI.settingIDS_CMD(user);
+        String[] CMD_exec = new String[1];
+        int CMD_exec_fileList = 0;
 
-        String[] cmdArray = new String[]{"ls", "-l","/server/" + path};
+        UserSetting.getGameDockerAPICMDs_settings()
+        .stream()
+        .forEach(gameDockerAPICMD-> {
+            if(gameDockerAPICMD.getCmdKind().equals("pathFileList")){
+                CMD_exec[CMD_exec_fileList] = gameDockerAPICMD.getCmdId();
+            }
+        });
+        
+        String[] cmdArray = new String[]{"ls", "-l",gameDockerAPICMDRepo.findBycmdId(CMD_exec[CMD_exec_fileList]).getCmd() + path};
         
         var getfileAndFolder = Map.of(
             "AttachStdin", false,

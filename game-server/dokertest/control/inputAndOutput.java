@@ -95,13 +95,15 @@ public class inputAndOutput {
 
             try {
                 BufferedReader meomoryReader = new BufferedReader(new FileReader("/control/meomory.txt"));
+                BufferedReader pathReader = new BufferedReader(new FileReader("/control/dataPath.txt"));
 
                 // 파일의 한 줄을 읽어서 전체 명령어 문자열로 저장
                 String cmd = meomoryReader.readLine();
+                String path = pathReader.readLine();
                 // BufferedReader 닫기
                 meomoryReader.close();
 
-                minecraftServerProcess = new ProcessBuilder(cmd.split(",")).directory(new File("/server/")).start();
+                minecraftServerProcess = new ProcessBuilder(cmd.split(",")).directory(new File(path)).start();
 
             } catch (IOException e) {
                 e.printStackTrace();

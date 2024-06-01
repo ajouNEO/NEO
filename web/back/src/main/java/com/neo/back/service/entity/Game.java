@@ -20,12 +20,13 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class Game {
-    public Game(String gameName, String version, int defaultPort, String dockerImage, GameServerSetting serverSetting) {
+    public Game(String gameName, String version, String dockerImage, String defaultPort, String settingFilePath, String settingFileName) {
         this.gameName = gameName;
         this.version = version;
-        this.defaultPort = defaultPort;
         this.dockerImage = dockerImage;
-        this.defaultSetting = serverSetting;
+        this.defaultPort = defaultPort;
+        this.settingFilePath = settingFilePath;
+        this.settingFileName = settingFileName;
     }
 
     @Id
@@ -35,13 +36,17 @@ public class Game {
     private String gameName;
     private String version;
 
-    private int defaultPort;
+    private String defaultPort;
 
     private String dockerImage;
 
-    @ManyToOne
-    @JoinColumn
-    private GameServerSetting defaultSetting;
+    private String settingFilePath;
+
+    private String settingFileName;
+
+    // @ManyToOne
+    // @JoinColumn
+    // private GameServerSetting defaultSetting;
 
     @ManyToMany
     private Set<GameDockerAPICMD> gameDockerAPICMDs = new HashSet<>();
