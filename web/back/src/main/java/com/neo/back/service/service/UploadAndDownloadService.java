@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.neo.back.service.dto.UserSettingCMDDto;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerServerRepository;
@@ -47,7 +48,20 @@ public class UploadAndDownloadService {
         Path basePath = Paths.get("").toAbsolutePath().resolve("src/main/resources/gameserverfile/"+userId);
         Path tarPath = Paths.get("").toAbsolutePath().resolve("src/main/resources/gameserverfile/"+userId+"/userTar.tar");
         byte[] tarFileBytes = null;
+
+        String[] CMD_exec = new String[1];
+        int CMD_exec_pathFolder = 0;
         
+        UserSettingCMDDto UserSettingTo = this.dockerAPI.settingIDS_CMD(user);
+        
+        UserSettingTo.getGameDockerAPICMDs_settings()
+        .stream()
+        .forEach(gameDockerAPICMD-> {
+            if(gameDockerAPICMD.getCmdKind().equals("pathFileList")){
+                CMD_exec[CMD_exec_pathFolder] = gameDockerAPICMD.getCmd();
+            }
+        });
+
         saveUserFolder_file(files,basePath);
         createTarArchive(basePath,tarPath);
 
@@ -56,7 +70,7 @@ public class UploadAndDownloadService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Mono<String> result = postUserTarToContainer(dockerId, tarFileBytes, path);
+        Mono<String> result = postUserTarToContainer(dockerId, tarFileBytes, path,CMD_exec[CMD_exec_pathFolder]);
         deleteFileAndFolder("userTar.tar",user);
         result.block();
         delFileAndFolderAndTar(basePath);
@@ -84,8 +98,8 @@ public class UploadAndDownloadService {
         }
     }
 
-    private Mono<String> postUserTarToContainer(String containerId, byte[] tarFile, String path) {
-        return  this.dockerAPI.uploadFile(containerId, "/server/" + path, tarFile, this.dockerWebClient)
+    private Mono<String> postUserTarToContainer(String containerId, byte[] tarFile, String path,String folderPath) {
+        return  this.dockerAPI.uploadFile(containerId, folderPath + path, tarFile, this.dockerWebClient)
                 .then(this.dockerAPI.restartContainer(containerId, this.dockerWebClient))
                 .thenReturn("uploadSuesses");
     }
@@ -148,7 +162,20 @@ public class UploadAndDownloadService {
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient = makeWebClient.makeDockerWebClient(ip);
 
-        String delMeo = this.gameDockerAPICMDRepo.findBycmdId("delMeoStr").getCmd() + path;
+        String[] CMD_exec = new String[1];
+        int CMD_exec_delMeoStr = 0;
+        
+        UserSettingCMDDto UserSettingTo = this.dockerAPI.settingIDS_CMD(user);
+        
+        UserSettingTo.getGameDockerAPICMDs_settings()
+        .stream()
+        .forEach(gameDockerAPICMD-> {
+            if(gameDockerAPICMD.getCmdKind().equals("delMeoStr")){
+                CMD_exec[CMD_exec_delMeoStr] = gameDockerAPICMD.getCmdId();
+            }
+        });
+
+        String delMeo = this.gameDockerAPICMDRepo.findBycmdId(CMD_exec[CMD_exec_delMeoStr]).getCmd() + path;
         String[] delMeoStr = this.dockerAPI.split_tap(delMeo);
         Map<String,Boolean> delStartList = this.dockerAPI.makeExecStartInst();
         Map<String,Object> delMesList = this.dockerAPI.makeExecInst(delMeoStr);
@@ -166,7 +193,21 @@ public class UploadAndDownloadService {
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient = makeWebClient.makeDockerWebClient(ip);
-        String makeDir = this.gameDockerAPICMDRepo.findBycmdId("makeDirStr").getCmd() + path;
+
+        String[] CMD_exec = new String[1];
+        int CMD_exec_makeDirStr = 0;
+        
+        UserSettingCMDDto UserSettingTo = this.dockerAPI.settingIDS_CMD(user);
+        
+        UserSettingTo.getGameDockerAPICMDs_settings()
+        .stream()
+        .forEach(gameDockerAPICMD-> {
+            if(gameDockerAPICMD.getCmdKind().equals("makeDirStr")){
+                CMD_exec[CMD_exec_makeDirStr] = gameDockerAPICMD.getCmdId();
+            }
+        });
+
+        String makeDir = this.gameDockerAPICMDRepo.findBycmdId(CMD_exec[CMD_exec_makeDirStr]).getCmd() + path;
         String[] makeDirStr = this.dockerAPI.split_tap(makeDir);
         Map<String,Boolean> makeDirList = this.dockerAPI.makeExecStartInst();
         Map<String,Object> delMesList = this.dockerAPI.makeExecInst(makeDirStr);

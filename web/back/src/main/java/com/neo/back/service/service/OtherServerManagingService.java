@@ -165,6 +165,7 @@ public class OtherServerManagingService {
         String[] CMD_exec = new String[2];
         int CMD_exec_send = 0;
         int CMD_exec_search = 1;
+        
         UserSettingCMDDto UserSettingTo = this.dockerAPI.settingIDS_CMD(user);
         
         UserSettingTo.getGameDockerAPICMDs_settings()
@@ -172,21 +173,15 @@ public class OtherServerManagingService {
         .forEach(gameDockerAPICMD-> {
             if(gameDockerAPICMD.getCmdKind().equals("serverRun")){
                 CMD_exec[CMD_exec_send] = gameDockerAPICMD.getCmdId();
-                System.out.println(CMD_exec[CMD_exec_send]);
-                System.out.println("CMD_exec[CMD_exec_send]2");
             }
             else if(gameDockerAPICMD.getCmdKind().equals("SearchStr")){
                 CMD_exec[CMD_exec_search] = gameDockerAPICMD.getCmd();
             }
         });
-        System.out.println("CMD_exec[sam]2");
 
         
         return this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send], UserSetting.getDockerId(), this.dockerWebClient)
         .flatMap(response -> {
-            System.out.println("CMD_exec[sam]2");
-            System.out.println(response);
-            System.out.println("CMD_exec[sam]2");
             int count = 0;
             int index = 0;
     
@@ -198,16 +193,11 @@ public class OtherServerManagingService {
                 }
             }
 
-            System.out.println("sam");
-            System.out.println(gameKind);
-            System.out.println(count);
-            System.out.println("sam");
             GameServerRunDto run = new GameServerRunDto();
             if (count == 3 && gameKind.equals("Minecraft")){ // 3의 값은 현재 프로세스가 돌고 있다 간주, 아니면 안돌고 있음
                 run.setIsWorking(true);
             }
             else if(count == 2 && gameKind.equals("Palworld")){
-                System.out.println("sam");
                 run.setIsWorking(true);
             }
             else{
