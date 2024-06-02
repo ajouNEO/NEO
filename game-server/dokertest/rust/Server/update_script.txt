@@ -1,0 +1,6 @@
+@ShutdownOnFailedCommand 1
+@NoPromptForPassword 1
+login anonymous 
+force_install_dir ../rustds 
+app_update 258550 validate 
+quit
