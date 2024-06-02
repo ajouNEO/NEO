@@ -3,6 +3,7 @@
 
  import com.neo.back.authorization.entity.User;
  import com.neo.back.authorization.repository.UserRepository;
+ import com.neo.back.authorization.util.RedisUtil;
  import com.neo.back.service.dto.ScheduledTaskDto;
  import lombok.RequiredArgsConstructor;
  import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -20,11 +21,14 @@
  @RequiredArgsConstructor
  public class ScheduleService {
 
+     private final RedisUtil redisUtil;
      private final UserRepository userRepository;
 
      private final ThreadPoolTaskScheduler taskScheduler;
 
      private final Map<String, ScheduledTaskInfo> scheduledTasks = new ConcurrentHashMap<>();
+
+     private final Map<String, ScheduledFuture<?>> UserscheduledTasks = new ConcurrentHashMap<>();
 
      private final CloseDockerService closeDockerService;
 
@@ -34,14 +38,27 @@
      public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime,Long points){
 
          Instant endTime = calculateEndTime(points);
+         redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
+
          scheduleTask(user,dockerId,startTime,endTime);
+         schedulePointUpdatePerMinute(user, startTime, endTime);
      }
 
      // 사용자 포인트 기반의 종료 시간 계산
      public Instant calculateEndTime(Long points){
          // 포인트 당 1분으로 계산. 100포인트는 1분
          return Instant.now().plus(Duration.ofMinutes(points/100));
+     }
 
+     // 포인트를 메모리에서 주기적으로 업데이트
+     public void schedulePointUpdatePerMinute(User user, Instant startTime, Instant endTime) {
+         long totalMinutes = Duration.between(startTime, endTime).toMinutes();
+         for (long i = 1; i <= totalMinutes; i++) {
+             Instant scheduledTime = startTime.plus(Duration.ofMinutes(i));
+             taskScheduler.schedule(() -> {
+                 updateUserPointsInMemory(user, 1); // 1분마다 메모리에 포인트 업데이트
+             }, scheduledTime);
+         }
      }
 
 
@@ -52,6 +69,8 @@
              taskInfo.getFuture().cancel(false);
              updatePoints(user, startTime, endTime);
              scheduledTasks.remove(dockerId);
+             redisUtil.deleteData(user.getUsername());
+
          }
 
      }
@@ -66,6 +85,14 @@
             },endTime);
          scheduledTasks.put(dockerId, new ScheduledTaskInfo(future, startTime, endTime));
 
+     }
+
+     // 메모리에서 포인트 업데이트
+     private void updateUserPointsInMemory(User user, long minutesUsed) {
+         String userName = user.getUsername();
+         long pointsToDeduct = minutesUsed * 100; // Assuming 100 points per minute
+         redisUtil.incrementValueBy(userName, -pointsToDeduct);
+         System.out.println("Updated points in memory for user: " + user.getUsername() + " Points: " + redisUtil.getData(userName));
      }
 
      //포인트 소모 반영
@@ -89,6 +116,22 @@
          return scheduledTasks.entrySet().stream()
                  .map(entry -> new ScheduledTaskDto(entry.getKey(), "scheduled", entry.getValue().getStartTime(), entry.getValue().getEndTime()))
                  .collect(Collectors.toList());
+     }
+
+     public void startTrackingUser(User user,String dockerId) {
+         if (UserscheduledTasks.containsKey(dockerId)) {
+             return; // 이미 스케줄링된 작업이 있으면 추가하지 않음
+         }
+         Runnable task = () -> gameUserListService.saveUserList(user);
+         ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(task, 10000); // 10초마다 실행되도록 예시로 설정
+         UserscheduledTasks.put(dockerId, future);
+     }
+
+     public void stopTrackingUser(String dockerId){
+         ScheduledFuture<?> future = UserscheduledTasks.remove(dockerId);
+         if (future != null) {
+             future.cancel(false);
+         }
      }
 
      private static class ScheduledTaskInfo{

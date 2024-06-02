@@ -49,11 +49,11 @@ public class GameServerSettingService {
             this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
             String containerId = dockerServer.getDockerId();
             String filePathInContainer = dockerServer.getGame().getSettingFilePath() + dockerServer.getGame().getSettingFileName();
-            Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
+            Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
 
             // Docker 컨테이너로부터 파일 받아오기
             return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
-                    .flatMap(response -> Mono.just(this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath)));
+                    .flatMap(response -> this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath));
             
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
@@ -97,7 +97,7 @@ public class GameServerSettingService {
             byte[] tarFile = this.createTarContent(dockerServer.getGame().getSettingFileName(), contentBytes);
 
             // tar 파일을 저장할 경로
-            Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
+            Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
 
             // tar 파일 바이트 배열을 실제 파일로 저장
             Files.write(tarPath, tarFile);
@@ -131,7 +131,7 @@ public class GameServerSettingService {
             });
     }
 
-    private ResponseEntity<String> settingFormatConversion(String gameName, Path localPath) {
+    private Mono<Object> settingFormatConversion(String gameName, Path localPath) {
         try {
             String propertiesString  = this.extractPropertiesFromTar(localPath.toString());
 
@@ -149,10 +149,8 @@ public class GameServerSettingService {
                     }
                 }
             } else if ("Palworld".equals(gameName)) {
-                System.out.println(propertiesString);
                 propertiesString = propertiesString.replaceAll("\n", "");
                 propertiesString = propertiesString.replaceAll("\\[\\/Script\\/Pal.PalGameWorldSettings\\]", "");
-                System.out.println(propertiesString);
                 propertiesString = propertiesString.replaceAll("OptionSettings=\\(", "");
                 propertiesString = propertiesString.replaceAll("\\)", "");
                 String[] lines = propertiesString .split(",");
@@ -166,10 +164,10 @@ public class GameServerSettingService {
                     }
                 }
             }
-            return ResponseEntity.ok(json.toString());
+            return Mono.just(json.toString());
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error extracting server.properties");
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error extracting server.properties"));
         }
     }
 

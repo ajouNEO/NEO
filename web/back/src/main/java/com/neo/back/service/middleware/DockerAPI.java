@@ -262,9 +262,6 @@ public class DockerAPI {
         Mono<Map> AckStr = makeExec(dockerId, setInst, dockerWebClient);
         String MeoStr = (String) AckStr.block().get("Id");
         Mono<String> AckEND = startExec(MeoStr,startExecRequest, dockerWebClient);
-        if(AckEND.empty() == null){
-            return Mono.just("null");
-        }
         return AckEND;
     }
 

@@ -84,7 +84,8 @@ public class EdgeServerInfoConfig {
             "/server",
             "/server.properties",
             "\n",
-            "="
+            "=",
+            "max-players"
         );
 
         Game mine1_19_2 = new Game(
@@ -95,7 +96,8 @@ public class EdgeServerInfoConfig {
             "/server",
             "/server.properties",
             "\n",
-            "="
+            "=",
+            "max-players"
         );
 
         Game mine1_20_4 = new Game(
@@ -106,7 +108,8 @@ public class EdgeServerInfoConfig {
             "/server",
             "/server.properties",
             "\n",
-            "="
+            "=",
+            "max-players"
         );
 
         Game palworld = new Game(
@@ -117,7 +120,8 @@ public class EdgeServerInfoConfig {
             "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
             "/PalWorldSettings.ini",
             ",",
-            "="
+            "=",
+            "ServerPlayerMaxNum"
         );
 
         Game terraria = new Game(
@@ -127,6 +131,7 @@ public class EdgeServerInfoConfig {
             "7777/tcp",
             "/config",
             "/serverconfig.txt",
+            "",
             "",
             ""
         );
@@ -237,15 +242,6 @@ public class EdgeServerInfoConfig {
         CmdStartStr.setCmdId("CmdStartStr");
         CmdStartStr.setCmdKind("common");
 
-        GameDockerAPICMD makeDirStr = new GameDockerAPICMD();
-        makeDirStr.setCmd("mkdir\tserver/");
-        makeDirStr.setCmdId("makeDirStr");
-        makeDirStr.setCmdKind("common");
-
-        GameDockerAPICMD delMeoStr = new GameDockerAPICMD();
-        delMeoStr.setCmd("rm\t-rf\tserver/");
-        delMeoStr.setCmdId("delMeoStr");
-        delMeoStr.setCmdKind("common");
 
         GameDockerAPICMD gameLog = new GameDockerAPICMD();
         gameLog.setCmd("sh\t-c\tcat control/output.txt");
@@ -258,8 +254,7 @@ public class EdgeServerInfoConfig {
         input.setCmdId("input");
         input.setCmdKind("common");
 
-        gameDockerAPICMDRepo.save(makeDirStr);
-        gameDockerAPICMDRepo.save(delMeoStr);
+
         gameDockerAPICMDRepo.save(gameLog);
         gameDockerAPICMDRepo.save(input);
         gameDockerAPICMDRepo.save(CmdStartStr);
@@ -338,6 +333,27 @@ public class EdgeServerInfoConfig {
         pathFileList_mine.setCmdId("pathFileList_mine");
         pathFileList_mine.setCmdKind("pathFileList");
 
+        GameDockerAPICMD makeDirStr_mine = new GameDockerAPICMD();
+        makeDirStr_mine.setCmd("mkdir\tserver/");
+        makeDirStr_mine.setCmdId("makeDirStr_mine");
+        makeDirStr_mine.setCmdKind("makeDirStr");
+
+        GameDockerAPICMD delMeoStr_mine = new GameDockerAPICMD();
+        delMeoStr_mine.setCmd("rm\t-rf\tserver/");
+        delMeoStr_mine.setCmdId("delMeoStr_mine");
+        delMeoStr_mine.setCmdKind("delMeoStr");
+
+
+        GameDockerAPICMD makeDirStr_pal = new GameDockerAPICMD();
+        makeDirStr_pal.setCmd("mkdir\t/home/steam/Steam/steamapps/common/PalServer/");
+        makeDirStr_pal.setCmdId("makeDirStr_pal");
+        makeDirStr_pal.setCmdKind("makeDirStr");
+
+        GameDockerAPICMD delMeoStr_pal = new GameDockerAPICMD();
+        delMeoStr_pal.setCmd("rm\t-rf\t/home/steam/Steam/steamapps/common/PalServer/");
+        delMeoStr_pal.setCmdId("delMeoStr_pal");
+        delMeoStr_pal.setCmdKind("delMeoStr");
+        
         GameDockerAPICMD pathFileList_pal = new GameDockerAPICMD();
         pathFileList_pal.setCmd("/home/steam/Steam/steamapps/common/PalServer/");
         pathFileList_pal.setCmdId("pathFileList_pal");
@@ -359,7 +375,7 @@ public class EdgeServerInfoConfig {
         UserListcmd_pal.setCmdKind("userListCMD");
 
         GameDockerAPICMD running_pal = new GameDockerAPICMD();
-        running_pal.setCmd("bash\t-c\ttop -b -n 1 | grep -q PalServ || echo 'null'");
+        running_pal.setCmd("bash\t-c\ttop -b -n 1 | grep PalServ || echo 'null'");
         running_pal.setCmdId("running_pal");
         running_pal.setCmdKind("serverRun");
         
@@ -393,6 +409,8 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(pathFolder_mine);
         gameDockerAPICMDRepo.save(pathFileList_mine);
         gameDockerAPICMDRepo.save(SearchStr_mine);
+        gameDockerAPICMDRepo.save(makeDirStr_mine);
+        gameDockerAPICMDRepo.save(delMeoStr_mine);
 
         gameDockerAPICMDRepo.save(pathFolder_pal);
         gameDockerAPICMDRepo.save(pathFileList_pal);
@@ -402,6 +420,8 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(running_pal);
         gameDockerAPICMDRepo.save(CmdStopStr_pal);
         gameDockerAPICMDRepo.save(SearchStr_pal);
+        gameDockerAPICMDRepo.save(makeDirStr_pal);
+        gameDockerAPICMDRepo.save(delMeoStr_pal);
 
         mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
         mine1_16_5.addCMD(CmdStartAckStr_mine);
@@ -414,6 +434,8 @@ public class EdgeServerInfoConfig {
         mine1_16_5.addCMD(pathFileList_mine);
         mine1_16_5.addCMD(CmdStopStr_mine);
         mine1_16_5.addCMD(SearchStr_mine);
+        mine1_16_5.addCMD(makeDirStr_mine);
+        mine1_16_5.addCMD(delMeoStr_mine);
 
         mine1_19_2.addCMD(CmdMemory_Mine_1_19_2Str);
         mine1_19_2.addCMD(CmdStartAckStr_mine);
@@ -426,6 +448,8 @@ public class EdgeServerInfoConfig {
         mine1_19_2.addCMD(pathFileList_mine);
         mine1_19_2.addCMD(CmdStopStr_mine);
         mine1_19_2.addCMD(SearchStr_mine);
+        mine1_19_2.addCMD(makeDirStr_mine);
+        mine1_19_2.addCMD(delMeoStr_mine);
 
         mine1_20_4.addCMD(CmdMemory_Mine_1_20_4Str);
         mine1_20_4.addCMD(CmdStartAckStr_mine);
@@ -438,6 +462,8 @@ public class EdgeServerInfoConfig {
         mine1_20_4.addCMD(pathFileList_mine);
         mine1_20_4.addCMD(CmdStopStr_mine);
         mine1_20_4.addCMD(SearchStr_mine);
+        mine1_20_4.addCMD(makeDirStr_mine);
+        mine1_20_4.addCMD(delMeoStr_mine);
 
         palworld.addCMD(CmdMemory_palworld);
         palworld.addCMD(CmdStartAckStr_pal);
@@ -450,6 +476,8 @@ public class EdgeServerInfoConfig {
         palworld.addCMD(pathFileList_pal);
         palworld.addCMD(CmdStopStr_pal);
         palworld.addCMD(SearchStr_pal);
+        palworld.addCMD(makeDirStr_pal);
+        palworld.addCMD(delMeoStr_pal);
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);

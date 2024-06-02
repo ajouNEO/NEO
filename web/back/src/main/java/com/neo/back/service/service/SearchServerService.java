@@ -32,7 +32,7 @@ public class SearchServerService {
         return dockerServers.stream()
             .map(server -> new ServerListDto(server.getId(), 
             server.getServerName(), 
-            server.getUser().getUsername(), 
+            server.getUser().getName(), 
             server.getGame().getGameName(), 
             server.getGame().getVersion(), 
             server.isFreeAccess(),
@@ -70,7 +70,7 @@ public class SearchServerService {
         return dockerServers.stream()
             .map(server -> new ServerListDto(server.getId(), 
             server.getServerName(), 
-            server.getUser().getUsername(), 
+            server.getUser().getName(), 
             server.getGame().getGameName(), 
             server.getGame().getVersion(), 
             server.isFreeAccess(),
@@ -144,7 +144,7 @@ public class SearchServerService {
                 dockerServer.getServerName(),
                 ip,
                 port,
-                dockerServer.getUser().getUsername(),
+                dockerServer.getUser().getName(),
                 dockerServer.getGame().getGameName(),
                 dockerServer.getGame().getVersion(),
                 dockerServer.isFreeAccess(),
@@ -167,7 +167,7 @@ public class SearchServerService {
         return dockerServers.stream()
         .map(server -> new ServerListDto(server.getId(),
          server.getServerName(),
-          server.getUser().getUsername(), 
+          server.getUser().getName(), 
           server.getGame().getGameName(), 
           server.getGame().getVersion(), 
           server.isFreeAccess(),
@@ -181,7 +181,7 @@ public class SearchServerService {
         return dockerServers.stream()
         .map(server -> new ServerListDto(server.getId(),
          server.getServerName(),
-          server.getUser().getUsername(), 
+          server.getUser().getName(), 
           server.getGame().getGameName(), 
           server.getGame().getVersion(), 
           server.isFreeAccess(),

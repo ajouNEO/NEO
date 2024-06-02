@@ -109,13 +109,13 @@ public class DockerServer extends BaseTime{
 
     public List<String> getApplicantNames() {
         return applicants.stream()
-        .map(User::getUsername)
+        .map(User::getName)
         .collect(Collectors.toList());
     }
 
     public List<String> getParticipantNames() {
         return participants.stream()
-        .map(User::getUsername)
+        .map(User::getName)
         .collect(Collectors.toList());
     }
 
