@@ -184,7 +184,12 @@ public class inputAndOutput {
                     // 유저 수 증가
                     userCount[0]++;
                     // 누가 들어왔는지를 기록
-                    String username = line.substring(line.lastIndexOf(UserParts[0]) + UserParts[0].length(), line.indexOf(UserParts[1]));
+                    String username = null;
+                    if(!UserParts[0].equals(" ")){
+                        username = line.substring(line.lastIndexOf(UserParts[0]) + UserParts[0].length(), line.indexOf(UserParts[1]));
+                    }else{
+                        username = line.substring(0, line.indexOf(UserParts[1]));
+                    }
                     System.out.println(username);
                     userSet.add(username); // 유저 목록에 추가
                 }
@@ -193,7 +198,12 @@ public class inputAndOutput {
                 if (line.contains(UserParts[3])) {
                     System.out.println(UserParts[3]);
                     // 누가 나갔는지를 찾음
-                    String username = line.substring(line.lastIndexOf(UserParts[2]) + UserParts[2].length(), line.indexOf(UserParts[3]));
+                    String username = null;
+                    if(!UserParts[2].equals(" ")){
+                        username = line.substring(line.lastIndexOf(UserParts[2]) + UserParts[2].length(), line.indexOf(UserParts[3]));
+                    }else{
+                        username = line.substring(0, line.indexOf(UserParts[3]));
+                    }
                     System.out.println(username);
                     if (userSet.contains(username)) {
                         // 유저 수 감소
@@ -217,7 +227,9 @@ public class inputAndOutput {
 
         @Override
         public void run() {
-            try(BufferedWriter writer = new BufferedWriter(new FileWriter("/control/output.txt"))){
+            int lineNum = 0;
+            try{
+                BufferedWriter writer = new BufferedWriter(new FileWriter("/control/output.txt"));
                 BufferedReader dataSplit = new BufferedReader(new FileReader("/control/user_cmd.txt"));
                 Boolean flag = true;
                 String[] UserParts = null;
@@ -239,12 +251,24 @@ public class inputAndOutput {
                         if (line == null) {
                             continue;
                         }
-
+                        lineNum++;
+                        if(lineNum > 199){
+                            try {
+                                Thread.sleep(1250); 
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            lineNum = 0;
+                            writer.close();
+                            writer = new BufferedWriter(new FileWriter("/control/output.txt"));
+                        }
                         if(flag){
                             userList(userCount,userSet,line,UserParts);
                         }
 
-                        // 게임 로그 넣기
+                        if (line.contains("Terraria Server v1.4.4.9")) {
+                            line = line.replace("Terraria Server v1.4.4.9", "").trim();
+                        }
                         writer.write(line);
                         writer.newLine();
                         writer.flush();

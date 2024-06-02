@@ -142,7 +142,7 @@ public class EdgeServerInfoConfig {
         gameRepo.save(palworld);
 
         saveCMD_common();
-        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4,palworld);
+        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4,palworld,terraria);
 
         // User INFO
         User Sunwo = saveUser("sunwo@naver.com","sunwo","malenwater");
@@ -244,13 +244,13 @@ public class EdgeServerInfoConfig {
 
 
         GameDockerAPICMD gameLog = new GameDockerAPICMD();
-        gameLog.setCmd("sh\t-c\tcat control/output.txt");
+        gameLog.setCmd("sh\t-c\tcat /control/output.txt");
         gameLog.setCmdId("gameLog");
         gameLog.setCmdKind("common");
 
 
         GameDockerAPICMD input = new GameDockerAPICMD();
-        input.setCmd("sh\t-c\techo 'input INPUT' > control/input.txt");
+        input.setCmd("sh\t-c\techo 'input INPUT' > /control/input.txt");
         input.setCmdId("input");
         input.setCmdKind("common");
 
@@ -260,7 +260,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(CmdStartStr);
 
     }
-    private void saveCMD_mine(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4, Game palworld) {
+    private void saveCMD_mine(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4, Game palworld, Game terraria) {
         GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
         CmdMemory_Mine_1_16_5Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.16.5.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_16_5Str.setCmdId("1.16.5_START");
@@ -280,13 +280,17 @@ public class EdgeServerInfoConfig {
         CmdMemory_palworld.setCmd("bash\t-c\techo \"/control/palStart.sh\" >  /control/meomory.txt");
         CmdMemory_palworld.setCmdId("CmdMemory_palworld");
         CmdMemory_palworld.setCmdKind("execCMD");
+
+        GameDockerAPICMD CmdMemory_terraria = new GameDockerAPICMD();
+        CmdMemory_terraria.setCmd("bash\t-c\techo \"./run.sh\" >  /control/meomory.txt");
+        CmdMemory_terraria.setCmdId("CmdMemory_terraria");
+        CmdMemory_terraria.setCmdKind("execCMD");
         
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_16_5Str);
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_19_2Str);
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_20_4Str);
         gameDockerAPICMDRepo.save(CmdMemory_palworld);
-
-
+        gameDockerAPICMDRepo.save(CmdMemory_terraria);
         
         GameDockerAPICMD CmdStartAckStr_mine = new GameDockerAPICMD();
         CmdStartAckStr_mine.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Done\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
@@ -299,7 +303,7 @@ public class EdgeServerInfoConfig {
         CmdStopAckStr_mine.setCmdKind("stop_ack");
 
         GameDockerAPICMD banlist_mine = new GameDockerAPICMD();
-        banlist_mine.setCmd("sh\t-c\tcat server/banned-players.json");
+        banlist_mine.setCmd("sh\t-c\t[ -s server/banned-players.json ] && cat server/banned-players.json || echo \"null\"");
         banlist_mine.setCmdId("banlist");
         banlist_mine.setCmdKind("userBan");
 
@@ -314,7 +318,7 @@ public class EdgeServerInfoConfig {
         UserListcmd_mine.setCmdKind("userListCMD");
 
         GameDockerAPICMD UserList_mine = new GameDockerAPICMD();
-        UserList_mine.setCmd("sh\t-c\tcat control/user.txt");
+        UserList_mine.setCmd("sh\t-c\t[ -s /control/user.txt ] && cat /control/user.txt || echo \"null\"");
         UserList_mine.setCmdId("userList_mine");
         UserList_mine.setCmdKind("userList");
 
@@ -322,11 +326,6 @@ public class EdgeServerInfoConfig {
         pathFolder_mine.setCmd("sh\t-c\techo \"/server/\" > /control/dataPath.txt");
         pathFolder_mine.setCmdId("pathFolder_mine");
         pathFolder_mine.setCmdKind("pathFolder");
-
-        GameDockerAPICMD pathFolder_pal = new GameDockerAPICMD();
-        pathFolder_pal.setCmd("bash\t-c\techo \"/\" > /control/dataPath.txt");
-        pathFolder_pal.setCmdId("pathFolder_pal");
-        pathFolder_pal.setCmdKind("pathFolder");
 
         GameDockerAPICMD pathFileList_mine = new GameDockerAPICMD();
         pathFileList_mine.setCmd("/server/");
@@ -342,7 +341,34 @@ public class EdgeServerInfoConfig {
         delMeoStr_mine.setCmd("rm\t-rf\tserver/");
         delMeoStr_mine.setCmdId("delMeoStr_mine");
         delMeoStr_mine.setCmdKind("delMeoStr");
+        
+        GameDockerAPICMD CmdStopStr_mine = new GameDockerAPICMD();
+        CmdStopStr_mine.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
+        CmdStopStr_mine.setCmdId("CmdStopStr_mine");
+        CmdStopStr_mine.setCmdKind("CmdStopStr");
+        
+        GameDockerAPICMD SearchStr_mine = new GameDockerAPICMD();
+        SearchStr_mine.setCmd("/server/craftbukkit-");
+        SearchStr_mine.setCmdId("SearchStr_mine");
+        SearchStr_mine.setCmdKind("SearchStr");
 
+        gameDockerAPICMDRepo.save(CmdStopStr_mine);
+        gameDockerAPICMDRepo.save(CmdStartAckStr_mine);
+        gameDockerAPICMDRepo.save(CmdStopAckStr_mine);
+        gameDockerAPICMDRepo.save(banlist_mine);
+        gameDockerAPICMDRepo.save(running_mine);
+        gameDockerAPICMDRepo.save(UserListcmd_mine);
+        gameDockerAPICMDRepo.save(UserList_mine);
+        gameDockerAPICMDRepo.save(pathFolder_mine);
+        gameDockerAPICMDRepo.save(pathFileList_mine);
+        gameDockerAPICMDRepo.save(SearchStr_mine);
+        gameDockerAPICMDRepo.save(makeDirStr_mine);
+        gameDockerAPICMDRepo.save(delMeoStr_mine);
+
+        GameDockerAPICMD pathFolder_pal = new GameDockerAPICMD();
+        pathFolder_pal.setCmd("bash\t-c\techo \"/\" > /control/dataPath.txt");
+        pathFolder_pal.setCmdId("pathFolder_pal");
+        pathFolder_pal.setCmdKind("pathFolder");
 
         GameDockerAPICMD makeDirStr_pal = new GameDockerAPICMD();
         makeDirStr_pal.setCmd("mkdir\t/home/steam/Steam/steamapps/common/PalServer/");
@@ -378,40 +404,17 @@ public class EdgeServerInfoConfig {
         running_pal.setCmd("bash\t-c\ttop -b -n 1 | grep PalServ || echo 'null'");
         running_pal.setCmdId("running_pal");
         running_pal.setCmdKind("serverRun");
-        
-        GameDockerAPICMD CmdStopStr_mine = new GameDockerAPICMD();
-        CmdStopStr_mine.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
-        CmdStopStr_mine.setCmdId("CmdStopStr_mine");
-        CmdStopStr_mine.setCmdKind("CmdStopStr");
 
         GameDockerAPICMD CmdStopStr_pal = new GameDockerAPICMD();
         CmdStopStr_pal.setCmd("bash\t-c\tpkill -f PalServer-Linux");
         CmdStopStr_pal.setCmdId("CmdStopStr_pal");
         CmdStopStr_pal.setCmdKind("CmdStopStr");
-        
-        GameDockerAPICMD SearchStr_mine = new GameDockerAPICMD();
-        SearchStr_mine.setCmd("/server/craftbukkit-");
-        SearchStr_mine.setCmdId("SearchStr_mine");
-        SearchStr_mine.setCmdKind("SearchStr");
 
         GameDockerAPICMD SearchStr_pal = new GameDockerAPICMD();
         SearchStr_pal.setCmd("PalServ");
         SearchStr_pal.setCmdId("SearchStr_pal");
         SearchStr_pal.setCmdKind("SearchStr");
-
-        gameDockerAPICMDRepo.save(CmdStopStr_mine);
-        gameDockerAPICMDRepo.save(CmdStartAckStr_mine);
-        gameDockerAPICMDRepo.save(CmdStopAckStr_mine);
-        gameDockerAPICMDRepo.save(banlist_mine);
-        gameDockerAPICMDRepo.save(running_mine);
-        gameDockerAPICMDRepo.save(UserListcmd_mine);
-        gameDockerAPICMDRepo.save(UserList_mine);
-        gameDockerAPICMDRepo.save(pathFolder_mine);
-        gameDockerAPICMDRepo.save(pathFileList_mine);
-        gameDockerAPICMDRepo.save(SearchStr_mine);
-        gameDockerAPICMDRepo.save(makeDirStr_mine);
-        gameDockerAPICMDRepo.save(delMeoStr_mine);
-
+        
         gameDockerAPICMDRepo.save(pathFolder_pal);
         gameDockerAPICMDRepo.save(pathFileList_pal);
         gameDockerAPICMDRepo.save(CmdStartAckStr_pal);
@@ -423,6 +426,87 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(makeDirStr_pal);
         gameDockerAPICMDRepo.save(delMeoStr_pal);
 
+        GameDockerAPICMD CmdStartAckStr_terra = new GameDockerAPICMD();
+        CmdStartAckStr_terra.setCmd("bash\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\": Server started\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
+        CmdStartAckStr_terra.setCmdId("CmdStartAckStr_terra");
+        CmdStartAckStr_terra.setCmdKind("start_ack");
+
+        GameDockerAPICMD CmdStopAckStr_terra = new GameDockerAPICMD();
+        CmdStopAckStr_terra.setCmd("bash\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Saving before exit...\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
+        CmdStopAckStr_terra.setCmdId("CmdStopAckStr_terra");
+        CmdStopAckStr_terra.setCmdKind("stop_ack");
+
+        GameDockerAPICMD banlist_terra = new GameDockerAPICMD();
+        banlist_terra.setCmd("bash\t-c\t[ -s /config/banlist.txt ] && cat /config/banlist.txt || echo \"null\"");
+        banlist_terra.setCmdId("banlist_terra");
+        banlist_terra.setCmdKind("userBan");
+
+        GameDockerAPICMD UserListcmd_terra = new GameDockerAPICMD();
+        UserListcmd_terra.setCmd("bash\t-c\techo ' , has joined, , has left' > /control/user_cmd.txt");
+        UserListcmd_terra.setCmdId("UserListcmd_terra");
+        UserListcmd_terra.setCmdKind("userListCMD");
+
+        GameDockerAPICMD UserList_terra = new GameDockerAPICMD();
+        UserList_terra.setCmd("bash\t-c\t[ -s /control/user.txt ] && cat /control/user.txt || echo \"null\"");
+        UserList_terra.setCmdId("UserList_terra");
+        UserList_terra.setCmdKind("userList");
+
+        GameDockerAPICMD pathFolder_terra = new GameDockerAPICMD();
+        pathFolder_terra.setCmd("bash\t-c\techo \"/vanilla/\" > /control/dataPath.txt");
+        pathFolder_terra.setCmdId("pathFolder_terra");
+        pathFolder_terra.setCmdKind("pathFolder");
+
+        GameDockerAPICMD pathFileList_terra = new GameDockerAPICMD();
+        pathFileList_terra.setCmd("/config/");
+        pathFileList_terra.setCmdId("pathFileList_terra");
+        pathFileList_terra.setCmdKind("pathFileList");
+
+        GameDockerAPICMD makeDirStr_terra = new GameDockerAPICMD();
+        makeDirStr_terra.setCmd("mkdir\t/config/");
+        makeDirStr_terra.setCmdId("makeDirStr_terra");
+        makeDirStr_terra.setCmdKind("makeDirStr");
+
+        GameDockerAPICMD delMeoStr_terra = new GameDockerAPICMD();
+        delMeoStr_terra.setCmd("rm\t-rf\t/config/");
+        delMeoStr_terra.setCmdId("delMeoStr_terra");
+        delMeoStr_terra.setCmdKind("delMeoStr");
+        
+        GameDockerAPICMD CmdStopStr_terra = new GameDockerAPICMD();
+        CmdStopStr_terra.setCmd("bash\t-c\techo 'input exit' > /control/input.txt");
+        CmdStopStr_terra.setCmdId("CmdStopStr_terra");
+        CmdStopStr_terra.setCmdKind("CmdStopStr");
+        
+        GameDockerAPICMD SearchStr_terra = new GameDockerAPICMD();
+        SearchStr_terra.setCmd("TerrariaServer");
+        SearchStr_terra.setCmdId("SearchStr_terra");
+        SearchStr_terra.setCmdKind("SearchStr");
+
+        GameDockerAPICMD running_terra = new GameDockerAPICMD();
+        running_terra.setCmd("bash\t-c\tps -aux | grep TerrariaServer");
+        running_terra.setCmdId("running_terra");
+        running_terra.setCmdKind("serverRun");
+
+        GameDockerAPICMD execCMD2_terra = new GameDockerAPICMD();
+        execCMD2_terra.setCmd("bash\t-c\tsed -i 's/\\(CMD=\"\\.\\/TerrariaServer -x64 -config \\/config\\/serverconfig.txt -banlist \\/config\\/banlist.txt\\).*\\(\"\\)/\\1 TEXT \\2/' /vanilla/run.sh");
+        execCMD2_terra.setCmdId("execCMD2_terra");
+        execCMD2_terra.setCmdKind("execCMD2");
+
+
+        gameDockerAPICMDRepo.save(CmdStopStr_terra);
+        gameDockerAPICMDRepo.save(CmdStartAckStr_terra);
+        gameDockerAPICMDRepo.save(CmdStopAckStr_terra);
+        gameDockerAPICMDRepo.save(banlist_terra);
+        gameDockerAPICMDRepo.save(running_terra);
+        gameDockerAPICMDRepo.save(UserListcmd_terra);
+        gameDockerAPICMDRepo.save(UserList_terra);
+        gameDockerAPICMDRepo.save(pathFolder_terra);
+        gameDockerAPICMDRepo.save(pathFileList_terra);
+        gameDockerAPICMDRepo.save(SearchStr_terra);
+        gameDockerAPICMDRepo.save(makeDirStr_terra);
+        gameDockerAPICMDRepo.save(delMeoStr_terra);
+        gameDockerAPICMDRepo.save(execCMD2_terra);
+
+//-----------------------------------------------------------------------------------------
         mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
         mine1_16_5.addCMD(CmdStartAckStr_mine);
         mine1_16_5.addCMD(CmdStopAckStr_mine);
@@ -479,10 +563,26 @@ public class EdgeServerInfoConfig {
         palworld.addCMD(makeDirStr_pal);
         palworld.addCMD(delMeoStr_pal);
 
+        terraria.addCMD(CmdMemory_terraria);
+        terraria.addCMD(CmdStartAckStr_terra);
+        terraria.addCMD(CmdStopAckStr_terra);
+        terraria.addCMD(banlist_terra);
+        terraria.addCMD(running_terra);
+        terraria.addCMD(UserListcmd_terra);
+        terraria.addCMD(UserList_terra);
+        terraria.addCMD(pathFolder_terra);
+        terraria.addCMD(pathFileList_terra);
+        terraria.addCMD(CmdStopStr_terra);
+        terraria.addCMD(SearchStr_terra);
+        terraria.addCMD(makeDirStr_terra);
+        terraria.addCMD(delMeoStr_terra);
+        terraria.addCMD(execCMD2_terra);
+
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);
         gameRepo.save(mine1_20_4);
         gameRepo.save(palworld);
+        gameRepo.save(terraria);
     }
 
 
