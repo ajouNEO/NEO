@@ -182,11 +182,13 @@
         <label for="gameName">게임 종류:</label>
         <select id="gameName">
             <option value="Minecraft">마인크래프트</option>
+            <option value="Palworld">팰월드</option>
         </select>
         <br>
 
         <label for="version">게임 버전:</label>
         <select id="version">
+            <option value="">null</option>
             <option value="1.16.5">1.16.5</option>
             <option value="1.19.2">1.19.2</option>
             <option value="1.20.4">1.20.4</option>
@@ -231,7 +233,7 @@
     <script>
         function submitForm() {
             const gameName = document.getElementById('gameName').value;
-            const version = document.getElementById('version').value;
+            const version = document.getElementById('version').value === '' ? null : document.getElementById('version').value;
             const serverName = document.getElementById('serverName').value;
             const ramCapacity = document.getElementById('ramCapacity').value;
             const paymentSystem = document.getElementById('paymentSystem').value;

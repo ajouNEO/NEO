@@ -1,0 +1,30 @@
+FROM mono:slim
+
+# Metadata
+ARG VCS_REF
+LABEL org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/beardedio/terraria" \
+      org.opencontainers.image.source="https://github.com/beardedio/terraria" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.description="Vanilla Terraria Server - Version 1449" \
+      VANILLA_VERSION="1449"
+
+# Install utilities and cleanup in a single RUN to reduce layer size
+RUN apt-get update && \
+    apt-get install -y curl unzip && \
+    curl -sL https://www.terraria.org/api/download/pc-dedicated-server/terraria-server-1449.zip --output terraria-server.zip && \
+    unzip -q terraria-server.zip -d /vanilla && \
+    mv /vanilla/*/Linux /vanilla && \
+    mv /vanilla/*/Windows/serverconfig.txt /vanilla/serverconfig-default.txt && \
+    chmod +x /vanilla/TerrariaServer* && \
+    rm -rf terraria-server.zip /var/lib/apt/lists/* /tmp/* && \
+    if [ ! -f /vanilla/TerrariaServer ]; then echo "Missing /vanilla/TerrariaServer"; exit 1; fi
+
+# Prepare server
+COPY run-vanilla.sh /vanilla/run.sh
+RUN chmod +x /vanilla/run.sh
+
+# Environment setup
+VOLUME ["/config"]
+WORKDIR /vanilla
+ENTRYPOINT ["./run.sh"]
