@@ -34,7 +34,16 @@ LABEL VANILLA_VERSION=1449
 # Allow for external data
 VOLUME ["/config"]
 
+COPY control/. /control/
+RUN chmod -R 777 /control
+RUN apt-get update && apt-get install -y procps
+RUN apt-get update && apt-get install -y openjdk-11-jre
+
 # Run the server
 WORKDIR /vanilla
 RUN chmod +x ./run.sh
-ENTRYPOINT ["./run.sh"]
+
+# CMD ["java", "/control/inputAndOutput.java"]
+
+CMD ["sleep", "infinity"]
+# ENTRYPOINT ["./run.sh"]
