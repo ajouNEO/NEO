@@ -200,6 +200,9 @@ public class OtherServerManagingService {
             else if(count == 2 && gameKind.equals("Palworld")){
                 run.setIsWorking(true);
             }
+            else if(count == 4 && gameKind.equals("Terraria")){
+                run.setIsWorking(true);
+            }
             else{
                 run.setIsWorking(false);
             }

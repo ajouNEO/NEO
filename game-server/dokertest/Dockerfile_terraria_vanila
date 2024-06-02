@@ -43,6 +43,8 @@ RUN apt-get update && apt-get install -y openjdk-11-jre
 WORKDIR /vanilla
 RUN chmod +x ./run.sh
 
+COPY terraria/. /config/
+
 # CMD ["java", "/control/inputAndOutput.java"]
 
 CMD ["sleep", "infinity"]

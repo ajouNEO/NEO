@@ -298,7 +298,7 @@ public class EdgeServerInfoConfig {
         CmdStopAckStr_mine.setCmdKind("stop_ack");
 
         GameDockerAPICMD banlist_mine = new GameDockerAPICMD();
-        banlist_mine.setCmd("sh\t-c\tcat server/banned-players.json");
+        banlist_mine.setCmd("sh\t-c\t[ -s server/banned-players.json ] && cat server/banned-players.json || echo \"null\"");
         banlist_mine.setCmdId("banlist");
         banlist_mine.setCmdKind("userBan");
 
@@ -422,32 +422,32 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(delMeoStr_pal);
 
         GameDockerAPICMD CmdStartAckStr_terra = new GameDockerAPICMD();
-        CmdStartAckStr_terra.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Terraria Server v1.4.4.9\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
+        CmdStartAckStr_terra.setCmd("bash\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\": Server started\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
         CmdStartAckStr_terra.setCmdId("CmdStartAckStr_terra");
         CmdStartAckStr_terra.setCmdKind("start_ack");
 
         GameDockerAPICMD CmdStopAckStr_terra = new GameDockerAPICMD();
-        CmdStopAckStr_terra.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Saving before exit...\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
+        CmdStopAckStr_terra.setCmd("bash\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Saving before exit...\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
         CmdStopAckStr_terra.setCmdId("CmdStopAckStr_terra");
         CmdStopAckStr_terra.setCmdKind("stop_ack");
 
         GameDockerAPICMD banlist_terra = new GameDockerAPICMD();
-        banlist_terra.setCmd("sh\t-c\tcat /config/banlist.txt");
+        banlist_terra.setCmd("bash\t-c\t[ -s /config/banlist.txt ] && cat /config/banlist.txt || echo \"null\"");
         banlist_terra.setCmdId("banlist_terra");
         banlist_terra.setCmdKind("userBan");
 
         GameDockerAPICMD UserListcmd_terra = new GameDockerAPICMD();
-        UserListcmd_terra.setCmd("sh\t-c\techo ', has joined,, has left' > /control/user_cmd.txt");
+        UserListcmd_terra.setCmd("bash\t-c\techo ' , has joined, , has left' > /control/user_cmd.txt");
         UserListcmd_terra.setCmdId("UserListcmd_terra");
         UserListcmd_terra.setCmdKind("userListCMD");
 
         GameDockerAPICMD UserList_terra = new GameDockerAPICMD();
-        UserList_terra.setCmd("sh\t-c\t[ -s /control/user.txt ] && cat /control/user.txt || echo \"null\"");
+        UserList_terra.setCmd("bash\t-c\t[ -s /control/user.txt ] && cat /control/user.txt || echo \"null\"");
         UserList_terra.setCmdId("UserList_terra");
         UserList_terra.setCmdKind("userList");
 
         GameDockerAPICMD pathFolder_terra = new GameDockerAPICMD();
-        pathFolder_terra.setCmd("sh\t-c\techo \"/vanilla/\" > /control/dataPath.txt");
+        pathFolder_terra.setCmd("bash\t-c\techo \"/vanilla/\" > /control/dataPath.txt");
         pathFolder_terra.setCmdId("pathFolder_terra");
         pathFolder_terra.setCmdKind("pathFolder");
 
@@ -467,7 +467,7 @@ public class EdgeServerInfoConfig {
         delMeoStr_terra.setCmdKind("delMeoStr");
         
         GameDockerAPICMD CmdStopStr_terra = new GameDockerAPICMD();
-        CmdStopStr_terra.setCmd("sh\t-c\techo 'input exit' > /control/input.txt");
+        CmdStopStr_terra.setCmd("bash\t-c\techo 'input exit' > /control/input.txt");
         CmdStopStr_terra.setCmdId("CmdStopStr_terra");
         CmdStopStr_terra.setCmdKind("CmdStopStr");
         
@@ -477,9 +477,15 @@ public class EdgeServerInfoConfig {
         SearchStr_terra.setCmdKind("SearchStr");
 
         GameDockerAPICMD running_terra = new GameDockerAPICMD();
-        running_terra.setCmd("sh\t-c\tps -aux | grep TerrariaServer");
+        running_terra.setCmd("bash\t-c\tps -aux | grep TerrariaServer");
         running_terra.setCmdId("running_terra");
         running_terra.setCmdKind("serverRun");
+
+        GameDockerAPICMD execCMD2_terra = new GameDockerAPICMD();
+        execCMD2_terra.setCmd("bash\t-c\tsed -i 's/\\(CMD=\"\\.\\/TerrariaServer -x64 -config \\/config\\/serverconfig.txt -banlist \\/config\\/banlist.txt\\).*\\(\"\\)/\\1 TEXT \\2/' /vanilla/run.sh");
+        execCMD2_terra.setCmdId("execCMD2_terra");
+        execCMD2_terra.setCmdKind("execCMD2");
+
 
         gameDockerAPICMDRepo.save(CmdStopStr_terra);
         gameDockerAPICMDRepo.save(CmdStartAckStr_terra);
@@ -493,6 +499,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(SearchStr_terra);
         gameDockerAPICMDRepo.save(makeDirStr_terra);
         gameDockerAPICMDRepo.save(delMeoStr_terra);
+        gameDockerAPICMDRepo.save(execCMD2_terra);
 
 //-----------------------------------------------------------------------------------------
         mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
@@ -564,6 +571,7 @@ public class EdgeServerInfoConfig {
         terraria.addCMD(SearchStr_terra);
         terraria.addCMD(makeDirStr_terra);
         terraria.addCMD(delMeoStr_terra);
+        terraria.addCMD(execCMD2_terra);
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);

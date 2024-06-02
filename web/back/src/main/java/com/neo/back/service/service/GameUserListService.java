@@ -51,6 +51,8 @@ public class GameUserListService {
         ObjectMapper objectMapper = new ObjectMapper();
         String[] CMD_exec = new String[1];
         int CMD_exec_send_Ban = 0;
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        String gameKind = dockerServer.getGame().getGameName();
 
         UserSetting.getGameDockerAPICMDs_settings()
         .stream()
@@ -63,19 +65,32 @@ public class GameUserListService {
         return this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send_Ban], UserSetting.getDockerId(), this.dockerWebClient)
         .flatMap(response -> {
             try {
-                List<UserBanMineDto> users = objectMapper.readValue(response, new TypeReference<List<UserBanMineDto>>() {});
                 Set<UserBanServerListDto> UserList = new HashSet<>();
-
-                for (UserBanMineDto banUser : users) {
-                    UserBanServerListDto banItem = new UserBanServerListDto();
-                    banItem.setName(banUser.getName());
-                    banItem.setTime(banUser.getCreated());
-                    banItem.setSource(banUser.getSource());
-                    banItem.setReason(banUser.getReason());
-                    banItem.setExpires(banUser.getExpires());
-                    UserList.add(banItem);
+                if(gameKind.equals("Minecraft")){
+                    List<UserBanMineDto> users = objectMapper.readValue(response, new TypeReference<List<UserBanMineDto>>() {});
+                    for (UserBanMineDto banUser : users) {
+                        UserBanServerListDto banItem = new UserBanServerListDto();
+                        banItem.setName(banUser.getName());
+                        banItem.setTime(banUser.getCreated());
+                        banItem.setSource(banUser.getSource());
+                        banItem.setReason(banUser.getReason());
+                        banItem.setExpires(banUser.getExpires());
+                        UserList.add(banItem);
+                    }
+                    return Mono.just(UserList);
+                }else if(gameKind.equals("Terraria")){
+                    String[] lines = response.split("\n");
+                    for (String line : lines) {
+                        UserBanServerListDto banItem = new UserBanServerListDto();
+                        if (line.startsWith("//")) {
+                            String name = line.substring(2).trim();
+                            banItem.setName(name);
+                            UserList.add(banItem);
+                        }
+                    }
                 }
                 return Mono.just(UserList);
+
             } catch (JsonMappingException e) {
                 e.printStackTrace();
             } catch (JsonProcessingException e) {
