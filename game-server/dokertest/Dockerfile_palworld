@@ -65,11 +65,11 @@ RUN chmod -R 777 /control
 
 WORKDIR /
 
-CMD ["sleep", "infinity"]
+# CMD ["sleep", "infinity"]
 
 # CMD [ "./server/PalServer.exe" ]
 
-# CMD ["java", "/control/inputAndOutput.java"]
+CMD ["java", "/control/inputAndOutput.java"]
 
 
 

@@ -227,11 +227,6 @@ public class EdgeServerInfoConfig {
         CmdStartStr.setCmdId("CmdStartStr");
         CmdStartStr.setCmdKind("common");
 
-        GameDockerAPICMD CmdStopStr = new GameDockerAPICMD();
-        CmdStopStr.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
-        CmdStopStr.setCmdId("CmdStopStr");
-        CmdStopStr.setCmdKind("common");
-
         GameDockerAPICMD makeDirStr = new GameDockerAPICMD();
         makeDirStr.setCmd("mkdir\tserver/");
         makeDirStr.setCmdId("makeDirStr");
@@ -258,7 +253,6 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(gameLog);
         gameDockerAPICMDRepo.save(input);
         gameDockerAPICMDRepo.save(CmdStartStr);
-        gameDockerAPICMDRepo.save(CmdStopStr);
 
     }
     private void saveCMD_mine(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4, Game palworld) {
@@ -278,7 +272,7 @@ public class EdgeServerInfoConfig {
         CmdMemory_Mine_1_20_4Str.setCmdKind("execCMD");
 
         GameDockerAPICMD CmdMemory_palworld = new GameDockerAPICMD();
-        CmdMemory_palworld.setCmd("sh\t-c\techo \"/control/palStart.sh\" >  /control/meomory.txt");
+        CmdMemory_palworld.setCmd("bash\t-c\techo \"/control/palStart.sh\" >  /control/meomory.txt");
         CmdMemory_palworld.setCmdId("CmdMemory_palworld");
         CmdMemory_palworld.setCmdKind("execCMD");
         
@@ -325,7 +319,7 @@ public class EdgeServerInfoConfig {
         pathFolder_mine.setCmdKind("pathFolder");
 
         GameDockerAPICMD pathFolder_pal = new GameDockerAPICMD();
-        pathFolder_pal.setCmd("sh\t-c\techo \"/\" > /control/dataPath.txt");
+        pathFolder_pal.setCmd("bash\t-c\techo \"/\" > /control/dataPath.txt");
         pathFolder_pal.setCmdId("pathFolder_pal");
         pathFolder_pal.setCmdKind("pathFolder");
 
@@ -340,25 +334,46 @@ public class EdgeServerInfoConfig {
         pathFileList_pal.setCmdKind("pathFileList");
 
         GameDockerAPICMD CmdStartAckStr_pal = new GameDockerAPICMD();
-        CmdStartAckStr_pal.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Disabling core dumps.\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
+        CmdStartAckStr_pal.setCmd("bash\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Disabling core dumps.\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
         CmdStartAckStr_pal.setCmdId("CmdStartAckStr_pal");
         CmdStartAckStr_pal.setCmdKind("start_ack");
 
         GameDockerAPICMD CmdStopAckStr_pal = new GameDockerAPICMD();
-        CmdStopAckStr_pal.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Shutdown handler: cleanup.\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
+        CmdStopAckStr_pal.setCmd("bash\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Shutdown handler: cleanup.\"* ]]; then echo \"stopAck\" ; sleep 5 ; pkill -P $$ tail ; flag=1 ; break ; fi ; done ; if [ $flag -eq 0 ]; then echo \"stopERR\" ; fi ;}");
         CmdStopAckStr_pal.setCmdId("CmdStopAckStr_pal");
         CmdStopAckStr_pal.setCmdKind("stop_ack");
 
         GameDockerAPICMD UserListcmd_pal = new GameDockerAPICMD();
-        UserListcmd_pal.setCmd("sh\t-c\techo '] [LOG] , joined the server. ,] [LOG] , left the server.' > /control/user_cmd.txt");
+        UserListcmd_pal.setCmd("bash\t-c\techo '] [LOG] , joined the server. ,] [LOG] , left the server.' > /control/user_cmd.txt");
         UserListcmd_pal.setCmdId("UserListcmd_pal");
         UserListcmd_pal.setCmdKind("userListCMD");
 
         GameDockerAPICMD running_pal = new GameDockerAPICMD();
-        running_pal.setCmd("sh\t-c\tps | grep PalServer-Linux");
+        running_pal.setCmd("bash\t-c\ttop -b -n 1 | grep -q PalServ || echo 'null'");
         running_pal.setCmdId("running_pal");
         running_pal.setCmdKind("serverRun");
         
+        GameDockerAPICMD CmdStopStr_mine = new GameDockerAPICMD();
+        CmdStopStr_mine.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
+        CmdStopStr_mine.setCmdId("CmdStopStr_mine");
+        CmdStopStr_mine.setCmdKind("CmdStopStr");
+
+        GameDockerAPICMD CmdStopStr_pal = new GameDockerAPICMD();
+        CmdStopStr_pal.setCmd("bash\t-c\tpkill -f PalServer-Linux");
+        CmdStopStr_pal.setCmdId("CmdStopStr_pal");
+        CmdStopStr_pal.setCmdKind("CmdStopStr");
+        
+        GameDockerAPICMD SearchStr_mine = new GameDockerAPICMD();
+        SearchStr_mine.setCmd("/server/craftbukkit-");
+        SearchStr_mine.setCmdId("SearchStr_mine");
+        SearchStr_mine.setCmdKind("SearchStr");
+
+        GameDockerAPICMD SearchStr_pal = new GameDockerAPICMD();
+        SearchStr_pal.setCmd("PalServ");
+        SearchStr_pal.setCmdId("SearchStr_pal");
+        SearchStr_pal.setCmdKind("SearchStr");
+
+        gameDockerAPICMDRepo.save(CmdStopStr_mine);
         gameDockerAPICMDRepo.save(CmdStartAckStr_mine);
         gameDockerAPICMDRepo.save(CmdStopAckStr_mine);
         gameDockerAPICMDRepo.save(banlist_mine);
@@ -367,12 +382,16 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(UserList_mine);
         gameDockerAPICMDRepo.save(pathFolder_mine);
         gameDockerAPICMDRepo.save(pathFileList_mine);
+        gameDockerAPICMDRepo.save(SearchStr_mine);
+
         gameDockerAPICMDRepo.save(pathFolder_pal);
         gameDockerAPICMDRepo.save(pathFileList_pal);
         gameDockerAPICMDRepo.save(CmdStartAckStr_pal);
         gameDockerAPICMDRepo.save(CmdStopAckStr_pal);
         gameDockerAPICMDRepo.save(UserListcmd_pal);
         gameDockerAPICMDRepo.save(running_pal);
+        gameDockerAPICMDRepo.save(CmdStopStr_pal);
+        gameDockerAPICMDRepo.save(SearchStr_pal);
 
         mine1_16_5.addCMD(CmdMemory_Mine_1_16_5Str);
         mine1_16_5.addCMD(CmdStartAckStr_mine);
@@ -383,6 +402,8 @@ public class EdgeServerInfoConfig {
         mine1_16_5.addCMD(UserList_mine);
         mine1_16_5.addCMD(pathFolder_mine);
         mine1_16_5.addCMD(pathFileList_mine);
+        mine1_16_5.addCMD(CmdStopStr_mine);
+        mine1_16_5.addCMD(SearchStr_mine);
 
         mine1_19_2.addCMD(CmdMemory_Mine_1_19_2Str);
         mine1_19_2.addCMD(CmdStartAckStr_mine);
@@ -393,6 +414,8 @@ public class EdgeServerInfoConfig {
         mine1_19_2.addCMD(UserList_mine);
         mine1_19_2.addCMD(pathFolder_mine);
         mine1_19_2.addCMD(pathFileList_mine);
+        mine1_19_2.addCMD(CmdStopStr_mine);
+        mine1_19_2.addCMD(SearchStr_mine);
 
         mine1_20_4.addCMD(CmdMemory_Mine_1_20_4Str);
         mine1_20_4.addCMD(CmdStartAckStr_mine);
@@ -403,6 +426,8 @@ public class EdgeServerInfoConfig {
         mine1_20_4.addCMD(UserList_mine);
         mine1_20_4.addCMD(pathFolder_mine);
         mine1_20_4.addCMD(pathFileList_mine);
+        mine1_20_4.addCMD(CmdStopStr_mine);
+        mine1_20_4.addCMD(SearchStr_mine);
 
         palworld.addCMD(CmdMemory_palworld);
         palworld.addCMD(CmdStartAckStr_pal);
@@ -413,6 +438,8 @@ public class EdgeServerInfoConfig {
         palworld.addCMD(UserList_mine);
         palworld.addCMD(pathFolder_pal);
         palworld.addCMD(pathFileList_pal);
+        palworld.addCMD(CmdStopStr_pal);
+        palworld.addCMD(SearchStr_pal);
 
         gameRepo.save(mine1_16_5);
         gameRepo.save(mine1_19_2);
