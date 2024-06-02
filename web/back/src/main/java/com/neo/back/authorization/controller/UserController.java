@@ -1,9 +1,7 @@
 package com.neo.back.authorization.controller;
 
-import com.neo.back.authorization.dto.PasswordChangeRequestDTO;
-import com.neo.back.authorization.dto.resetRequest;
+import com.neo.back.authorization.dto.*;
 import com.neo.back.authorization.service.UserService;
-import com.neo.back.authorization.dto.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,5 +43,22 @@ public class UserController {
             return ResponseEntity.badRequest().body("Bad Request");
         }
     }
+
+    @PostMapping("checkUsername")
+    public Boolean checkUsernameDuplicate(@RequestBody EmailRequest request){
+        String email = request.getEmail();
+        boolean success = userService.checkDuplicateEmail(email);
+
+       return success;
+    }
+
+    @PostMapping("checkname")
+    public Boolean checkUsernameDuplicate(@RequestBody NameRequest request){
+        String name = request.getNickname();
+        boolean success = userService.checkDuplicateName(name);
+
+        return success;
+    }
+
 
 }
