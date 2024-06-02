@@ -29,7 +29,7 @@ public class ForTestController {
         // 예시 데이터 반환
         List<DockerImage> dataList = dockerImageRepo.findAll(); // 데이터베이스에서 모든 데이터를 조회합니다.
         List<testDockerImageDto> dataDTOList = dataList.stream()
-                .map(data -> new testDockerImageDto(data.getId(), data.getServerName(), data.getUser().getUsername(), data.getImageId(), data.getSize(), data.getDate(), data.getGame().getGameName() + data.getGame().getVersion()))
+                .map(data -> new testDockerImageDto(data.getId(), data.getServerName(), data.getUser().getName(), data.getImageId(), data.getSize(), data.getDate(), data.getGame().getGameName() + data.getGame().getVersion()))
                 .collect(Collectors.toList()); // Entity 리스트를 DTO 리스트로 변환합니다.
 
         return ResponseEntity.ok(dataDTOList);
@@ -40,7 +40,7 @@ public class ForTestController {
         // 예시 데이터 반환
         List<DockerServer> dataList = dockerServerRepo.findAll(); // 데이터베이스에서 모든 데이터를 조회합니다.
         List<testDockerServerDto> dataDTOList = dataList.stream()
-                .map(data -> new testDockerServerDto(data.getId(), data.getServerName(), data.getUser().getUsername(), data.getEdgeServer().getEdgeServerName(), data.getPort(), data.getDockerId(), data.getRAMCapacity(), data.getGame().getGameName() + data.getGame().getVersion(), data.getBaseImage()))
+                .map(data -> new testDockerServerDto(data.getId(), data.getServerName(), data.getUser().getName(), data.getEdgeServer().getEdgeServerName(), data.getPort(), data.getDockerId(), data.getRAMCapacity(), data.getGame().getGameName() + data.getGame().getVersion(), data.getBaseImage()))
                 .collect(Collectors.toList()); // Entity 리스트를 DTO 리스트로 변환합니다.
 
         return ResponseEntity.ok(dataDTOList);

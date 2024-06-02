@@ -49,7 +49,7 @@ public class GameServerSettingService {
             this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
             String containerId = dockerServer.getDockerId();
             String filePathInContainer = dockerServer.getGame().getSettingFilePath() + dockerServer.getGame().getSettingFileName();
-            Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
+            Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
 
             // Docker 컨테이너로부터 파일 받아오기
             return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
@@ -97,7 +97,7 @@ public class GameServerSettingService {
             byte[] tarFile = this.createTarContent(dockerServer.getGame().getSettingFileName(), contentBytes);
 
             // tar 파일을 저장할 경로
-            Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
+            Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
 
             // tar 파일 바이트 배열을 실제 파일로 저장
             Files.write(tarPath, tarFile);
