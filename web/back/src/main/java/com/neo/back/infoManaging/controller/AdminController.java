@@ -1,4 +1,4 @@
-package com.neo.back.authorization.controller;
+package com.neo.back.infoManaging.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
