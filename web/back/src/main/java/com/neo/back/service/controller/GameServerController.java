@@ -207,4 +207,9 @@ public class GameServerController {
         return otherServerManagingService.sendInputToServer(user, input);
     }
 
+    @GetMapping("/api/server/maxPlayer")
+    public Mono<Object> getMaxPlayer() {
+        User user = getCurrentUser.getUser();
+        return otherServerManagingService.getMaxPlayer(user); 
+    }
 }
