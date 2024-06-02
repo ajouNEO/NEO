@@ -68,7 +68,10 @@ public class GameUserListService {
         .flatMap(response -> {
             try {
                 Set<UserBanServerListDto> UserList = new HashSet<>();
-                if(gameKind.equals("Minecraft")){
+                if(response.equals("null\n")){
+                    return Mono.just(UserList);
+                }
+                else if(gameKind.equals("Minecraft")){
                     List<UserBanMineDto> users = objectMapper.readValue(response, new TypeReference<List<UserBanMineDto>>() {});
                     for (UserBanMineDto banUser : users) {
                         UserBanServerListDto banItem = new UserBanServerListDto();
@@ -80,7 +83,8 @@ public class GameUserListService {
                         UserList.add(banItem);
                     }
                     return Mono.just(UserList);
-                }else if(gameKind.equals("Terraria")){
+                }
+                else if(gameKind.equals("Terraria")){
                     String[] lines = response.split("\n");
                     for (String line : lines) {
                         UserBanServerListDto banItem = new UserBanServerListDto();
