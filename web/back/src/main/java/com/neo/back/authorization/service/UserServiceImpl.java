@@ -55,6 +55,25 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    @Override
+    public boolean checkDuplicateEmail(String email) {
+        if(email == null || email.trim().isEmpty()) {
+            // 유효하지 않은 username 입력 처리
+            return false;
+        }
+        return !userRepository.existsByUsername(email);
+    }
+
+    @Override
+    public boolean checkDuplicateName(String name) {
+        if(name == null || name.trim().isEmpty()) {
+            // 유효하지 않은 username 입력 처리
+            return false;
+        }
+
+        return !userRepository.existsByname(name);
+    }
+
 
     private String createTemporaryPassword() {
         // 임시 비밀번호 생성 로직 구현
