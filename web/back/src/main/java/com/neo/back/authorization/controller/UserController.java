@@ -44,7 +44,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("checkUsername")
+    @PostMapping("/checkUsername")
     public Boolean checkUsernameDuplicate(@RequestBody EmailRequest request){
         String email = request.getEmail();
         boolean success = userService.checkDuplicateEmail(email);
@@ -52,7 +52,7 @@ public class UserController {
        return success;
     }
 
-    @PostMapping("checkname")
+    @PostMapping("/checkname")
     public Boolean checkUsernameDuplicate(@RequestBody NameRequest request){
         String name = request.getNickname();
         boolean success = userService.checkDuplicateName(name);
