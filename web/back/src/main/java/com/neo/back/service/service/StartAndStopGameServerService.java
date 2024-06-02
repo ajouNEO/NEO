@@ -30,10 +30,11 @@ public class StartAndStopGameServerService {
         try {
             UserSettingCMDDto UserSetting = dockerAPI.settingIDS_CMD(user);
             this.dockerWebClient = makeWebClient.makeDockerWebClient(UserSetting.getIp());
-            String[] CMD_exec = new String[3];
+            String[] CMD_exec = new String[4];
             int CMD_exec_MEM = 0;
             int CMD_exec_send = 1;
             int CMD_exec_ACK = 2;
+            int CMD_exec_path = 3;
             String ack = null;
             CMD_exec[CMD_exec_send] = "CmdStartStr";
             GameServerRunDto startGameServerDto = new GameServerRunDto();
@@ -47,11 +48,17 @@ public class StartAndStopGameServerService {
                 else if(gameDockerAPICMD.getCmdKind().equals("start_ack")){
                     CMD_exec[CMD_exec_ACK] = gameDockerAPICMD.getCmdId();
                 }
+                else if(gameDockerAPICMD.getCmdKind().equals("pathFolder")){
+                    CMD_exec[CMD_exec_path] = gameDockerAPICMD.getCmdId();
+                }
             });
             
             this.gameUserListService.setUserListCMD(user);
 
             this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_MEM], UserSetting.getDockerId(), this.dockerWebClient,"MEMORY",UserSetting.getMemory())
+            .block();
+
+            this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_path], UserSetting.getDockerId(), this.dockerWebClient)
             .block();
 
             this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send], UserSetting.getDockerId(), this.dockerWebClient)
@@ -75,7 +82,6 @@ public class StartAndStopGameServerService {
             int CMD_exec_send = 0;
             int CMD_exec_ACK = 1;
             String ack = null;
-            CMD_exec[CMD_exec_send] = "CmdStopStr";
             GameServerRunDto startGameServerDto = new GameServerRunDto();
 
             UserSetting.getGameDockerAPICMDs_settings()
@@ -84,6 +90,9 @@ public class StartAndStopGameServerService {
                 if(gameDockerAPICMD.getCmdKind().equals("stop_ack")){
                     CMD_exec[CMD_exec_ACK] = gameDockerAPICMD.getCmdId();
                 }
+                else if(gameDockerAPICMD.getCmdKind().equals("CmdStopStr")){
+                    CMD_exec[CMD_exec_send] = gameDockerAPICMD.getCmdId();
+                }
             });
 
             this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send], UserSetting.getDockerId(), this.dockerWebClient)
@@ -91,7 +100,7 @@ public class StartAndStopGameServerService {
 
             ack = this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_ACK], UserSetting.getDockerId(), this.dockerWebClient)
             .block();
-
+            
             startGameServerDto.setIsWorking(ack.equals("stopAck\n"));
             return Mono.just(startGameServerDto);
         } catch (DoNotHaveServerException e) {

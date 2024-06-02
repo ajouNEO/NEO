@@ -3,6 +3,7 @@ package com.neo.back.service.service;
 import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.MyServerInfoDto;
 import com.neo.back.service.dto.ServerInputDto;
+import com.neo.back.service.dto.UserSettingCMDDto;
 import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.GameTag;
@@ -159,21 +160,54 @@ public class OtherServerManagingService {
     public Mono<GameServerRunDto> getServerRunning(User user) {
         UserSettingDto UserSetting = this.dockerAPI.settingIDS(user);
         this.dockerWebClient = makeWebClient.makeDockerWebClient(UserSetting.getIp());
-        // 일단 이렇게 하고 후에 다대다 관계를 성립시켜야함
-        String searchString = "/server/craftbukkit-";
-        return this.dockerAPI.MAKEexec("running_mine", UserSetting.getDockerId(), this.dockerWebClient)
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        String gameKind = dockerServer.getGame().getGameName();
+        String[] CMD_exec = new String[2];
+        int CMD_exec_send = 0;
+        int CMD_exec_search = 1;
+        UserSettingCMDDto UserSettingTo = this.dockerAPI.settingIDS_CMD(user);
+        
+        UserSettingTo.getGameDockerAPICMDs_settings()
+        .stream()
+        .forEach(gameDockerAPICMD-> {
+            if(gameDockerAPICMD.getCmdKind().equals("serverRun")){
+                CMD_exec[CMD_exec_send] = gameDockerAPICMD.getCmdId();
+                System.out.println(CMD_exec[CMD_exec_send]);
+                System.out.println("CMD_exec[CMD_exec_send]2");
+            }
+            else if(gameDockerAPICMD.getCmdKind().equals("SearchStr")){
+                CMD_exec[CMD_exec_search] = gameDockerAPICMD.getCmd();
+            }
+        });
+        System.out.println("CMD_exec[sam]2");
+
+        
+        return this.dockerAPI.MAKEexec(CMD_exec[CMD_exec_send], UserSetting.getDockerId(), this.dockerWebClient)
         .flatMap(response -> {
+            System.out.println("CMD_exec[sam]2");
             System.out.println(response);
+            System.out.println("CMD_exec[sam]2");
             int count = 0;
             int index = 0;
     
             // 반복문을 통해 검색 문자열의 위치를 찾음
-            while ((index = response.indexOf(searchString, index)) != -1) {
-                count++;
-                index += searchString.length(); // 검색 문자열의 길이만큼 인덱스를 증가시켜서 중복 카운트를 방지
+            if(response != null){
+                while ((index = response.indexOf(CMD_exec[CMD_exec_search], index)) != -1) {
+                    count++;
+                    index += CMD_exec[CMD_exec_search].length(); // 검색 문자열의 길이만큼 인덱스를 증가시켜서 중복 카운트를 방지
+                }
             }
+
+            System.out.println("sam");
+            System.out.println(gameKind);
+            System.out.println(count);
+            System.out.println("sam");
             GameServerRunDto run = new GameServerRunDto();
-            if (count == 3){ // 3의 값은 현재 프로세스가 돌고 있다 간주, 아니면 안돌고 있음
+            if (count == 3 && gameKind.equals("Minecraft")){ // 3의 값은 현재 프로세스가 돌고 있다 간주, 아니면 안돌고 있음
+                run.setIsWorking(true);
+            }
+            else if(count == 2 && gameKind.equals("Palworld")){
+                System.out.println("sam");
                 run.setIsWorking(true);
             }
             else{
