@@ -84,7 +84,8 @@ public class EdgeServerInfoConfig {
             "/server",
             "/server.properties",
             "\n",
-            "="
+            "=",
+            "max-players"
         );
 
         Game mine1_19_2 = new Game(
@@ -95,7 +96,8 @@ public class EdgeServerInfoConfig {
             "/server",
             "/server.properties",
             "\n",
-            "="
+            "=",
+            "max-players"
         );
 
         Game mine1_20_4 = new Game(
@@ -106,7 +108,8 @@ public class EdgeServerInfoConfig {
             "/server",
             "/server.properties",
             "\n",
-            "="
+            "=",
+            "max-players"
         );
 
         Game palworld = new Game(
@@ -117,7 +120,8 @@ public class EdgeServerInfoConfig {
             "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
             "/PalWorldSettings.ini",
             ",",
-            "="
+            "=",
+            "ServerPlayerMaxNum"
         );
 
         Game terraria = new Game(
@@ -127,6 +131,7 @@ public class EdgeServerInfoConfig {
             "7777/tcp",
             "/config",
             "/serverconfig.txt",
+            "",
             "",
             ""
         );

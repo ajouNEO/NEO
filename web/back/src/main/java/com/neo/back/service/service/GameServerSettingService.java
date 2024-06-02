@@ -53,7 +53,7 @@ public class GameServerSettingService {
 
             // Docker 컨테이너로부터 파일 받아오기
             return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
-                    .flatMap(response -> Mono.just(this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath)));
+                    .flatMap(response -> this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath));
             
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
@@ -131,7 +131,7 @@ public class GameServerSettingService {
             });
     }
 
-    private ResponseEntity<String> settingFormatConversion(String gameName, Path localPath) {
+    private Mono<Object> settingFormatConversion(String gameName, Path localPath) {
         try {
             String propertiesString  = this.extractPropertiesFromTar(localPath.toString());
 
@@ -149,10 +149,8 @@ public class GameServerSettingService {
                     }
                 }
             } else if ("Palworld".equals(gameName)) {
-                System.out.println(propertiesString);
                 propertiesString = propertiesString.replaceAll("\n", "");
                 propertiesString = propertiesString.replaceAll("\\[\\/Script\\/Pal.PalGameWorldSettings\\]", "");
-                System.out.println(propertiesString);
                 propertiesString = propertiesString.replaceAll("OptionSettings=\\(", "");
                 propertiesString = propertiesString.replaceAll("\\)", "");
                 String[] lines = propertiesString .split(",");
@@ -166,10 +164,10 @@ public class GameServerSettingService {
                     }
                 }
             }
-            return ResponseEntity.ok(json.toString());
+            return Mono.just(json.toString());
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error extracting server.properties");
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error extracting server.properties"));
         }
     }
 
