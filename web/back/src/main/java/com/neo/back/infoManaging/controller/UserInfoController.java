@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserInfoController {
 
     private final GetCurrentUser getCurrentUser;
-
     private final RedisTemplate<String, String> template;
 
-    private final UserRepository userRepository;
 
     @GetMapping("/api/user/point")
     public Long getPoint(){
@@ -32,10 +30,8 @@ public class UserInfoController {
             return Long.parseLong(points);
         }
         else{
-
             return user.getPoints();
         }
-
     }
 
     @GetMapping("/api/user/nickname")
