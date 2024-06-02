@@ -83,7 +83,7 @@ public class GameServerSettingService {
                 result.append(entry.getKey()).append(game.getKeyValueSeparator()).append(entry.getValue());
             }
 
-            if (game.getGameName() == "Palworld") {
+            if ("Palworld".equals(game.getGameName())) {
                 result.append(")");
                 result.insert(0, "OptionSettings=(");
                 result.insert(0, "[/Script/Pal.PalGameWorldSettings]\n");
@@ -137,7 +137,7 @@ public class GameServerSettingService {
 
             JSONObject json = new JSONObject();
 
-            if (gameName == "Minecraft") {
+            if ("Minecraft".equals(gameName)) {
                 String[] lines = propertiesString .split("\n");
 
                 for (String line : lines) {
@@ -148,10 +148,13 @@ public class GameServerSettingService {
                         }
                     }
                 }
-            } else if (gameName == "Palworld") {
-                propertiesString = propertiesString.replaceAll("[/Script/Pal.PalGameWorldSettings]\n", "");
-                propertiesString = propertiesString.replaceAll("OptionSettings=(", "");
-                propertiesString = propertiesString.replaceAll(")", "");
+            } else if ("Palworld".equals(gameName)) {
+                System.out.println(propertiesString);
+                propertiesString = propertiesString.replaceAll("\n", "");
+                propertiesString = propertiesString.replaceAll("\\[\\/Script\\/Pal.PalGameWorldSettings\\]", "");
+                System.out.println(propertiesString);
+                propertiesString = propertiesString.replaceAll("OptionSettings=\\(", "");
+                propertiesString = propertiesString.replaceAll("\\)", "");
                 String[] lines = propertiesString .split(",");
 
                 for (String line : lines) {
