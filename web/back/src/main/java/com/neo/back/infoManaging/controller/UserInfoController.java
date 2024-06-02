@@ -5,7 +5,6 @@ import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.service.utility.GetCurrentUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,7 @@ public class UserInfoController {
 
     private final UserRepository userRepository;
 
-    @GetMapping("/api/point")
+    @GetMapping("/api/user/point")
     public Long getPoint(){
         User user = getCurrentUser.getUser();
 
@@ -39,7 +38,7 @@ public class UserInfoController {
 
     }
 
-    @GetMapping("/api/nickname")
+    @GetMapping("/api/user/nickname")
     public String getNickname(){
         User user = getCurrentUser.getUser();
         return user.getName();
