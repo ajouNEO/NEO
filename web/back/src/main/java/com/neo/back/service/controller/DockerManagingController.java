@@ -5,7 +5,7 @@ import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.exception.UserCapacityExceededException;
 import com.neo.back.service.repository.DockerServerRepository;
-import com.neo.back.service.service.ScheduleService;
+import com.neo.back.service.service.*;
 import com.neo.back.service.utility.GetCurrentUser;
 import com.neo.back.authorization.entity.User;
 
@@ -24,10 +24,6 @@ import java.util.Optional;
 
 import com.neo.back.service.dto.CreateDockerDto;
 import com.neo.back.service.dto.MyServerListDto;
-import com.neo.back.service.service.CloseDockerService;
-import com.neo.back.service.service.CreateDockerService;
-import com.neo.back.service.service.GameUserListService;
-import com.neo.back.service.service.UserServerListService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -70,16 +66,17 @@ public class DockerManagingController {
     @PostMapping("/api/container/create")
     public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
-        return createDockerService.createContainer(config, user);
-                // .flatMap(result -> {
-                //     Instant startTime = Instant.now();
-                //     System.out.println(user);
-                //     DockerServer dockerServer = dockerServerRepository.findByUser(user);
-                //     String dockerId = dockerServer.getDockerId();
-                //     Long points = user.getPoints();
-                //     scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
-                //     return Mono.just(ResponseEntity.ok("Container created successfully"));
-                // });
+        return createDockerService.createContainer(config, user)
+                 .flatMap(result -> {
+                     Instant startTime = Instant.now();
+                     System.out.println(user);
+                     DockerServer dockerServer = dockerServerRepository.findByUser(user);
+                     String dockerId = dockerServer.getDockerId();
+                     Long points = user.getPoints();
+                     scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
+                     scheduleService.startTrackingUser(user,dockerId);
+                     return Mono.just(ResponseEntity.ok("Container created successfully"));
+                 });
     }
 
     @PostMapping("/api/container/recreate")
@@ -100,6 +97,7 @@ public class DockerManagingController {
 
         Instant endTime = Instant.now();    // Assuming we don't have the actual end time here
         scheduleService.cancelScheduledEnd(user, userdockerId, startTime, endTime);
+        scheduleService.stopTrackingUser(userdockerId);
         return closeDockerService.closeDockerService(user);
     }
 

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import com.neo.back.authorization.util.RedisUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -36,6 +37,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GameUserListService {
     private final DockerServerRepository dockerServerRepo;
+    private final RedisUtil redisUtil;
     private final MakeWebClient makeWebClient;
     private final DockerAPI dockerAPI;
     private WebClient dockerWebClient;
@@ -154,7 +156,7 @@ public class GameUserListService {
 
         UserListSetting(data, lines);
 
-        dockerServer.setUserNumber(data.getNumber());
+        //dockerServer.setUserNumber(data.getNumber());
 
         namesToRemove = dockerServer.getUserNameInGame()
         .stream()
@@ -168,7 +170,10 @@ public class GameUserListService {
         .collect(Collectors.toList());
         namesToAdd.forEach(dockerServer::addUserName);
 
-        dockerServerRepo.save(dockerServer);
+
+        redisUtil.updateUserNumberInRedis(dockerServer.getId(), data.getNumber());
+        redisUtil.setUsernames("docker:" + dockerServer.getDockerId() + ":usernames", data.getName());
+        //dockerServerRepo.save(dockerServer);
 
     }
 
