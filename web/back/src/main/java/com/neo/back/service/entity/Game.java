@@ -20,13 +20,15 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class Game {
-    public Game(String gameName, String version, String dockerImage, String defaultPort, String settingFilePath, String settingFileName) {
+    public Game(String gameName, String version, String dockerImage, String defaultPort, String settingFilePath, String settingFileName, String itemSeparator, String keyValueSeparator) {
         this.gameName = gameName;
         this.version = version;
         this.dockerImage = dockerImage;
         this.defaultPort = defaultPort;
         this.settingFilePath = settingFilePath;
         this.settingFileName = settingFileName;
+        this.itemSeparator = itemSeparator;
+        this.keyValueSeparator = keyValueSeparator;
     }
 
     @Id
@@ -43,6 +45,10 @@ public class Game {
     private String settingFilePath;
 
     private String settingFileName;
+
+    private String itemSeparator;
+
+    private String keyValueSeparator;
 
     // @ManyToOne
     // @JoinColumn

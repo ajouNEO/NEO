@@ -65,11 +65,11 @@ public class CreateDockerService {
             var createContainerRequest = Map.of(
                 "Image", game.getDockerImage(),
                 "ExposedPorts", Map.of(
-                    "8211/UDP", Map.of()
+                    game.getDefaultPort(), Map.of()
                 ),
                 "HostConfig", Map.of(
                     "PortBindings", Map.of(
-                        "8211/UDP", Collections.singletonList(
+                        game.getDefaultPort(), Collections.singletonList(
                             Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
                         )
                     ),
@@ -109,11 +109,11 @@ public class CreateDockerService {
             var createContainerRequest = Map.of(
                 "Image", dockerImage.get().getImageId(),
                 "ExposedPorts", Map.of(
-                    "25565/tcp", Map.of()
+                    dockerImage.get().getGame().getDefaultPort(), Map.of()
                 ),
                 "HostConfig", Map.of(
                     "PortBindings", Map.of(
-                        "25565/tcp", Collections.singletonList(
+                        dockerImage.get().getGame().getDefaultPort(), Collections.singletonList(
                             Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
                         )
                     ),

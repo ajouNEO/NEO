@@ -82,7 +82,9 @@ public class EdgeServerInfoConfig {
             "mc1.16.5",
             "25565/tcp",
             "/server",
-            "/server.properties"
+            "/server.properties",
+            "\n",
+            "="
         );
 
         Game mine1_19_2 = new Game(
@@ -91,7 +93,9 @@ public class EdgeServerInfoConfig {
             "mc1.19.2",
             "25565/tcp",
             "/server",
-            "/server.properties"
+            "/server.properties",
+            "\n",
+            "="
         );
 
         Game mine1_20_4 = new Game(
@@ -100,7 +104,9 @@ public class EdgeServerInfoConfig {
             "mc1.20.4",
             "25565/tcp",
             "/server",
-            "/server.properties"
+            "/server.properties",
+            "\n",
+            "="
         );
 
         Game palworld = new Game(
@@ -109,7 +115,9 @@ public class EdgeServerInfoConfig {
             "palworld",
             "8211/udp",
             "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
-            "/PalWorldSettings.ini"
+            "/PalWorldSettings.ini",
+            ",",
+            "="
         );
 
         Game terraria = new Game(
@@ -118,7 +126,9 @@ public class EdgeServerInfoConfig {
             "terraria",
             "7777/tcp",
             "/config",
-            "/serverconfig.txt"
+            "/serverconfig.txt",
+            "",
+            ""
         );
 
         gameRepo.save(mine1_16_5);
@@ -130,17 +140,17 @@ public class EdgeServerInfoConfig {
         saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4,palworld);
 
         // User INFO
-        User Sunwo = saveUser("sunwo","sunwo","malenwater");
-        User Jihoon = saveUser("misu","misu","Jiman_misu");
-        User Minseo = saveUser("Minseo","Minseo0O","Minseo");
-        User Haeun = saveUser("Haeun","Haeun000111!","Haeun");
-        User Seungmin = saveUser("Seungmin","Seungmin000111!","Seungmin");
+        User Sunwo = saveUser("sunwo@naver.com","sunwo","malenwater");
+        User Jihoon = saveUser("misu@naver.com","misu","Jiman_misu");
+        User Minseo = saveUser("Minseo@naver.com","Minseo0O","Minseo");
+        User Haeun = saveUser("Haeun@naver.com","Haeun000111!","Haeun");
+        User Seungmin = saveUser("Seungmin@naver.com","Seungmin000111!","Seungmin");
         // 5 User
-        User Jiwoo = saveUser("Jiwoo","SunJiwoo1!","Jiwoo");
-        User Seoyeon = saveUser("Seoyeon","Seoyeon1!","Seoyeon");
-        User Minjoon = saveUser("Minjoon","Minjoon0O","Minjoon");
-        User Yujin = saveUser("Yujin","Yujin000111!","Yujin");
-        User Jimin = saveUser("Jimin","Jimin000111!","Jimin");
+        User Jiwoo = saveUser("Jiwoo@naver.com","SunJiwoo1!","Jiwoo");
+        User Seoyeon = saveUser("Seoyeon@naver.com","Seoyeon1!","Seoyeon");
+        User Minjoon = saveUser("Minjoon@naver.com","Minjoon0O","Minjoon");
+        User Yujin = saveUser("Yujin@naver.com","Yujin000111!","Yujin");
+        User Jimin = saveUser("Jimin@naver.com","Jimin000111!","Jimin");
         // 10
 
         saveGameTag("포켓몬");
@@ -499,6 +509,7 @@ public class EdgeServerInfoConfig {
 
         User user = UserRepo.findByUsername(Username);
         user.setName(name);
+        user.setEmail(Username);
         user.setPoints((long)9999999);
         UserRepo.save(user);
         // user.setName(name);

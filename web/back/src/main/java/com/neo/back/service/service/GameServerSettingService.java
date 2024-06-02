@@ -1,6 +1,7 @@
 package com.neo.back.service.service;
 
 import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.entity.Game;
 import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerServerRepository;
@@ -52,7 +53,7 @@ public class GameServerSettingService {
 
             // Docker 컨테이너로부터 파일 받아오기
             return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
-                    .flatMap(response -> Mono.just(this.settingFormatConversion(localPath)));
+                    .flatMap(response -> Mono.just(this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath)));
             
         } catch (DoNotHaveServerException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
@@ -69,15 +70,23 @@ public class GameServerSettingService {
             DockerServer dockerServer = dockerServerRepo.findByUser(user);
             if (dockerServer == null) throw new DoNotHaveServerException();
 
+            Game game = dockerServer.getGame();
+
             this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
             String dockerId = dockerServer.getDockerId();
 
             StringBuilder result = new StringBuilder();
             for (Map.Entry<String, String> entry : setting.entrySet()) {
                 if (result.length() > 0) {
-                    result.append("\n");
+                    result.append(game.getItemSeparator());
                 }
-                result.append(entry.getKey()).append("=").append(entry.getValue());
+                result.append(entry.getKey()).append(game.getKeyValueSeparator()).append(entry.getValue());
+            }
+
+            if (game.getGameName() == "Palworld") {
+                result.append(")");
+                result.insert(0, "OptionSettings=(");
+                result.insert(0, "[/Script/Pal.PalGameWorldSettings]\n");
             }
 
             System.out.println(result.toString());
@@ -85,7 +94,7 @@ public class GameServerSettingService {
             byte[] contentBytes = result.toString().getBytes(StandardCharsets.UTF_8);
 
             // 파일 내용을 tar 파일로 압축
-            byte[] tarFile = this.createTarContent(contentBytes);
+            byte[] tarFile = this.createTarContent(dockerServer.getGame().getSettingFileName(), contentBytes);
 
             // tar 파일을 저장할 경로
             Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getUsername() + ".tar");
@@ -122,18 +131,35 @@ public class GameServerSettingService {
             });
     }
 
-    private ResponseEntity<String> settingFormatConversion(Path localPath) {
+    private ResponseEntity<String> settingFormatConversion(String gameName, Path localPath) {
         try {
             String propertiesString  = this.extractPropertiesFromTar(localPath.toString());
 
             JSONObject json = new JSONObject();
-            String[] lines = propertiesString .split("\n");
 
-            for (String line : lines) {
-                if (!line.startsWith("#") && !line.trim().isEmpty()) {
-                    String[] keyValue = line.split("=", 2);
-                    if (keyValue.length == 2) {
-                        json.put(keyValue[0], keyValue[1]);
+            if (gameName == "Minecraft") {
+                String[] lines = propertiesString .split("\n");
+
+                for (String line : lines) {
+                    if (!line.startsWith("#") && !line.trim().isEmpty()) {
+                        String[] keyValue = line.split("=", 2);
+                        if (keyValue.length == 2) {
+                            json.put(keyValue[0], keyValue[1]);
+                        }
+                    }
+                }
+            } else if (gameName == "Palworld") {
+                propertiesString = propertiesString.replaceAll("[/Script/Pal.PalGameWorldSettings]\n", "");
+                propertiesString = propertiesString.replaceAll("OptionSettings=(", "");
+                propertiesString = propertiesString.replaceAll(")", "");
+                String[] lines = propertiesString .split(",");
+
+                for (String line : lines) {
+                    if (!line.trim().isEmpty()) {
+                        String[] keyValue = line.split("=", 2);
+                        if (keyValue.length == 2) {
+                            json.put(keyValue[0], keyValue[1]);
+                        }
                     }
                 }
             }
@@ -157,12 +183,12 @@ public class GameServerSettingService {
         }
     }
 
-    private byte[] createTarContent(byte[] fileContent) throws IOException {
+    private byte[] createTarContent(String fileName, byte[] fileContent) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              TarArchiveOutputStream tarOut = new TarArchiveOutputStream(out)) {
 
             // TarArchiveEntry 설정 (파일 이름은 임의로 지정)
-            TarArchiveEntry entry = new TarArchiveEntry("server.properties");
+            TarArchiveEntry entry = new TarArchiveEntry(fileName);
             entry.setSize(fileContent.length); // 파일 크기 설정
             tarOut.putArchiveEntry(entry);
 
