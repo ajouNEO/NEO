@@ -82,7 +82,9 @@ public class EdgeServerInfoConfig {
             "mc1.16.5",
             "25565/tcp",
             "/server",
-            "/server.properties"
+            "/server.properties",
+            "\n",
+            "="
         );
 
         Game mine1_19_2 = new Game(
@@ -91,7 +93,9 @@ public class EdgeServerInfoConfig {
             "mc1.19.2",
             "25565/tcp",
             "/server",
-            "/server.properties"
+            "/server.properties",
+            "\n",
+            "="
         );
 
         Game mine1_20_4 = new Game(
@@ -100,7 +104,9 @@ public class EdgeServerInfoConfig {
             "mc1.20.4",
             "25565/tcp",
             "/server",
-            "/server.properties"
+            "/server.properties",
+            "\n",
+            "="
         );
 
         Game palworld = new Game(
@@ -109,7 +115,9 @@ public class EdgeServerInfoConfig {
             "palworld",
             "8211/udp",
             "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
-            "/PalWorldSettings.ini"
+            "/PalWorldSettings.ini",
+            ",",
+            "="
         );
 
         Game terraria = new Game(
@@ -118,7 +126,9 @@ public class EdgeServerInfoConfig {
             "terraria",
             "7777/tcp",
             "/config",
-            "/serverconfig.txt"
+            "/serverconfig.txt",
+            "",
+            ""
         );
 
         gameRepo.save(mine1_16_5);
