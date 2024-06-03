@@ -69,7 +69,7 @@
              taskInfo.getFuture().cancel(false);
              updatePoints(user, startTime, endTime);
              scheduledTasks.remove(dockerId);
-             redisUtil.deleteData(user.getUsername());
+          //   redisUtil.deleteData(user.getUsername());
 
          }
 
@@ -126,6 +126,7 @@
          Runnable task = () -> gameUserListService.saveUserList(user);
          ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(task, 10000); // 10초마다 실행되도록 예시로 설정
          UserscheduledTasks.put(dockerId, future);
+
      }
 
      public void stopTrackingUser(String dockerId){
@@ -134,6 +135,7 @@
          if (future != null) {
              future.cancel(false);
          }
+
      }
 
      private static class ScheduledTaskInfo{
