@@ -12,6 +12,7 @@ import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.GameTag;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.authorization.entity.User;
+import com.neo.back.authorization.util.RedisUtil;
 
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class SearchServerService {
     private final DockerServerRepository dockerServerRepo;
+    private final RedisUtil redisUtil;
 
     public List<ServerListDto> getServerList () {
         List<DockerServer> dockerServers = dockerServerRepo.findByIsPublic(true);
@@ -36,7 +38,11 @@ public class SearchServerService {
             server.getGame().getGameName(), 
             server.getGame().getVersion(), 
             server.isFreeAccess(),
-            server.getGameTagNames()))
+            server.getGameTagNames(),
+            redisUtil.getServerStatusInRedis(server.getId()),
+            redisUtil.getUserNumberFromRedis(server.getId()),
+            server.getMaxPlayer()
+            ))
             .collect(Collectors.toList());
     }
 
@@ -74,7 +80,10 @@ public class SearchServerService {
             server.getGame().getGameName(), 
             server.getGame().getVersion(), 
             server.isFreeAccess(),
-            server.getGameTagNames()))
+            server.getGameTagNames(),
+            redisUtil.getServerStatusInRedis(server.getId()),
+            redisUtil.getUserNumberFromRedis(server.getId()),
+            server.getMaxPlayer()))
             .collect(Collectors.toList());
     }
 
@@ -149,7 +158,10 @@ public class SearchServerService {
                 dockerServer.getGame().getVersion(),
                 dockerServer.isFreeAccess(),
                 dockerServer.getServerComment(),
-                dockerServer.getGameTagNames()
+                dockerServer.getGameTagNames(),
+                redisUtil.getServerStatusInRedis(dockerServer.getId()),
+                redisUtil.getUserNumberFromRedis(dockerServer.getId()),
+                dockerServer.getMaxPlayer()
             );
             return Mono.just(serverInfo);
         } catch (AccessDeniedException e) {
@@ -171,7 +183,10 @@ public class SearchServerService {
           server.getGame().getGameName(), 
           server.getGame().getVersion(), 
           server.isFreeAccess(),
-          server.getGameTagNames()))
+          server.getGameTagNames(),
+          redisUtil.getServerStatusInRedis(server.getId()),
+          redisUtil.getUserNumberFromRedis(server.getId()),
+          server.getMaxPlayer()))
         .collect(Collectors.toList());
     }
 
@@ -185,7 +200,10 @@ public class SearchServerService {
           server.getGame().getGameName(), 
           server.getGame().getVersion(), 
           server.isFreeAccess(),
-          server.getGameTagNames()))
+          server.getGameTagNames(),
+          redisUtil.getServerStatusInRedis(server.getId()),
+          redisUtil.getUserNumberFromRedis(server.getId()),
+          server.getMaxPlayer()))
         .collect(Collectors.toList());
     }
 

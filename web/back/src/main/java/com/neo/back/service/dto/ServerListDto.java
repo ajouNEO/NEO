@@ -18,4 +18,6 @@ public class ServerListDto {
     String version;
     boolean isFreeAccess;
     List<String> tags;
+    Boolean running;
+    int userPlayNum;
 }
