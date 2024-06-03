@@ -49,7 +49,12 @@ public class CreateDockerService {
     private String containerId;
 
     public Mono<Object> createContainer(CreateDockerDto config, User user) {
+        // 사용자 포인트 확인
+        if (user.getPoints() < 1) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Point isn't enough for create"));
+        }
         try {
+
             DockerServer existingDocker = this.dockerRepo.findByUser(user);
             if (existingDocker != null) throw new IllegalStateException();
             
@@ -94,6 +99,10 @@ public class CreateDockerService {
     }
 
     public Mono<Object> recreateContainer(CreateDockerDto config, User user) {
+        // 사용자 포인트 확인
+        if (user.getPoints() < 1) {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Point isn't enough for create"));
+        }
         try {
             DockerServer existingDocker = this.dockerRepo.findByUser(user);
             if (existingDocker != null) throw new IllegalStateException();

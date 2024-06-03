@@ -36,13 +36,9 @@ public class RedisUtil {
         template.opsForValue().increment(key, delta);
     }
 
-
-
     public void deleteData(String key) {
         template.delete(key);
     }
-
-
 
     //User number 및 list 저장 관련
     public void updateUserNumberInRedis(Long dockerId, Integer userNumber) {
@@ -64,6 +60,11 @@ public class RedisUtil {
     }
 
 
+    public void setServerStatusInRedis(Long dockerId, Boolean status) {
+        template.opsForValue().set("docker: " + dockerId + ", server state: ", status.toString());
+    }
+
+    //serverstatus get api 필요하면 만들것.
 
 
 }

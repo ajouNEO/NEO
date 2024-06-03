@@ -1,5 +1,6 @@
 package com.neo.back.service.service;
 
+import com.neo.back.authorization.util.RedisUtil;
 import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.MyServerInfoDto;
 import com.neo.back.service.dto.ServerInputDto;
@@ -38,6 +39,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class OtherServerManagingService {
     private final DockerServerRepository dockerServerRepo;
+    private final RedisUtil redisUtil;
     private final GameTagRepository gameTagRepo;
     private final DockerAPI dockerAPI;
     private final MakeWebClient makeWebClient;
@@ -214,6 +216,8 @@ public class OtherServerManagingService {
             else{
                 run.setIsWorking(false);
             }
+            redisUtil.setServerStatusInRedis(dockerServer.getId(), run.getIsWorking());
+
             return Mono.just(run);
         })
         .onErrorResume(error -> { // 값이 없음

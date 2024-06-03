@@ -65,6 +65,7 @@ public class DockerManagingController {
     @PostMapping("/api/container/create")
     public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
+
         return createDockerService.createContainer(config, user)
                  .flatMap(result -> {
                      Instant startTime = Instant.now();
