@@ -49,6 +49,16 @@ public class RedisUtil {
         String value = template.opsForValue().get("docker:" + dockerId + ":userNumber");
         return value != null ? Integer.valueOf(value) : null;
     }
+
+    public Boolean getServerStatusInRedis(Long dockerId) {
+        String value = template.opsForValue().get("docker:" + dockerId + ", server state: ");
+        return "true".equals(value);
+    }
+
+    public void setServerStatusInRedis(Long dockerId, Boolean status) {
+        template.opsForValue().set("docker: " + dockerId + ", server state: ", status.toString());
+    }
+
     public void setUsernames(String dockerId, List<String> usernames) {
         String usernamesString = String.join(",", usernames);
         template.opsForValue().set("docker:" + dockerId + ":usernames", usernamesString);
@@ -60,9 +70,7 @@ public class RedisUtil {
     }
 
 
-    public void setServerStatusInRedis(Long dockerId, Boolean status) {
-        template.opsForValue().set("docker: " + dockerId + ", server state: ", status.toString());
-    }
+
 
     //serverstatus get api 필요하면 만들것.
 

@@ -61,6 +61,8 @@ public class DockerServer extends BaseTime{
 
     private boolean isFreeAccess = false;
 
+    private int maxPlayer = 0;
+
     @ManyToMany
     private Set<User> applicants = new HashSet<>();
 
