@@ -45,9 +45,9 @@ public class RedisUtil {
         template.opsForValue().set("docker:" + dockerId + ":userNumber", userNumber.toString());
     }
 
-    public Integer getUserNumberFromRedis(Long dockerId) {
+    public int getUserNumberFromRedis(Long dockerId) {
         String value = template.opsForValue().get("docker:" + dockerId + ":userNumber");
-        return value != null ? Integer.valueOf(value) : null;
+        return value != null ? Integer.parseInt(value) : null;
     }
 
     public Boolean getServerStatusInRedis(Long dockerId) {
