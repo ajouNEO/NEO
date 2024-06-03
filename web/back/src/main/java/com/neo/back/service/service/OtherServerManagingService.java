@@ -244,6 +244,8 @@ public class OtherServerManagingService {
                     System.out.println(responseBody);
                     JSONObject jsonObject = new JSONObject(responseBody);
                     int maxPlayer = jsonObject.getInt(dockerServer.getGame().getMaxPlayerKey());
+                    dockerServer.setMaxPlayer(maxPlayer);
+                    dockerServerRepo.save(dockerServer);
                     return Mono.just(maxPlayer);
                 } catch (JsonProcessingException e) {
                     throw new ELException();
