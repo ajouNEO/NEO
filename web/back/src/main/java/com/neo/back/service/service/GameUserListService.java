@@ -191,7 +191,7 @@ public class GameUserListService {
 
 
         redisUtil.updateUserNumberInRedis(dockerServer.getId(), data.getNumber());
-        redisUtil.setUsernames("docker:" + dockerServer.getDockerId() + ":usernames", data.getName());
+        redisUtil.setUsernames(dockerServer.getDockerId() , data.getName());
         //dockerServerRepo.save(dockerServer);
 
     }

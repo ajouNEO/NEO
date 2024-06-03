@@ -20,7 +20,7 @@
  @Service
  @RequiredArgsConstructor
  public class ScheduleService {
-
+     // 1분당 point 변수로 설정하는게 좋았음. 고치려하니까 3군데나 코드 건들임 뺴먹으면? 버그.
      private final RedisUtil redisUtil;
      private final UserRepository userRepository;
 
@@ -37,17 +37,21 @@
      // 사용자 서비스 시작 및 종료 시간 스케줄링(포인트 기반)
      public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime,Long points){
 
+
+
          Instant endTime = calculateEndTime(points);
          redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
 
          scheduleTask(user,dockerId,startTime,endTime);
          schedulePointUpdatePerMinute(user, startTime, endTime);
+
+
      }
 
      // 사용자 포인트 기반의 종료 시간 계산
      public Instant calculateEndTime(Long points){
          // 포인트 당 1분으로 계산. 100포인트는 1분
-         return Instant.now().plus(Duration.ofMinutes(points/100));
+         return Instant.now().plus(Duration.ofMinutes(points/1));
      }
 
      // 포인트를 메모리에서 주기적으로 업데이트
@@ -90,7 +94,7 @@
      // 메모리에서 포인트 업데이트
      private void updateUserPointsInMemory(User user, long minutesUsed) {
          String userName = user.getUsername();
-         long pointsToDeduct = minutesUsed * 100; // Assuming 100 points per minute
+         long pointsToDeduct = minutesUsed * 1; // Assuming 100 points per minute
          redisUtil.incrementValueBy(userName, -pointsToDeduct);
          System.out.println("Updated points in memory for user: " + user.getUsername() + " Points: " + redisUtil.getData(userName));
      }
@@ -108,7 +112,7 @@
      // 포인트 소모량
      private long calculatePointsUsed(Instant startTime, Instant endTime) {
          long minutesUsed = Duration.between(startTime, endTime).toMinutes();
-         return minutesUsed * 100;
+         return minutesUsed * 1;
      }
 
      // scheduledTasks 맵을 반환하는 메서드 추가
