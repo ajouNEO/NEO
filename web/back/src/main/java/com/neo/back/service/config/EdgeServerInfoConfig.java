@@ -313,9 +313,14 @@ public class EdgeServerInfoConfig {
         running_mine.setCmdKind("serverRun");
 
         GameDockerAPICMD UserListcmd_mine = new GameDockerAPICMD();
-        UserListcmd_mine.setCmd("sh\t-c\techo '[Server thread/INFO]: , joined the game,[Server thread/INFO]: , left the game' > control/user_cmd.txt");
+        UserListcmd_mine.setCmd("sh\t-c\techo '#2/INFO]: UUID of player , is ,[Server thread/INFO]: , left the game' > control/user_cmd.txt");
         UserListcmd_mine.setCmdId("userListCMD_mine");
         UserListcmd_mine.setCmdKind("userListCMD");
+
+        GameDockerAPICMD UserListcmd_mine_1_16_5 = new GameDockerAPICMD();
+        UserListcmd_mine_1_16_5.setCmd("sh\t-c\techo '[Server thread/INFO]: ,[/,[Server thread/INFO]: , left the game' > control/user_cmd.txt");
+        UserListcmd_mine_1_16_5.setCmdId("UserListcmd_mine_1_16_5");
+        UserListcmd_mine_1_16_5.setCmdKind("userListCMD");
 
         GameDockerAPICMD UserList_mine = new GameDockerAPICMD();
         UserList_mine.setCmd("sh\t-c\t[ -s /control/user.txt ] && cat /control/user.txt || echo \"null\"");
@@ -358,6 +363,7 @@ public class EdgeServerInfoConfig {
         gameDockerAPICMDRepo.save(banlist_mine);
         gameDockerAPICMDRepo.save(running_mine);
         gameDockerAPICMDRepo.save(UserListcmd_mine);
+        gameDockerAPICMDRepo.save(UserListcmd_mine_1_16_5);
         gameDockerAPICMDRepo.save(UserList_mine);
         gameDockerAPICMDRepo.save(pathFolder_mine);
         gameDockerAPICMDRepo.save(pathFileList_mine);
@@ -512,7 +518,7 @@ public class EdgeServerInfoConfig {
         mine1_16_5.addCMD(CmdStopAckStr_mine);
         mine1_16_5.addCMD(banlist_mine);
         mine1_16_5.addCMD(running_mine);
-        mine1_16_5.addCMD(UserListcmd_mine);
+        mine1_16_5.addCMD(UserListcmd_mine_1_16_5);
         mine1_16_5.addCMD(UserList_mine);
         mine1_16_5.addCMD(pathFolder_mine);
         mine1_16_5.addCMD(pathFileList_mine);
