@@ -73,6 +73,7 @@
              taskInfo.getFuture().cancel(false);
              updatePoints(user, startTime, endTime);
              scheduledTasks.remove(dockerId);
+             UserscheduledTasks.remove(dockerId);
              redisUtil.deleteData(user.getUsername());
 
          }
