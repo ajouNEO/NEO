@@ -37,14 +37,11 @@
      // 사용자 서비스 시작 및 종료 시간 스케줄링(포인트 기반)
      public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime,Long points){
 
-
-
          Instant endTime = calculateEndTime(points);
          redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
 
          scheduleTask(user,dockerId,startTime,endTime);
          schedulePointUpdatePerMinute(user, startTime, endTime);
-
 
      }
 
@@ -64,16 +61,14 @@
              }, scheduledTime);
          }
      }
-
-
      //사용자 서비스 조기 종료 및 스케줄 취소
      public void cancelScheduledEnd(User user, String dockerId, Instant startTime,Instant endTime){
          ScheduledTaskInfo taskInfo = scheduledTasks.get(dockerId);
+
          if (taskInfo != null) {
              taskInfo.getFuture().cancel(false);
              updatePoints(user, startTime, endTime);
              scheduledTasks.remove(dockerId);
-             UserscheduledTasks.remove(dockerId);
              redisUtil.deleteData(user.getUsername());
 
          }
@@ -91,7 +86,6 @@
 
          },endTime);
          scheduledTasks.put(dockerId, new ScheduledTaskInfo(future, startTime, endTime));
-
      }
 
      // 메모리에서 포인트 업데이트
@@ -135,7 +129,8 @@
      }
 
      public void stopTrackingUser(String dockerId){
-         ScheduledFuture<?> future = UserscheduledTasks.remove(dockerId);
+         ScheduledFuture<?> future = UserscheduledTasks.get(dockerId);
+
          if (future != null) {
              future.cancel(false);
          }
