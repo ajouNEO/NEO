@@ -41,8 +41,7 @@ public class SearchServerService {
             server.getGameTagNames(),
             redisUtil.getServerStatusInRedis(server.getId()),
             redisUtil.getUserNumberFromRedis(server.getId()),
-            server.getMaxPlayer()
-            ))
+            server.getMaxPlayer()))
             .collect(Collectors.toList());
     }
 

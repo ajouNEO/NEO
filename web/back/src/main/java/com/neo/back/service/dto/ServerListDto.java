@@ -20,4 +20,5 @@ public class ServerListDto {
     List<String> tags;
     Boolean running;
     int userPlayNum;
+    int maxPlayer;
 }
