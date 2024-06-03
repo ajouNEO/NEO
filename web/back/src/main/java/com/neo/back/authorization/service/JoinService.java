@@ -56,6 +56,7 @@ public class JoinService {
         User.setName(name);
         User.setUsername(username);
         User.setEmail(username);
+        User.setPoints((long) 1000);
 
 
         userRepository.save(User);
