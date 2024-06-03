@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -59,12 +60,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshRepository.save(refreshEntity);
 
 
-        response.addCookie(createCookie("access", access));
+        //response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh", refresh));
 
 
-        System.out.println(envConfig.getMainServerIp());
-        response.sendRedirect("https://neo.framer.media");
+
+        // 리디렉션 URL에 액세스 토큰과 리프레시 토큰을 쿼리 파라미터로 추가합니다.
+        String redirectUrl = "https://neo.framer.media?access=" + URLEncoder.encode(access, "UTF-8");
+        response.sendRedirect(redirectUrl);
     }
 
     private Cookie createCookie(String key, String value) {
