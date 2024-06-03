@@ -1,6 +1,7 @@
 package com.neo.back.infoManaging.controller;
 
 
+import com.neo.back.authorization.dto.NameRequest;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.service.utility.GetCurrentUser;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,6 +29,7 @@ public class UserInfoController {
 
         if (points != null) {
             // Redis에 데이터가 있으면 반환
+
             return Long.parseLong(points);
         }
         else{
@@ -39,6 +42,8 @@ public class UserInfoController {
         User user = getCurrentUser.getUser();
         return user.getName();
     }
+
+
 
 
 }
