@@ -87,7 +87,9 @@
              System.out.println("i'm here");
              updatePoints(user,startTime,endTime);
             scheduledTasks.remove(dockerId);
-            },endTime);
+            UserscheduledTasks.remove(dockerId);
+
+         },endTime);
          scheduledTasks.put(dockerId, new ScheduledTaskInfo(future, startTime, endTime));
 
      }
