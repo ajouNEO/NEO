@@ -20,4 +20,7 @@ public class ServerInfoDto {
     boolean isFreeAccess;
     String serverComment;
     List<String> tags;
+    Boolean running;
+    int userPlayNum;
+    int maxPlayer;
 }
