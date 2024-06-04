@@ -158,6 +158,12 @@ public class GameServerController {
         return serverJoinService.refuseParticipation(user, userName);
     }
 
+    @PostMapping("/api/server/deleteParticipation/{userName}")
+    public Mono<Object> deleteParticipation(@PathVariable String userName) {
+        User user = getCurrentUser.getUser();
+        return serverJoinService.deleteParticipation(user, userName);
+    }
+
     @GetMapping("/api/server/user_banlist/one")//특정 파일 읽어오 는 용도 api
     public Mono<Set<UserBanServerListDto>> getUser_banlist() {
         User user = getCurrentUser.getUser();
