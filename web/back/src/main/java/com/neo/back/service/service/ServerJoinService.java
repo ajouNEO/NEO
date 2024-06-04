@@ -137,7 +137,7 @@ public class ServerJoinService {
             DockerServer dockerServer = dockerServerRepo.findByUser(host);
             if (dockerServer == null) throw new DoNotHaveServerException();
 
-            User participant = userRepo.findByUsername(participantName);
+            User participant = userRepo.findByName(participantName);
             if (participant == null) throw new UserNotFoundException();
 
             dockerServer.addParticipant(participant);
@@ -159,12 +159,32 @@ public class ServerJoinService {
             DockerServer dockerServer = dockerServerRepo.findByUser(host);
             if (dockerServer == null) throw new DoNotHaveServerException();
 
-            User participant = userRepo.findByUsername(participantName);
+            User participant = userRepo.findByName(participantName);
             if (participant == null) throw new UserNotFoundException();
 
             dockerServer.removeApplicant(participant);
             dockerServerRepo.save(dockerServer);
             this.sendApplicantsUpdate(dockerServer);
+
+            return Mono.just("success");
+        } catch (DoNotHaveServerException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
+        } catch (UserNotFoundException e) {
+            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist"));
+        }
+    }
+
+    public  Mono<Object> deleteParticipation(User host, String participantName) {
+        try {
+            DockerServer dockerServer = dockerServerRepo.findByUser(host);
+            if (dockerServer == null) throw new DoNotHaveServerException();
+
+            User participant = userRepo.findByName(participantName);
+            if (participant == null) throw new UserNotFoundException();
+
+            dockerServer.removeParticipant(participant);
+            dockerServerRepo.save(dockerServer);
+            this.sendParticipantsUpdate(dockerServer);
 
             return Mono.just("success");
         } catch (DoNotHaveServerException e) {
