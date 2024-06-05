@@ -66,7 +66,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
         // 리디렉션 URL에 액세스 토큰과 리프레시 토큰을 쿼리 파라미터로 추가합니다.
-        String redirectUrl = "https://neo.framer.media?access=" + URLEncoder.encode(access, "UTF-8");
+        String redirectUrl = "https://neo.framer.media/login?access=" + URLEncoder.encode(access, "UTF-8");
         response.sendRedirect(redirectUrl);
     }
 
