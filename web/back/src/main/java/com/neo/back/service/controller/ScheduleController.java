@@ -25,7 +25,7 @@ public class ScheduleController {
             return "User not found";
         }
         Instant startTime = Instant.now();
-        scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
+        scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points, 2);
         return "Service scheduled to end with points";
     }
 

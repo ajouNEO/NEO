@@ -65,18 +65,7 @@ public class DockerManagingController {
     @PostMapping("/api/container/create")
     public Mono<Object> createContainer(@RequestBody CreateDockerDto config) {
         User user = getCurrentUser.getUser();
-
-        return createDockerService.createContainer(config, user)
-                 .flatMap(result -> {
-                     Instant startTime = Instant.now();
-                     System.out.println(user);
-                     DockerServer dockerServer = dockerServerRepository.findByUser(user);
-                     String dockerId = dockerServer.getDockerId();
-                     Long points = user.getPoints();
-                     scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, points);
-                     scheduleService.startTrackingUser(user,dockerId);
-                     return Mono.just(ResponseEntity.ok("Container created successfully"));
-                 });
+        return createDockerService.createContainer(config, user);
     }
 
     @PostMapping("/api/container/recreate")
@@ -88,16 +77,9 @@ public class DockerManagingController {
     @PutMapping("/api/container/close")
     public Mono<Object> closeContainer() {
         User user = getCurrentUser.getUser();
-        DockerServer dockerServer = dockerServerRepository.findByUser(user);
-        String userdockerId = dockerServer.getDockerId();
+        
+        scheduleService.stopScheduling(user);
 
-        Optional<ScheduledTaskDto> scheduledTaskDto = scheduleService.getScheduledTasks().stream().filter(task -> task.getDockerId().equals(userdockerId)).findFirst();
-        System.out.println(scheduledTaskDto);
-        Instant startTime = dockerServer.getCreatedDate();
-
-        Instant endTime = Instant.now();    // Assuming we don't have the actual end time here
-        scheduleService.cancelScheduledEnd(user, userdockerId, startTime, endTime);
-        scheduleService.stopTrackingUser(userdockerId);
         return closeDockerService.closeDockerService(user);
     }
 
