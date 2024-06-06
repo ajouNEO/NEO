@@ -4,8 +4,12 @@ import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.authorization.util.RedisUtil;
 import com.neo.back.service.dto.ScheduledTaskDto;
+import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.utility.TrackableScheduledFuture;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
@@ -22,17 +27,31 @@ import java.util.stream.Collectors;
 public class ScheduleService {
     private final RedisUtil redisUtil;
     private final UserRepository userRepository;
+    private final DockerServerRepository dockerServerRepo;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final Map<String, TrackableScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final Map<String, TrackableScheduledFuture<?>> UserscheduledTasks = new ConcurrentHashMap<>();
     private final CloseDockerService closeDockerService;
     private final GameUserListService gameUserListService;
 
-    public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime, Long points) {
+    public void stopScheduling(User user) {
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        String userdockerId = dockerServer.getDockerId();
+
+        Optional<ScheduledTaskDto> scheduledTaskDto = this.getScheduledTasks().stream().filter(task -> task.getDockerId().equals(userdockerId)).findFirst();
+        System.out.println(scheduledTaskDto);
+        Instant startTime = dockerServer.getCreatedDate();
+
+        Instant endTime = Instant.now();    // Assuming we don't have the actual end time here
+        this.cancelScheduledEnd(user, userdockerId, startTime, endTime);
+        this.stopTrackingUser(userdockerId);
+    }
+
+    public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime, Long points, int ramCapacity) {
         Instant endTime = calculateEndTime(points);
         redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
         scheduleTask(user, dockerId, startTime, endTime);
-        schedulePointUpdatePerMinute(user,dockerId, startTime, endTime);
+        schedulePointUpdatePerMinute(user,dockerId, startTime, endTime, ramCapacity);
     }
 
     public Instant calculateEndTime(Long points) {
@@ -97,9 +116,8 @@ public class ScheduleService {
     //스케줄로직 재귀식으로 짜기? enddate인지 체크하고 enddate면 제거하고 아니면 스케줄에서 +1분해서 넣고.
 
 
-    public void schedulePointUpdatePerMinute(User user,String dockerId, Instant startTime, Instant endTime) {
-        Instant scheduledTime = startTime.plus(Duration.ofMinutes(1));
-        Runnable task = () -> updateUserPointsInMemory(user, 1);
+    public void schedulePointUpdatePerMinute(User user,String dockerId, Instant startTime, Instant endTime, int ramCapacity) {
+        Runnable task = () -> updateUserPointsInMemory(user, ramCapacity / 2);
         ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(task, 60000);
         TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId+"-point", startTime, endTime);
         scheduledTasks.put("point-" + dockerId , trackableFuture);

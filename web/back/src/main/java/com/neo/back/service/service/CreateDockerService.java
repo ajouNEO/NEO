@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Collections;
 import java.nio.file.*;
+import java.time.Instant;
 
 import com.neo.back.authorization.entity.User;
 import org.json.JSONObject;
@@ -43,6 +44,7 @@ public class CreateDockerService {
     private final DockerImageRepository imageRepo;
     private final GameRepository gameRepo;
     private final SelectEdgeServerService selectEdgeServerService;
+    private final ScheduleService scheduleService;
     private final MakeWebClient makeWebClient;
     private WebClient dockerWebClient;
     private EdgeServerInfoDto selectedEdgeServerInfo;
@@ -83,7 +85,8 @@ public class CreateDockerService {
             );
 
             return this.createContainerRequest(createContainerRequest)
-                .flatMap(response -> this.databaseReflection(config, game, null, user));
+                .flatMap(response -> this.databaseReflection(config, game, null, user))
+                .flatMap(response -> this.pointScheduling(user));
         
         } catch (IllegalStateException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("This user already has an open server"));
@@ -134,7 +137,8 @@ public class CreateDockerService {
 
             return this.loadImage(dockerImage.get())
                 .flatMap(response -> this.createContainerRequest(createContainerRequest))
-                .flatMap(response -> this.databaseReflection(config, dockerImage.get().getGame(), dockerImage.get().getImageId(), user));
+                .flatMap(response -> this.databaseReflection(config, dockerImage.get().getGame(), dockerImage.get().getImageId(), user))
+                .flatMap(response -> this.pointScheduling(user));
         
         } catch (IllegalStateException e) {
             return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("This user already has an open server"));
@@ -193,6 +197,17 @@ public class CreateDockerService {
         return DataBufferUtils.read(resource, new DefaultDataBufferFactory(), 4096)
             .collectList()
             .flatMap(dataBuffer -> this.dockerAPI.loadImage(dataBuffer, this.dockerWebClient));
+    }
+
+    private Mono<Object> pointScheduling(User user) {
+        Instant startTime = Instant.now();
+
+        DockerServer dockerServer = dockerRepo.findByUser(user);
+        String dockerId = dockerServer.getDockerId();
+
+        scheduleService.scheduleServiceEndWithPoints(user, dockerId, startTime, user.getPoints(), dockerServer.getRAMCapacity());
+        scheduleService.startTrackingUser(user,dockerId);
+        return Mono.just(ResponseEntity.ok("Container created successfully"));
     }
 
     // 컨테이너 생성 응답에서 컨테이너 ID를 파싱
