@@ -70,8 +70,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             existData.setEmail(oAuth2Response.getEmail());
 
-            String randomnickname = generateUniqueNickname();
-            existData.setName(randomnickname);
+            String randomnickname = existData.getName();
+
             userRepository.save(existData);
 
             UserDTO userDTO = new UserDTO();
