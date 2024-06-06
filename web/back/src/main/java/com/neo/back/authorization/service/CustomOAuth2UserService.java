@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
 
 
 @Service
@@ -43,40 +44,62 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         //리소스 서버에서 발급 받은 정보로 사용자를 특정할 아이디값을 만듬
 
-        String username = oAuth2Response.getProvider()+" "+oAuth2Response.getProviderId();
+        String username = oAuth2Response.getEmail();
 
         User existData = userRepository.findByUsername(username);
 
         if (existData == null) {
 
             User user = new User();
-            user.setUsername(username);
+            user.setUsername(oAuth2Response.getEmail());
             user.setEmail(oAuth2Response.getEmail());
-            user.setName(oAuth2Response.getName());
+            user.setPoints(1000L);
+            String randomnickname = generateUniqueNickname();
+            user.setName(randomnickname);
             user.setRole("ROLE_USER");
 
             userRepository.save(user);
 
             UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(username);
-            userDTO.setName(oAuth2Response.getName());
+            userDTO.setUsername(oAuth2Response.getEmail());
+            userDTO.setName(randomnickname);
             userDTO.setRole("ROLE_USER");
 
             return new CustomOAuth2User(userDTO);
-        }
-        else {
+        } else {
 
             existData.setEmail(oAuth2Response.getEmail());
-            existData.setName(oAuth2Response.getName());
 
+            String randomnickname = generateUniqueNickname();
+            existData.setName(randomnickname);
             userRepository.save(existData);
 
             UserDTO userDTO = new UserDTO();
-            userDTO.setUsername(existData.getUsername());
-            userDTO.setName(oAuth2Response.getName());
+            userDTO.setUsername(oAuth2Response.getEmail());
+            userDTO.setName(randomnickname);
             userDTO.setRole(existData.getRole());
 
             return new CustomOAuth2User(userDTO);
         }
     }
+
+    // 유니크 닉네임 생성 함수
+    private String generateUniqueNickname() {
+        String[] adjectives = {"happy", "sleepy", "grumpy", "playful", "jolly", "mischievous"};
+        String[] animals = {"dolphin", "bear", "cat", "dog", "lion", "tiger"};
+
+        Random random = new Random();
+        String baseNickname = adjectives[random.nextInt(adjectives.length)] + "_" + animals[random.nextInt(animals.length)];
+        String uniqueNickname = baseNickname;
+        Integer counter = 1;
+
+        uniqueNickname = baseNickname + counter;
+        while (userRepository.existsByname(uniqueNickname)) {
+            uniqueNickname = baseNickname + counter;
+            counter++;
+        }
+
+        return uniqueNickname;
+    }
+
 }
