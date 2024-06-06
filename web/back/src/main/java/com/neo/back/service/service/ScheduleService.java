@@ -86,6 +86,11 @@ public class ScheduleService {
         } else {
             System.out.println("No task found for dockerId: " + dockerId);
         }
+        String email = user.getEmail();
+
+        Long point = Long.valueOf(redisUtil.getData(email));
+        user.setPoints(point);
+        userRepository.save(user);
     }
 
     private void scheduleTask(User user, String dockerId, Instant startTime, Instant endTime) {
