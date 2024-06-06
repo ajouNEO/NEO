@@ -218,7 +218,7 @@ public class DockerAPI {
         try {
             ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
             while (byteBuffer.hasRemaining()) {
-                System.out.println("Writing data...");
+                //System.out.println("Writing data...");
                 channel.write(byteBuffer);
             }
             DataBufferUtils.release(dataBuffer);
