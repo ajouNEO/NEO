@@ -52,11 +52,9 @@ public class ScheduleService {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String userdockerId = dockerServer.getDockerId();
 
-        Instant startTime = dockerServer.getCreatedDate();
-
-        Instant endTime = Instant.now();    // Assuming we don't have the actual end time here
         this.stopTrackingUser(userdockerId);
-        this.cancelScheduledPointAndShutdown(user, userdockerId, startTime, endTime);
+        System.err.println("222222222222222");
+        this.cancelScheduledPointAndShutdown(user, userdockerId);
     }
 
 
@@ -65,7 +63,8 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
-            closeDockerService.closeDockerService(user).block();
+            closeDockerService.closeDockerService(user);
+            System.err.println("11111111111111111111");
             stopScheduling(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
@@ -82,7 +81,7 @@ public class ScheduleService {
         scheduledTasks.put("point-" + dockerId , trackableFuture);
     }
 
-    public void cancelScheduledPointAndShutdown(User user, String dockerId, Instant startTime, Instant endTime) {
+    public void cancelScheduledPointAndShutdown(User user, String dockerId) {
         TrackableScheduledFuture<?> taskInfo = scheduledTasks.get(dockerId);
         
         TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
