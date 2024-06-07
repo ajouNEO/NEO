@@ -38,7 +38,7 @@ public class ScheduleService {
         Instant startTime = Instant.now();
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String dockerId = dockerServer.getDockerId();
-        Instant endTime = this.calculateEndTime(user.getPoints()/dockerServer.getRAMCapacity() - 1);
+        Instant endTime = this.calculateEndTime(user.getPoints()/(dockerServer.getRAMCapacity()/2) - 1);
 
         redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
 
@@ -48,13 +48,13 @@ public class ScheduleService {
         return Mono.just(ResponseEntity.ok("Container created successfully"));
     }
 
-    public void stopScheduling(User user) {
+    public Mono<Object> stopScheduling(User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String userdockerId = dockerServer.getDockerId();
 
         this.stopTrackingUser(userdockerId);
-        System.err.println("222222222222222");
         this.cancelScheduledPointAndShutdown(user, userdockerId);
+        return Mono.just("Server close & save success");
     }
 
 
@@ -63,9 +63,8 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
-            closeDockerService.closeDockerService(user);
-            System.err.println("11111111111111111111");
-            stopScheduling(user);
+            closeDockerService.closeDockerService(user)
+            .flatMap(response -> stopScheduling(user));
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
         TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId, startTime, endTime);
