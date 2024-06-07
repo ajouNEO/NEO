@@ -48,14 +48,14 @@ public class ScheduleService {
     }
 
     public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime, Long points, int ramCapacity) {
-        Instant endTime = calculateEndTime(points);
+        Instant endTime = calculateEndTime(points/ramCapacity - 1);
         redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
         scheduleTask(user, dockerId, startTime, endTime);
         schedulePointUpdatePerMinute(user,dockerId, startTime, endTime, ramCapacity);
     }
 
-    public Instant calculateEndTime(Long points) {
-        return Instant.now().plus(Duration.ofMinutes(points));
+    public Instant calculateEndTime(Long minutes) {
+        return Instant.now().plus(Duration.ofMinutes(minutes));
     }
 
 
