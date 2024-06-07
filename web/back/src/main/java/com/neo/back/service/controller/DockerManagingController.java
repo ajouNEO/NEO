@@ -78,7 +78,7 @@ public class DockerManagingController {
     public Mono<Object> closeContainer() {
         User user = getCurrentUser.getUser();
         
-        // scheduleService.stopScheduling(user);
+        scheduleService.stopScheduling(user);
 
         return closeDockerService.closeDockerService(user);
     }
