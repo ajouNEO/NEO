@@ -87,21 +87,17 @@ public class ScheduleService {
         
         TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
 
-        if (taskInfo != null) {
-            boolean cancelled = taskInfo.cancel(true);
-
+        if (taskInfo != null || pointTask != null) {
+            taskInfo.cancel(true);
             pointTask.cancel(true);
 
-            if (cancelled) {
-                updatePoints(user);
-                synchronized (scheduledTasks) {
-                    scheduledTasks.remove(dockerId);
-                    scheduledTasks.remove("point-"+dockerId);
-                }
-                System.out.println("Task cancelled and removed from scheduledTasks map for dockerId: " + dockerId);
-            } else {
-                System.out.println("Task cancellation failed for dockerId: " + dockerId);
+            updatePoints(user);
+            synchronized (scheduledTasks) {
+                scheduledTasks.remove(dockerId);
+                scheduledTasks.remove("point-"+dockerId);
             }
+            System.out.println("Task cancelled and removed from scheduledTasks map for dockerId: " + dockerId);
+
         } else {
             System.out.println("No task found for dockerId: " + dockerId);
         }
@@ -174,6 +170,14 @@ public class ScheduleService {
     public List<ScheduledTaskDto> getScheduledTasks() {
         // 불필요한 메모리 사용을 방지하기 위해 필터링을 추가합니다.
         return scheduledTasks.values().stream()
+                .filter(future -> !future.isCancelled() && !future.isDone())
+                .map(future -> new ScheduledTaskDto(future.getTaskId(), "scheduled", future.getStartTime(), future.getEndTime()))
+                .collect(Collectors.toList());
+    }
+
+    public List<ScheduledTaskDto> getUserScheduledTasks() {
+        // 불필요한 메모리 사용을 방지하기 위해 필터링을 추가합니다.
+        return UserscheduledTasks.values().stream()
                 .filter(future -> !future.isCancelled() && !future.isDone())
                 .map(future -> new ScheduledTaskDto(future.getTaskId(), "scheduled", future.getStartTime(), future.getEndTime()))
                 .collect(Collectors.toList());
