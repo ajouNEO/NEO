@@ -35,6 +35,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CloseDockerService {
     private final DockerAPI dockerAPI;
+    private final ScheduleService scheduleService;
     private final DockerServerRepository dockerServerRepo;
     private final DockerImageRepository dockerImageRepo;
     private final EdgeServerRepository edgeServerRepo;
@@ -63,6 +64,7 @@ public class CloseDockerService {
                 .onErrorResume(NasServerException.class, e -> Mono.error(new NasServerException()))
                 .flatMap(result -> this.databaseReflection(dockerServer))
                 .flatMap(result -> this.deleteLeftDockerImage())
+                .flatMap(result -> scheduleService.stopScheduling(user))
                 .flatMap(result -> Mono.just("Server close & save success"));
 
         } catch (DoNotHaveServerException e) {
