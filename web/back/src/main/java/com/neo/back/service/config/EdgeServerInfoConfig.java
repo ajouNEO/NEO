@@ -649,7 +649,7 @@ public class EdgeServerInfoConfig {
         user.setName(name);
         user.setEmail(Username);
         user.setPoints((long)9999999);
-        user.setAccountStatus(false);
+        user.setAccountStatus(true);
         if(name.equals("root")){
             user.setRole("ROLE_ADMIN");
         }

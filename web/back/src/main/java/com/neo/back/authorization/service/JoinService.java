@@ -57,7 +57,7 @@ public class JoinService {
         User.setUsername(username);
         User.setEmail(username);
         User.setPoints((long) 1000);
-        User.setAccountStatus(false);
+        User.setAccountStatus(true);
 
         userRepository.save(User);
 
