@@ -38,7 +38,7 @@ public class ScheduleService {
         Instant startTime = Instant.now();
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String dockerId = dockerServer.getDockerId();
-        Instant endTime = this.calculateEndTime(user.getPoints()/(dockerServer.getRAMCapacity()/2));
+        Instant endTime = this.calculateEndTime(user.getPoints()/(dockerServer.getRAMCapacity()/2) - 1);
 
         redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
 
@@ -63,9 +63,9 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
+            closeDockerService.closeDockerService(user).block();
             this.cancelReducedPointsScheduling(user, dockerId);
             this.stopTrackingUser(dockerId);
-            closeDockerService.closeDockerService(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
         TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId, startTime, endTime);
