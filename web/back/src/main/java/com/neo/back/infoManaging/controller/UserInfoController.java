@@ -1,13 +1,9 @@
 package com.neo.back.infoManaging.controller;
 
 
-import com.jcraft.jsch.UserInfo;
-import com.neo.back.authorization.dto.NameRequest;
 import com.neo.back.authorization.entity.User;
-import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.infoManaging.dto.ManagerPostInquiryDto;
 import com.neo.back.infoManaging.dto.UserInquiryListDto;
-import com.neo.back.infoManaging.dto.UserInquiryToAnswer;
 import com.neo.back.infoManaging.dto.UserPostInquiryDto;
 import com.neo.back.infoManaging.service.UserInquiryService;
 import com.neo.back.infoManaging.service.UserInfoService;
@@ -20,13 +16,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -80,6 +74,7 @@ public class UserInfoController {
     public List<UserInquiryListDto> getUserInquiryList() {
         User user = getCurrentUser.getUser();
         return userserInquiryService.getUserInquiryList(user);
+    }
         
     @GetMapping("api/user/profileimage")
     public byte[] getProfileImage() throws IOException {
