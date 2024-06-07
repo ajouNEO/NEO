@@ -10,6 +10,7 @@ import com.neo.back.service.utility.TrackableScheduledFuture;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
@@ -34,82 +34,39 @@ public class ScheduleService {
     private final CloseDockerService closeDockerService;
     private final GameUserListService gameUserListService;
 
+    public Mono<Object> startScheduling(User user) {
+        Instant startTime = Instant.now();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        String dockerId = dockerServer.getDockerId();
+        Instant endTime = this.calculateEndTime(user.getPoints()/dockerServer.getRAMCapacity() - 1);
+
+        redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
+
+        this.shutdownScheduling(user, dockerId, startTime, endTime);
+        this.reducedPointsScheduling(user,dockerId, startTime, dockerServer.getRAMCapacity());
+        this.startTrackingUser(user,dockerId);
+        return Mono.just(ResponseEntity.ok("Container created successfully"));
+    }
+
     public void stopScheduling(User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String userdockerId = dockerServer.getDockerId();
 
-        Optional<ScheduledTaskDto> scheduledTaskDto = this.getScheduledTasks().stream().filter(task -> task.getDockerId().equals(userdockerId)).findFirst();
-        System.out.println(scheduledTaskDto);
         Instant startTime = dockerServer.getCreatedDate();
 
         Instant endTime = Instant.now();    // Assuming we don't have the actual end time here
-        this.cancelScheduledEnd(user, userdockerId, startTime, endTime);
+        this.cancelScheduledPointAndShutdown(user, userdockerId, startTime, endTime);
         this.stopTrackingUser(userdockerId);
     }
 
-    public void scheduleServiceEndWithPoints(User user, String dockerId, Instant startTime, Long points, int ramCapacity) {
-        Instant endTime = calculateEndTime(points/ramCapacity - 1);
-        redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
-        scheduleTask(user, dockerId, startTime, endTime);
-        schedulePointUpdatePerMinute(user,dockerId, startTime, endTime, ramCapacity);
-    }
-
-    public Instant calculateEndTime(Long minutes) {
-        return Instant.now().plus(Duration.ofMinutes(minutes));
-    }
 
 
-    public void cancelScheduledEnd(User user, String dockerId, Instant startTime, Instant endTime) {
-        TrackableScheduledFuture<?> taskInfo = scheduledTasks.get(dockerId);
-        System.out.println(taskInfo);
-        TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
+    
 
-        System.out.println(pointTask);
-        if (taskInfo != null) {
-            boolean cancelled = taskInfo.cancel(true);
-
-          //       pointTask1.cancel(true);
-            pointTask.cancel(true);
-
-            if (cancelled) {
-                updatePoints(user, startTime, endTime);
-                synchronized (scheduledTasks) {
-                    scheduledTasks.remove(dockerId);
-                    scheduledTasks.remove("point-"+dockerId);
-
-
-                }
-                System.out.println("Task cancelled and removed from scheduledTasks map for dockerId: " + dockerId);
-            } else {
-                System.out.println("Task cancellation failed for dockerId: " + dockerId);
-            }
-        } else {
-            System.out.println("No task found for dockerId: " + dockerId);
-        }
-        String email = user.getEmail();
-
-        Long point = Long.valueOf(redisUtil.getData(email));
-        user.setPoints(point);
-        userRepository.save(user);
-    }
-
-    private void scheduleTask(User user, String dockerId, Instant startTime, Instant endTime) {
+    private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
-            try {
-                closeDockerService.closeDockerService(user).block();
-                updatePoints(user, startTime, endTime);
-                TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
-                pointTask.cancel(true);
-
-            } finally {
-                // 작업이 완료되면 맵에서 제거합니다.
-                synchronized (scheduledTasks) {
-                    scheduledTasks.remove(dockerId);
-                }
-                synchronized (UserscheduledTasks) {
-                    UserscheduledTasks.remove(dockerId);
-                }
-            }
+            closeDockerService.closeDockerService(user).block();
+            stopScheduling(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
         TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId, startTime, endTime);
@@ -118,57 +75,37 @@ public class ScheduleService {
         }
     }
 
-    //스케줄로직 재귀식으로 짜기? enddate인지 체크하고 enddate면 제거하고 아니면 스케줄에서 +1분해서 넣고.
-
-
-    public void schedulePointUpdatePerMinute(User user,String dockerId, Instant startTime, Instant endTime, int ramCapacity) {
-        Runnable task = () -> updateUserPointsInMemory(user, ramCapacity / 2);
+    public void reducedPointsScheduling(User user,String dockerId, Instant startTime, int ramCapacity) {
+        Runnable task = () -> tempUpdatePoints(user, ramCapacity / 2);
         ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(task, 60000);
-        TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId+"-point", startTime, endTime);
+        TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId+"-point", startTime, null);
         scheduledTasks.put("point-" + dockerId , trackableFuture);
     }
 
+    public void cancelScheduledPointAndShutdown(User user, String dockerId, Instant startTime, Instant endTime) {
+        TrackableScheduledFuture<?> taskInfo = scheduledTasks.get(dockerId);
+        
+        TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
 
-    private void updateUserPointsInMemory(User user, long minutesUsed) {
-        String userName = user.getUsername();
-        long pointsToDeduct = minutesUsed;
+        if (taskInfo != null) {
+            boolean cancelled = taskInfo.cancel(true);
 
-        // 캐시에서 현재 포인트를 가져오기
-        String cachedPoints = redisUtil.getData(userName);
-        if (cachedPoints != null) {
-            long currentPoints = Long.parseLong(cachedPoints);
-            long updatedPoints = currentPoints - pointsToDeduct;
-            redisUtil.setValue(userName, String.valueOf(updatedPoints));
+            pointTask.cancel(true);
+
+            if (cancelled) {
+                updatePoints(user);
+                synchronized (scheduledTasks) {
+                    scheduledTasks.remove(dockerId);
+                    scheduledTasks.remove("point-"+dockerId);
+                }
+                System.out.println("Task cancelled and removed from scheduledTasks map for dockerId: " + dockerId);
+            } else {
+                System.out.println("Task cancellation failed for dockerId: " + dockerId);
+            }
         } else {
-            // 캐시에 값이 없으면 데이터베이스에서 가져오기
-            User dbUser = userRepository.findByUsername(userName);
-            long currentPoints = dbUser.getPoints();
-            long updatedPoints = currentPoints - pointsToDeduct;
-            redisUtil.setValue(userName, String.valueOf(updatedPoints));
+            System.out.println("No task found for dockerId: " + dockerId);
         }
-        System.out.println("Updated points in memory for user: " + user.getUsername() + " Points: " + redisUtil.getData(userName));
-
     }
-
-    private void updatePoints(User user, Instant startTime, Instant endTime) {
-        long pointsUsed = calculatePointsUsed(startTime, endTime);
-        user.setPoints(user.getPoints() - pointsUsed);
-        userRepository.save(user);
-    }
-
-    private long calculatePointsUsed(Instant startTime, Instant endTime) {
-        long minutesUsed = Duration.between(startTime, endTime).toMinutes();
-        return minutesUsed;
-    }
-
-    public List<ScheduledTaskDto> getScheduledTasks() {
-        // 불필요한 메모리 사용을 방지하기 위해 필터링을 추가합니다.
-        return scheduledTasks.values().stream()
-                .filter(future -> !future.isCancelled() && !future.isDone())
-                .map(future -> new ScheduledTaskDto(future.getTaskId(), "scheduled", future.getStartTime(), future.getEndTime()))
-                .collect(Collectors.toList());
-    }
-
 
     public void startTrackingUser(User user, String dockerId) {
         synchronized (UserscheduledTasks) {
@@ -193,5 +130,52 @@ public class ScheduleService {
                 System.out.println("No user tracking task found for dockerId: " + dockerId);
             }
         }
+    }
+
+
+
+    
+
+
+
+    private void tempUpdatePoints(User user, long usedPoints) {
+        String userName = user.getUsername();
+
+        // 캐시에서 현재 포인트를 가져오기
+        String cachedPoints = redisUtil.getData(userName);
+        if (cachedPoints != null) {
+            long currentPoints = Long.parseLong(cachedPoints);
+            long updatedPoints = currentPoints - usedPoints;
+            redisUtil.setValue(userName, String.valueOf(updatedPoints));
+        } else {
+            // 캐시에 값이 없으면 데이터베이스에서 가져오기
+            User dbUser = userRepository.findByUsername(userName);
+            long currentPoints = dbUser.getPoints();
+            long updatedPoints = currentPoints - usedPoints;
+            redisUtil.setValue(userName, String.valueOf(updatedPoints));
+        }
+        System.out.println("Updated points in memory for user: " + user.getUsername() + " Points: " + redisUtil.getData(userName));
+
+    }
+
+    private void updatePoints(User user) {
+        String email = user.getEmail();
+
+        Long point = Long.valueOf(redisUtil.getData(email));
+        user.setPoints(point);
+        userRepository.save(user);
+    }
+
+    public Instant calculateEndTime(Long minutes) {
+        return Instant.now().plus(Duration.ofMinutes(minutes));
+    }
+
+    //확인용
+    public List<ScheduledTaskDto> getScheduledTasks() {
+        // 불필요한 메모리 사용을 방지하기 위해 필터링을 추가합니다.
+        return scheduledTasks.values().stream()
+                .filter(future -> !future.isCancelled() && !future.isDone())
+                .map(future -> new ScheduledTaskDto(future.getTaskId(), "scheduled", future.getStartTime(), future.getEndTime()))
+                .collect(Collectors.toList());
     }
 }

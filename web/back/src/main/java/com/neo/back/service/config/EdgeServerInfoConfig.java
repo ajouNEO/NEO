@@ -1,7 +1,10 @@
 package com.neo.back.service.config;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.neo.back.authorization.entity.Profile;
+import com.neo.back.authorization.repository.ProfileRepository;
 import com.neo.back.service.entity.MinecreftServerSetting;
 import com.neo.back.service.repository.GameServerSettingRepository;
 import com.neo.back.service.repository.GameTagRepository;
@@ -53,7 +56,9 @@ public class EdgeServerInfoConfig {
 
    private final UserRepository UserRepo;
 
-   private final JoinService joinService;
+    private final ProfileRepository profileRepository;
+
+    private final JoinService joinService;
 
    private final GameTagRepository gameTagRepo;
 
@@ -236,35 +241,29 @@ public class EdgeServerInfoConfig {
    //     gameTagRepo.save(game);
    // }
 
-   private void saveCMD_common() {
-       GameDockerAPICMD CmdStartStr = new GameDockerAPICMD();
-       CmdStartStr.setCmd("sh\t-c\techo 'start' > /control/input.txt");
-       CmdStartStr.setCmdId("CmdStartStr");
-       CmdStartStr.setCmdKind("common");
+    private void saveCMD_common() {
+        saveIfNotExists("sh\t-c\techo 'start' > /control/input.txt", "CmdStartStr", "common");
+        saveIfNotExists("sh\t-c\tcat /control/output.txt", "gameLog", "common");
+        saveIfNotExists("sh\t-c\techo 'input INPUT' > /control/input.txt", "input", "common");
+    }
+    private void saveIfNotExists(String cmd, String cmdId, String cmdKind) {
+        Optional<GameDockerAPICMD> existingCmd = Optional.ofNullable(gameDockerAPICMDRepo.findBycmdId(cmdId));
+        if (existingCmd.isPresent()) {
+            System.out.println("Duplicate entry detected for cmdId: " + cmdId);
+        } else {
+            GameDockerAPICMD newCmd = new GameDockerAPICMD();
+            newCmd.setCmd(cmd);
+            newCmd.setCmdId(cmdId);
+            newCmd.setCmdKind(cmdKind);
+            gameDockerAPICMDRepo.save(newCmd);
+        }
+    }
 
-
-       GameDockerAPICMD gameLog = new GameDockerAPICMD();
-       gameLog.setCmd("sh\t-c\tcat /control/output.txt");
-       gameLog.setCmdId("gameLog");
-       gameLog.setCmdKind("common");
-
-
-       GameDockerAPICMD input = new GameDockerAPICMD();
-       input.setCmd("sh\t-c\techo 'input INPUT' > /control/input.txt");
-       input.setCmdId("input");
-       input.setCmdKind("common");
-
-
-       gameDockerAPICMDRepo.save(gameLog);
-       gameDockerAPICMDRepo.save(input);
-       gameDockerAPICMDRepo.save(CmdStartStr);
-
-   }
-   private void saveCMD_mine(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4, Game palworld, Game terraria) {
-       GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
-       CmdMemory_Mine_1_16_5Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.16.5.jar,nogui' >  /control/meomory.txt");
-       CmdMemory_Mine_1_16_5Str.setCmdId("1.16.5_START");
-       CmdMemory_Mine_1_16_5Str.setCmdKind("execCMD");
+    private void saveCMD_mine(Game mine1_16_5, Game mine1_19_2, Game mine1_20_4, Game palworld, Game terraria) {
+        GameDockerAPICMD CmdMemory_Mine_1_16_5Str = new GameDockerAPICMD();
+        CmdMemory_Mine_1_16_5Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.16.5.jar,nogui' >  /control/meomory.txt");
+        CmdMemory_Mine_1_16_5Str.setCmdId("1.16.5_START");
+        CmdMemory_Mine_1_16_5Str.setCmdKind("execCMD");
 
        GameDockerAPICMD CmdMemory_Mine_1_19_2Str = new GameDockerAPICMD();
        CmdMemory_Mine_1_19_2Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.19.2.jar,nogui' >  /control/meomory.txt");
@@ -641,15 +640,30 @@ public class EdgeServerInfoConfig {
        joinDTO.setPassword(password);
        joinService.joinProcess(joinDTO);
 
-       User user = UserRepo.findByUsername(Username);
-       user.setName(name);
-       user.setEmail(Username);
-       user.setPoints((long)9999999);
-       UserRepo.save(user);
-       // user.setName(name);
-       // user.setPassword(password);
-       // user.setUsername(Username);
-       // UserRepo.save(user);
-       return user;
-   }
+        User user = UserRepo.findByUsername(Username);
+        user.setName(name);
+        user.setEmail(Username);
+        user.setPoints((long)9999999);
+        UserRepo.save(user);
+        // user.setName(name);
+        // user.setPassword(password);
+        // user.setUsername(Username);
+        // UserRepo.save(user);
+        return user;
+    }
+
+    @Transactional
+    private void createProfilesForUsers(){
+        List<User> users = UserRepo.findAll();
+
+        for(User user : users){
+            Profile profile = new Profile();
+            profile.setUsername(user.getUsername());
+            profile.setImagePath(null);
+            profile.setProfilecomment(null);
+            profile.setUser(user);
+
+            profileRepository.save(profile);
+        }
+    }
 }

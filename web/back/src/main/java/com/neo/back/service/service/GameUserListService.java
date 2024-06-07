@@ -202,7 +202,11 @@ public class GameUserListService {
 
         SseEmitter existingEmitter = UserBanListSSE.get(user);
         ScheduledExecutorService existingExecutor = UserBanListSCH.get(user);
-        previousBanLists.put(user, new HashSet<>() );
+        Set<UserBanServerListDto> UserBanServer = new HashSet<UserBanServerListDto>();
+        UserBanServerListDto firstData= new UserBanServerListDto();
+        firstData.setName("null");
+        UserBanServer.add(firstData);
+        previousBanLists.put(user,UserBanServer);
 
         if (existingEmitter != null || existingEmitter != null) {
             existingEmitter.complete();
