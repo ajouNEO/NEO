@@ -48,12 +48,13 @@ public class ScheduleService {
         return Mono.just(ResponseEntity.ok("Container created successfully"));
     }
 
-    public void stopScheduling(User user) {
+    public Mono<Object> stopScheduling(User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String userdockerId = dockerServer.getDockerId();
 
         this.stopTrackingUser(userdockerId);
         this.cancelScheduledPointAndShutdown(user, userdockerId);
+        return Mono.just("stop scheduling success");
     }
 
 
@@ -62,8 +63,7 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
-            stopScheduling(user);
-            closeDockerService.closeDockerService(user).block();
+            closeDockerService.closeDockerService(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
         TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId, startTime, endTime);
