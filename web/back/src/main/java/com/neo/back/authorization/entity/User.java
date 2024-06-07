@@ -30,6 +30,8 @@ public class User {
     private String role;
     private Long points;
 
+    private Boolean manager;
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -84,22 +84,22 @@ public class UserInfoController {
         return userserInquiryService.postManagerInquiry(user,inquiryData);
     }
 
-    // @GetMapping("/api/manager/inquiry")
-    // public Mono<Object> getManagerInquiryToAnswer(@RequestParam Long inquiryId) {
-    //     User user = getCurrentUser.getUser();
-    //     return userserInquiryService.getManagerInquiryToAnswer(user,inquiryId);
-    // }
+    @GetMapping("/api/manager/inquiry")
+    public Mono<Object> getManagerInquiryToAnswer(@RequestParam Long inquiryId) {
+        User user = getCurrentUser.getUser();
+        return userserInquiryService.getManagerInquiryToAnswer(user,inquiryId);
+    }
 
-    // @GetMapping("/api/manager/inquiry/list")
-    // public List<UserInquiryListDto> getManagerInquiryList() {
-    //     User user = getCurrentUser.getUser();
-    //     return userserInquiryService.getManagerInquiryList(user);
-    // }
+    @GetMapping("/api/manager/inquiry/list")
+    public Mono<Object> getManagerInquiryList() {
+        User user = getCurrentUser.getUser();
+        return userserInquiryService.getManagerInquiryList(user);
+    }
 
-    // @DeleteMapping("/api/manager/inquiry")
-    // public Mono<String> deleteManagerInquiry(@RequestParam Long inquiryId) {
-    //     User user = getCurrentUser.getUser();
-    //     return userserInquiryService.deleteManagerInquiry(user,inquiryId);
-    // }
+    @DeleteMapping("/api/manager/inquiry")
+    public Mono<String> deleteManagerInquiry(@RequestParam Long inquiryId) {
+        User user = getCurrentUser.getUser();
+        return userserInquiryService.deleteManagerInquiry(user,inquiryId);
+    }
 
 }

@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ManagerPostInquiryDto {
-    private Long id;
+    private Long inquiryId;
     private String inquiry;
 }
