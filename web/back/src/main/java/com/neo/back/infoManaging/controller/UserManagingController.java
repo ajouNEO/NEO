@@ -4,8 +4,10 @@ package com.neo.back.infoManaging.controller;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.infoManaging.dto.ManagerPostInquiryDto;
 import com.neo.back.infoManaging.dto.UserInquiryListDto;
+import com.neo.back.infoManaging.dto.UserManagingPointDto;
 import com.neo.back.infoManaging.dto.UserPostInquiryDto;
 import com.neo.back.infoManaging.service.UserInquiryService;
+import com.neo.back.infoManaging.service.UserManagingService;
 import com.neo.back.infoManaging.service.UserInfoService;
 import com.neo.back.service.dto.UserProfileDto;
 import com.neo.back.service.utility.GetCurrentUser;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,17 +27,21 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequiredArgsConstructor
-public class UserInfoController {
+public class UserManagingController {
 
     private final GetCurrentUser getCurrentUser;
     private final RedisTemplate<String, String> template;
     private final UserInquiryService userserInquiryService;
-
     private final UserInfoService userInfoService;
+    private final UserManagingService userManagingService;
 
+    
     @GetMapping("/api/user/point")
     public Long getPoint(){
         User user = getCurrentUser.getUser();
@@ -68,6 +75,12 @@ public class UserInfoController {
     public Mono<Object> getUserInquiryToAnswer(@RequestParam Long inquiryId) {
         User user = getCurrentUser.getUser();
         return userserInquiryService.getUserInquiryToAnswer(user,inquiryId);
+    }
+
+    @DeleteMapping("/api/user/inquiry")
+    public Mono<Object> deleteUserInquiry(@RequestParam Long inquiryId) {
+        User user = getCurrentUser.getUser();
+        return this.userserInquiryService.deleteUserInquiry(user,inquiryId);
     }
 
     @GetMapping("/api/user/inquiry/list")
@@ -111,35 +124,59 @@ public class UserInfoController {
 
         return userInfoService.LoadProfileComment(user);
     }
-
-    @DeleteMapping("/api/user/inquiry")
-    public Mono<String> deleteUserInquiry(@RequestParam Long inquiryId) {
-        User user = getCurrentUser.getUser();
-        return userserInquiryService.deleteUserInquiry(user,inquiryId);
-    }
     
-    @PostMapping("/api/manager/inquiry")
-    public Mono<Object> postManagerInquiry(@RequestBody ManagerPostInquiryDto inquiryData) {
+    @PostMapping("/api/admin/user/inquiry")
+    public ResponseEntity<Object> postManagerInquiry(@RequestBody ManagerPostInquiryDto inquiryData) {
         User user = getCurrentUser.getUser();
-        return userserInquiryService.postManagerInquiry(user,inquiryData);
+
+        return this.userserInquiryService.postManagerInquiry(user,inquiryData);
     }
 
-    @GetMapping("/api/manager/inquiry")
-    public Mono<Object> getManagerInquiryToAnswer(@RequestParam Long inquiryId) {
+    @GetMapping("/api/admin/user/inquiry")
+    public ResponseEntity<Object> getManagerInquiryToAnswer(@RequestParam Long inquiryId) {
         User user = getCurrentUser.getUser();
-        return userserInquiryService.getManagerInquiryToAnswer(user,inquiryId);
+        return this.userserInquiryService.getManagerInquiryToAnswer(user,inquiryId);
     }
 
-    @GetMapping("/api/manager/inquiry/list")
-    public Mono<Object> getManagerInquiryList() {
+    @GetMapping("/api/admin/user/inquiry/list")
+    public ResponseEntity<Object> getManagerInquiryList() {
         User user = getCurrentUser.getUser();
-        return userserInquiryService.getManagerInquiryList(user);
+        return this.userserInquiryService.getManagerInquiryList(user);
     }
 
-    @DeleteMapping("/api/manager/inquiry")
-    public Mono<String> deleteManagerInquiry(@RequestParam Long inquiryId) {
+    @DeleteMapping("/api/admin/user/inquiry")
+    public ResponseEntity<Object> deleteManagerInquiry(@RequestParam Long inquiryId) {
         User user = getCurrentUser.getUser();
-        return userserInquiryService.deleteManagerInquiry(user,inquiryId);
+        return this.userserInquiryService.deleteManagerInquiry(user,inquiryId);
     }
 
+    @GetMapping("/api/admin/user/list")
+    public ResponseEntity<Object> getUserLsitByManager() {
+        User user = getCurrentUser.getUser();
+        return this.userManagingService.getUserLsitByManager(user);
+    }
+
+    @PutMapping("/api/admin/user/point/add")
+    public ResponseEntity<Object> addPointToUser(@RequestBody UserManagingPointDto userData) {
+        User user = getCurrentUser.getUser();
+        return this.userManagingService.addPointToUser(user,userData);
+    }
+
+    @PutMapping("/api/admin/user/point/sub")
+    public ResponseEntity<Object> subPointToUser(@RequestBody UserManagingPointDto userData) {
+        User user = getCurrentUser.getUser();
+        return this.userManagingService.subPointToUser(user,userData);
+    }
+
+    @PutMapping("/api/admin/user/account/stop")
+    public ResponseEntity<Object> stopUserAccount(@RequestParam Long userId) {
+        User user = getCurrentUser.getUser();
+        return this.userManagingService.stopUserAccount(user,userId);
+    }
+
+    @PutMapping("/api/admin/user/account/active")
+    public ResponseEntity<Object> activeUserAccount(@RequestParam Long userId) {
+        User user = getCurrentUser.getUser();
+        return this.userManagingService.activeUserAccount(user,userId);
+    }
 }
