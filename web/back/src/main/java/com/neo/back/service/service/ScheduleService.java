@@ -63,6 +63,7 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
+            stopScheduling(user).block();
             closeDockerService.closeDockerService(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);

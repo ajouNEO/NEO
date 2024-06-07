@@ -2,10 +2,8 @@ package com.neo.back.service.service;
 
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import com.neo.back.authorization.entity.User;
 import org.json.JSONObject;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.neo.back.service.dto.ScheduledTaskDto;
 import com.neo.back.service.entity.DockerImage;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.EdgeServer;
@@ -35,7 +32,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CloseDockerService {
     private final DockerAPI dockerAPI;
-    private final ScheduleService scheduleService;
     private final DockerServerRepository dockerServerRepo;
     private final DockerImageRepository dockerImageRepo;
     private final EdgeServerRepository edgeServerRepo;
@@ -64,7 +60,6 @@ public class CloseDockerService {
                 .onErrorResume(NasServerException.class, e -> Mono.error(new NasServerException()))
                 .flatMap(result -> this.databaseReflection(dockerServer))
                 .flatMap(result -> this.deleteLeftDockerImage())
-                .flatMap(result -> scheduleService.stopScheduling(user))
                 .flatMap(result -> Mono.just("Server close & save success"));
 
         } catch (DoNotHaveServerException e) {
