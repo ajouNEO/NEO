@@ -55,8 +55,8 @@ public class ScheduleService {
         Instant startTime = dockerServer.getCreatedDate();
 
         Instant endTime = Instant.now();    // Assuming we don't have the actual end time here
-        this.cancelScheduledPointAndShutdown(user, userdockerId, startTime, endTime);
         this.stopTrackingUser(userdockerId);
+        this.cancelScheduledPointAndShutdown(user, userdockerId, startTime, endTime);
     }
 
 
