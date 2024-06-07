@@ -18,4 +18,10 @@ public class ScheduleController {
     public List<ScheduledTaskDto> getScheduledTasks() {
         return scheduleService.getScheduledTasks();
     }
+
+    @GetMapping("/tasks2")
+    public List<ScheduledTaskDto> getUserScheduledTasks() {
+        return scheduleService.getUserScheduledTasks();
+    }
+
 }
