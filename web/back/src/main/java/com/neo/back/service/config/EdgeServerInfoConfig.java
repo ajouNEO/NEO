@@ -149,19 +149,21 @@ public class EdgeServerInfoConfig {
        saveCMD_common();
        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4,palworld,terraria);
 
-       // User INFO
-       User Sunwo = saveUser("sunwo@naver.com","sunwo","malenwater");
-       User Jihoon = saveUser("misu@naver.com","misu","Jiman_misu");
-       User Minseo = saveUser("Minseo@naver.com","Minseo0O","Minseo");
-       User Haeun = saveUser("Haeun@naver.com","Haeun000111!","Haeun");
-       User Seungmin = saveUser("Seungmin@naver.com","Seungmin000111!","Seungmin");
-       // 5 User
-       User Jiwoo = saveUser("Jiwoo@naver.com","SunJiwoo1!","Jiwoo");
-       User Seoyeon = saveUser("Seoyeon@naver.com","Seoyeon1!","Seoyeon");
-       User Minjoon = saveUser("Minjoon@naver.com","Minjoon0O","Minjoon");
-       User Yujin = saveUser("Yujin@naver.com","Yujin000111!","Yujin");
-       User Jimin = saveUser("Jimin@naver.com","Jimin000111!","Jimin");
-       // 10
+        User root = saveUser("root@naver.com","root","root",true);
+
+        // User INFO
+        User Sunwo = saveUser("sunwo@naver.com","sunwo","malenwater",false);
+        User Jihoon = saveUser("misu@naver.com","misu","Jiman_misu",false);
+        User Minseo = saveUser("Minseo@naver.com","Minseo0O","Minseo",false);
+        User Haeun = saveUser("Haeun@naver.com","Haeun000111!","Haeun",false);
+        User Seungmin = saveUser("Seungmin@naver.com","Seungmin000111!","Seungmin",false);
+        // 5 User
+        User Jiwoo = saveUser("Jiwoo@naver.com","SunJiwoo1!","Jiwoo",false);
+        User Seoyeon = saveUser("Seoyeon@naver.com","Seoyeon1!","Seoyeon",false);
+        User Minjoon = saveUser("Minjoon@naver.com","Minjoon0O","Minjoon",false);
+        User Yujin = saveUser("Yujin@naver.com","Yujin000111!","Yujin",false);
+        User Jimin = saveUser("Jimin@naver.com","Jimin000111!","Jimin",false);
+        // 10
 
        // saveGameTag("포켓몬");
        // saveGameTag("모드");
@@ -634,16 +636,17 @@ public class EdgeServerInfoConfig {
    }
 
 
-   private User saveUser(String Username,String password,String name) {
-       JoinDTO joinDTO = new JoinDTO();
-       joinDTO.setUsername(Username);
-       joinDTO.setPassword(password);
-       joinService.joinProcess(joinDTO);
+    private User saveUser(String Username,String password,String name,Boolean manager) {
+        JoinDTO joinDTO = new JoinDTO();
+        joinDTO.setUsername(Username);
+        joinDTO.setPassword(password);
+        joinService.joinProcess(joinDTO);
 
         User user = UserRepo.findByUsername(Username);
         user.setName(name);
         user.setEmail(Username);
         user.setPoints((long)9999999);
+        user.setManager(manager);
         UserRepo.save(user);
         // user.setName(name);
         // user.setPassword(password);

@@ -1,16 +1,10 @@
 package com.neo.back.service.controller;
 
-import com.neo.back.service.dto.ScheduledTaskDto;
 import com.neo.back.service.dto.UserSettingDto;
-import com.neo.back.service.entity.DockerServer;
-import com.neo.back.service.exception.UserCapacityExceededException;
-import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.service.*;
 import com.neo.back.service.utility.GetCurrentUser;
 import com.neo.back.authorization.entity.User;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import com.neo.back.service.dto.CreateDockerDto;
 import com.neo.back.service.dto.MyServerListDto;
@@ -40,8 +32,6 @@ public class DockerManagingController {
     private final GetCurrentUser getCurrentUser;
 
     private final ScheduleService scheduleService;
-
-    private final DockerServerRepository dockerServerRepository;
 
 
     @GetMapping("/api/container/list")

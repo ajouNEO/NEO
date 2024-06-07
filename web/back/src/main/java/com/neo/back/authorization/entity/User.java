@@ -30,6 +30,8 @@ public class User {
     private String role;
     private Long points;
 
+    private Boolean manager;
+    
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 

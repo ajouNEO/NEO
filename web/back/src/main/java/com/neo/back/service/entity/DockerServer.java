@@ -61,7 +61,7 @@ public class DockerServer extends BaseTime{
 
     private boolean isFreeAccess = false;
 
-    private int maxPlayer;
+    private int maxPlayer = 0;
 
     @ManyToMany
     private Set<User> applicants = new HashSet<>();
@@ -72,7 +72,7 @@ public class DockerServer extends BaseTime{
     @ManyToMany
     private Set<GameTag> tags = new HashSet<>();
 
-    private int userNumber;
+    private int userNumber = 0;
 
     @ElementCollection
     private Set<String> userNameInGame = new HashSet<>();
