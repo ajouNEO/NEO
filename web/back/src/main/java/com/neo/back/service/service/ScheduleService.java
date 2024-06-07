@@ -38,7 +38,7 @@ public class ScheduleService {
         Instant startTime = Instant.now();
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String dockerId = dockerServer.getDockerId();
-        Instant endTime = this.calculateEndTime(user.getPoints()/(dockerServer.getRAMCapacity()/2) - 1);
+        Instant endTime = this.calculateEndTime(user.getPoints()/(dockerServer.getRAMCapacity()/2));
 
         redisUtil.setValue(user.getUsername(), String.valueOf(user.getPoints()));
 
@@ -63,7 +63,7 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
-            stopScheduling(user).block();
+            stopScheduling(user);
             closeDockerService.closeDockerService(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
@@ -82,23 +82,22 @@ public class ScheduleService {
 
     public void cancelScheduledPointAndShutdown(User user, String dockerId) {
         TrackableScheduledFuture<?> taskInfo = scheduledTasks.get(dockerId);
-        
         TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
 
-        if (taskInfo != null || pointTask != null) {
+        if (taskInfo != null) {
             taskInfo.cancel(true);
-            pointTask.cancel(true);
-
-            updatePoints(user);
             synchronized (scheduledTasks) {
                 scheduledTasks.remove(dockerId);
+            }
+        }
+        if (pointTask != null) {
+            pointTask.cancel(true);
+            synchronized (scheduledTasks) {
                 scheduledTasks.remove("point-"+dockerId);
             }
-            System.out.println("Task cancelled and removed from scheduledTasks map for dockerId: " + dockerId);
-
-        } else {
-            System.out.println("No task found for dockerId: " + dockerId);
         }
+        updatePoints(user);
+
     }
 
     public void startTrackingUser(User user, String dockerId) {
