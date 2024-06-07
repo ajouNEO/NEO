@@ -48,13 +48,13 @@ public class ScheduleService {
         return Mono.just(ResponseEntity.ok("Container created successfully"));
     }
 
-    public Mono<Object> stopScheduling(User user) {
+    public void stopScheduling(User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         String userdockerId = dockerServer.getDockerId();
 
         this.stopTrackingUser(userdockerId);
-        this.cancelScheduledPointAndShutdown(user, userdockerId);
-        return Mono.just("stop scheduling success");
+        this.cancelShutdownScheduling(userdockerId);
+        this.cancelReducedPointsScheduling(user, userdockerId);
     }
 
 
@@ -63,13 +63,25 @@ public class ScheduleService {
 
     private void shutdownScheduling(User user, String dockerId, Instant startTime, Instant endTime) {
         Runnable task = () -> {
-            stopScheduling(user);
+            this.cancelReducedPointsScheduling(user, dockerId);
+            this.stopTrackingUser(dockerId);
             closeDockerService.closeDockerService(user);
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, endTime);
         TrackableScheduledFuture<?> trackableFuture = new TrackableScheduledFuture<>(future, task, dockerId, startTime, endTime);
         synchronized (scheduledTasks) {
             scheduledTasks.put(dockerId, trackableFuture);
+        }
+    }
+
+    public void cancelShutdownScheduling(String dockerId) {
+        TrackableScheduledFuture<?> taskInfo = scheduledTasks.get(dockerId);
+
+        if (taskInfo != null) {
+            taskInfo.cancel(true);
+            synchronized (scheduledTasks) {
+                scheduledTasks.remove(dockerId);
+            }
         }
     }
 
@@ -80,16 +92,9 @@ public class ScheduleService {
         scheduledTasks.put("point-" + dockerId , trackableFuture);
     }
 
-    public void cancelScheduledPointAndShutdown(User user, String dockerId) {
-        TrackableScheduledFuture<?> taskInfo = scheduledTasks.get(dockerId);
+    public void cancelReducedPointsScheduling(User user, String dockerId) {
         TrackableScheduledFuture<?> pointTask = scheduledTasks.get("point-"+dockerId);
 
-        if (taskInfo != null) {
-            taskInfo.cancel(true);
-            synchronized (scheduledTasks) {
-                scheduledTasks.remove(dockerId);
-            }
-        }
         if (pointTask != null) {
             pointTask.cancel(true);
             synchronized (scheduledTasks) {
@@ -97,7 +102,6 @@ public class ScheduleService {
             }
         }
         updatePoints(user);
-
     }
 
     public void startTrackingUser(User user, String dockerId) {
@@ -118,9 +122,6 @@ public class ScheduleService {
             if (future != null) {
                 future.cancel(true);
                 UserscheduledTasks.remove(dockerId);
-                System.out.println("User tracking task cancelled and removed for dockerId: " + dockerId);
-            } else {
-                System.out.println("No user tracking task found for dockerId: " + dockerId);
             }
         }
     }
