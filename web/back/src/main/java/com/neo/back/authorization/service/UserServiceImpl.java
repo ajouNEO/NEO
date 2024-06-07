@@ -2,7 +2,9 @@ package com.neo.back.authorization.service;
 
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
+import com.neo.back.service.repository.DockerImageRepository;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DockerImageRepository dockerImageRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -73,6 +78,17 @@ public class UserServiceImpl implements UserService {
 
         return !userRepository.existsByname(name);
     }
+
+    @Override
+    @Transactional
+    public void deleteUser(User user) {
+
+        dockerImageRepository.deleteByUserId(user.getId());
+
+        userRepository.delete(user);
+        return;
+    }
+
 
 
     private String createTemporaryPassword() {

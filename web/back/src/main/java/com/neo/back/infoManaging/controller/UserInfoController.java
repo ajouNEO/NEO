@@ -1,6 +1,7 @@
 package com.neo.back.infoManaging.controller;
 
 
+import com.jcraft.jsch.UserInfo;
 import com.neo.back.authorization.dto.NameRequest;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
@@ -9,6 +10,8 @@ import com.neo.back.infoManaging.dto.UserInquiryListDto;
 import com.neo.back.infoManaging.dto.UserInquiryToAnswer;
 import com.neo.back.infoManaging.dto.UserPostInquiryDto;
 import com.neo.back.infoManaging.service.UserInquiryService;
+import com.neo.back.infoManaging.service.UserInfoService;
+import com.neo.back.service.dto.UserProfileDto;
 import com.neo.back.service.utility.GetCurrentUser;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -23,6 +26,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 public class UserInfoController {
@@ -30,6 +38,8 @@ public class UserInfoController {
     private final GetCurrentUser getCurrentUser;
     private final RedisTemplate<String, String> template;
     private final UserInquiryService userserInquiryService;
+
+    private final UserInfoService userInfoService;
 
     @GetMapping("/api/user/point")
     public Long getPoint(){
@@ -70,6 +80,41 @@ public class UserInfoController {
     public List<UserInquiryListDto> getUserInquiryList() {
         User user = getCurrentUser.getUser();
         return userserInquiryService.getUserInquiryList(user);
+        
+    @GetMapping("api/user/profileimage")
+    public byte[] getProfileImage() throws IOException {
+        User user = getCurrentUser.getUser();
+
+        return userInfoService.LoadProfileImage(user);
+
+    }
+
+    @PostMapping("api/user/profileimage")
+    public void setProfileImage(@RequestParam("file")MultipartFile file) throws IOException {
+        User user = getCurrentUser.getUser();
+
+        userInfoService.saveProfileImage(user, file);
+
+        return;
+    }
+
+    @PostMapping("api/user/profilecomment")
+    public void setProfileComment(@RequestBody UserProfileDto userProfileDto){
+
+        User user = getCurrentUser.getUser();
+
+        System.out.println(userProfileDto.getProfilecomment());
+        userInfoService.saveProfileComment(user,userProfileDto);
+
+        return;
+    }
+
+    @GetMapping("api/user/profilecomment")
+    public String getProfileComment(){
+
+        User user = getCurrentUser.getUser();
+
+        return userInfoService.LoadProfileComment(user);
     }
 
     @DeleteMapping("/api/user/inquiry")

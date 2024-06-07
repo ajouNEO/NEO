@@ -1,8 +1,13 @@
 package com.neo.back.authorization.controller;
 
 import com.neo.back.authorization.dto.*;
+import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.service.UserService;
+import com.neo.back.service.entity.DockerServer;
+import com.neo.back.service.repository.DockerServerRepository;
+import com.neo.back.service.utility.GetCurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +22,14 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private GetCurrentUser getCurrentUser;
+
+    @Autowired
+    DockerServerRepository dockerServerRepository;
+
+
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
@@ -59,6 +72,27 @@ public class UserController {
 
         return success;
     }
+
+
+
+    @PostMapping("/delete")
+    public ResponseEntity<String> deleteUser(){
+        try{
+            User user = getCurrentUser.getUser();
+
+            if(dockerServerRepository.findByUser(user)!=null)
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("user game server should close");
+
+            userService.deleteUser(user);
+            return ResponseEntity.ok("User deleted successfully");
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting user.");
+        }
+
+
+    }
+
 
 
 }

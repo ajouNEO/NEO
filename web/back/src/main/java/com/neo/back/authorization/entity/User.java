@@ -32,6 +32,9 @@ public class User {
 
     private Boolean manager;
     
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Profile profile;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

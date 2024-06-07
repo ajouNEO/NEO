@@ -2,10 +2,8 @@ package com.neo.back.service.service;
 
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import com.neo.back.authorization.entity.User;
 import org.json.JSONObject;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.neo.back.service.dto.ScheduledTaskDto;
 import com.neo.back.service.entity.DockerImage;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.EdgeServer;
