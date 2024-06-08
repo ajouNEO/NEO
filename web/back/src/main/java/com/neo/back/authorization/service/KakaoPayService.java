@@ -5,6 +5,7 @@ import com.neo.back.authorization.entity.PaymentPending;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
+import com.neo.back.authorization.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ public class KakaoPayService {
     private PaymentPendingRepository paymentPendingRepository;
 
     private PaymentCompletedRepository paymentCompletedRepository;
+
+    private UserRepository userRepository;
     @Value("${pay.secret_key}")
     private String secretKey;
 
@@ -29,11 +32,12 @@ public class KakaoPayService {
 
 
     public KakaoPayService(WebClient.Builder webClientBuilder ,PaymentPendingRepository paymentPendingRepository,
-        PaymentCompletedRepository paymentCompletedRepository) {
+        PaymentCompletedRepository paymentCompletedRepository,UserRepository userRepository) {
             
         this.webClient = webClientBuilder.baseUrl("https://open-api.kakaopay.com").build();
         this.paymentCompletedRepository = paymentCompletedRepository;
         this.paymentPendingRepository =paymentPendingRepository;
+        this.userRepository = userRepository;
     }
 
     public Mono<String> startPayment(User user,String partner_order_id,String partner_user_id, String itemName, Integer quantity, Integer totalAmount, Integer vatAmount,Integer tax_free_amount ){
@@ -97,7 +101,12 @@ public class KakaoPayService {
                         paymentCompleted.setPaymentDate(LocalDateTime.now());
 
                         paymentCompletedRepository.save(paymentCompleted);
+                        User user = userRepository.findById(Long.valueOf(paymentPending.getPartnerUserId()));
+                        user.addPoint(Long.valueOf(paymentPending.getTotalAmount()));
+                        userRepository.save(user);
                         paymentPendingRepository.delete(paymentPending);
+
+
 
                         System.out.println("success");
                     }
