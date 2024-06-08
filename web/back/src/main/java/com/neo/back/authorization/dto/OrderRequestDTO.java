@@ -8,8 +8,7 @@ import lombok.Setter;
 @Setter
 public class OrderRequestDTO {
 
-    private String item_name;
-
+    private Integer total_amount;
 
 
 }
