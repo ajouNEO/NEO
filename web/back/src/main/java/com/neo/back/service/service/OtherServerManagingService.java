@@ -1,6 +1,7 @@
 package com.neo.back.service.service;
 
 import com.neo.back.authorization.util.RedisUtil;
+import com.neo.back.exception.DoNotHaveServerException;
 import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.MyServerInfoDto;
 import com.neo.back.service.dto.ServerInputDto;
@@ -8,14 +9,11 @@ import com.neo.back.service.dto.UserSettingCMDDto;
 import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.GameTag;
-import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerServerRepository;
-import com.neo.back.service.repository.GameDockerAPICMDRepository;
 import com.neo.back.service.repository.GameTagRepository;
 import com.neo.back.service.utility.MakeWebClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.neo.back.authorization.entity.User;
 
 import jakarta.el.ELException;
@@ -23,8 +21,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,116 +39,91 @@ public class OtherServerManagingService {
     private final GameTagRepository gameTagRepo;
     private final DockerAPI dockerAPI;
     private final MakeWebClient makeWebClient;
-    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
     private final GameServerSettingService gameServerSettingService;
     private WebClient dockerWebClient;
     
     public Mono<Object> getServerInfo (User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            MyServerInfoDto serverInfo = new MyServerInfoDto(
-                    dockerServer.getServerName(),
-                    dockerServer.getEdgeServer().getExternalIp(),
-                    dockerServer.getPort(),
-                    dockerServer.getGame().getGameName(),
-                    dockerServer.getGame().getVersion(),
-                    dockerServer.getRAMCapacity(),
-                    dockerServer.isPublic(),
-                    dockerServer.isFreeAccess(),
-                    dockerServer.getServerComment()
-            );
+        MyServerInfoDto serverInfo = new MyServerInfoDto(
+                dockerServer.getServerName(),
+                dockerServer.getEdgeServer().getExternalIp(),
+                dockerServer.getPort(),
+                dockerServer.getGame().getGameName(),
+                dockerServer.getGame().getVersion(),
+                dockerServer.getRAMCapacity(),
+                dockerServer.isPublic(),
+                dockerServer.isFreeAccess(),
+                dockerServer.getServerComment()
+        );
 
-            return Mono.just(serverInfo);
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        }
+        return Mono.just(serverInfo);
     }
 
     public  Mono<Object> setPublic (User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            dockerServer.setPublic(!dockerServer.isPublic());
-            dockerServerRepo.save(dockerServer);
-            return  Mono.just(dockerServer.isPublic());
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        }
+        dockerServer.setPublic(!dockerServer.isPublic());
+        dockerServerRepo.save(dockerServer);
+        return  Mono.just(dockerServer.isPublic());
     }
 
     public  Mono<Object> setFreeAccess (User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            dockerServer.setFreeAccess(!dockerServer.isFreeAccess());
-            dockerServerRepo.save(dockerServer);
-            return  Mono.just(dockerServer.isFreeAccess());
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        }
+        dockerServer.setFreeAccess(!dockerServer.isFreeAccess());
+        dockerServerRepo.save(dockerServer);
+        return  Mono.just(dockerServer.isFreeAccess());
     }
 
     public  Mono<Object> setComment (User user, String comment) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            dockerServer.setServerComment(comment);
-            dockerServerRepo.save(dockerServer);
-            return Mono.just("success set comment");
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        }
+        dockerServer.setServerComment(comment);
+        dockerServerRepo.save(dockerServer);
+        return Mono.just("success set comment");
     }
 
     public  Mono<Object> getTags (User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
-            Set<GameTag> tags = dockerServer.getTags();
-            List<String> tags_data = new ArrayList<>();
-            tags
-            .stream()
-            .forEach(data->{
-                tags_data.add(data.getTag());
-                
-            });
-            return Mono.just(tags_data);
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        }
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
+        Set<GameTag> tags = dockerServer.getTags();
+        List<String> tags_data = new ArrayList<>();
+        tags
+        .stream()
+        .forEach(data->{
+            tags_data.add(data.getTag());
+            
+        });
+        return Mono.just(tags_data);
     }
 
     @Transactional
     public  Mono<Object> setTags (User user, List<String> tags) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
-            dockerServer.getGameTagNames()
-            .forEach(tag ->{
-                dockerServer.removeGameTag(gameTagRepo.findByTag(tag));
-            });
-            
-            tags.forEach(tag ->{
-                if(gameTagRepo.findByTag(tag) == null){
-                    GameTag game = new GameTag();
-                    game.setTag(tag);
-                    gameTagRepo.save(game);
-                    dockerServer.addGameTag(game);
-                }
-                else{
-                    dockerServer.addGameTag(gameTagRepo.findByTag(tag));
-                }
-            });
-            dockerServerRepo.save(dockerServer);
-            return Mono.just("success set setTags");
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        }
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
+        dockerServer.getGameTagNames()
+        .forEach(tag ->{
+            dockerServer.removeGameTag(gameTagRepo.findByTag(tag));
+        });
+        
+        tags.forEach(tag ->{
+            if(gameTagRepo.findByTag(tag) == null){
+                GameTag game = new GameTag();
+                game.setTag(tag);
+                gameTagRepo.save(game);
+                dockerServer.addGameTag(game);
+            }
+            else{
+                dockerServer.addGameTag(gameTagRepo.findByTag(tag));
+            }
+        });
+        dockerServerRepo.save(dockerServer);
+        return Mono.just("success set setTags");
     }
 
     public Mono<String> sendInputToServer(User user, ServerInputDto input) {
@@ -226,37 +197,30 @@ public class OtherServerManagingService {
     }
 
     public Mono<Object> getMaxPlayer(User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            return gameServerSettingService.getServerSetting(user)
-            .flatMap(response -> {
-                // String responseBody = response.getBody();
-                String responseBody;
-                try {
-                        if (response instanceof String) {
-                            responseBody = (String) response;
-                        } else {
-                            // JSON 문자열로 변환
-                            responseBody = new ObjectMapper().writeValueAsString(response);
-                        }
-                    System.out.println(responseBody);
-                    JSONObject jsonObject = new JSONObject(responseBody);
-                    int maxPlayer = jsonObject.getInt(dockerServer.getGame().getMaxPlayerKey());
-                    dockerServer.setMaxPlayer(maxPlayer);
-                    dockerServerRepo.save(dockerServer);
-                    return Mono.just(maxPlayer);
-                } catch (JsonProcessingException e) {
-                    throw new ELException();
-                }
-                
-            });
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (Exception e) {
-            // JSON 파싱 중 오류 발생 시 처리
-            return Mono.error(new RuntimeException("Failed to parse JSON", e));
-        }
+        return gameServerSettingService.getServerSetting(user)
+        .flatMap(response -> {
+            // String responseBody = response.getBody();
+            String responseBody;
+            try {
+                    if (response instanceof String) {
+                        responseBody = (String) response;
+                    } else {
+                        // JSON 문자열로 변환
+                        responseBody = new ObjectMapper().writeValueAsString(response);
+                    }
+                System.out.println(responseBody);
+                JSONObject jsonObject = new JSONObject(responseBody);
+                int maxPlayer = jsonObject.getInt(dockerServer.getGame().getMaxPlayerKey());
+                dockerServer.setMaxPlayer(maxPlayer);
+                dockerServerRepo.save(dockerServer);
+                return Mono.just(maxPlayer);
+            } catch (JsonProcessingException e) {
+                throw new ELException();
+            }
+            
+        });
     }
 }

@@ -1,4 +1,4 @@
-package com.neo.back.service.exception;
+package com.neo.back.exception;
 
 public class UserCapacityExceededException extends Exception {
     public UserCapacityExceededException(String message) {

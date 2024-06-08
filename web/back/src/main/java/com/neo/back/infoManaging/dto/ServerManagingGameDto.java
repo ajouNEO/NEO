@@ -1,4 +1,4 @@
-package com.neo.back.service.dto;
+package com.neo.back.infoManaging.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,16 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateDockerDto {
-
-    private String gameName;
-
+public class ServerManagingGameDto {
+    private Long id;
+    private String port;
+    private String dockerImage;
+    private String name;
     private String version;
-
-    private Long imageNum;
-
-    private String serverName;
-
-    private int ramCapacity;
-
 }
