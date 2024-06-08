@@ -3,7 +3,10 @@ package com.neo.back.service.config;
 import java.util.List;
 import java.util.Optional;
 
+import com.neo.back.authorization.entity.PointProduct;
+import com.neo.back.authorization.entity.Product;
 import com.neo.back.authorization.entity.Profile;
+import com.neo.back.authorization.repository.ProductRepository;
 import com.neo.back.authorization.repository.ProfileRepository;
 import com.neo.back.service.entity.MinecreftServerSetting;
 import com.neo.back.service.repository.GameServerSettingRepository;
@@ -34,14 +37,21 @@ import jakarta.annotation.PostConstruct;
 @Transactional
 @RequiredArgsConstructor
 public class EdgeServerInfoConfig {
-    
-	@Value("#{'${edgeservers.id}'.split(',')}")private List<String> edgeServerName;
-    @Value("#{'${edgeservers.ip}'.split(',')}")private List<String> edgeServerIp;
-    @Value("#{'${edgeservers.externalIp}'.split(',')}")private List<String> edgeServerExternalIp;
-	@Value("#{'${edgeservers.user.id}'.split(',')}")private List<String> edgeServerUser;
-	@Value("#{'${edgeservers.password}'.split(',')}")private List<String> edgeServerPassword;
-	@Value("#{'${edgeservers.memoryTotal}'.split(',')}")private List<String> edgeServerMemoryTotal;
-	@Value("#{'${edgeservers.memoryUse}'.split(',')}")private List<String> edgeServerMemoryUse;
+
+    @Value("#{'${edgeservers.id}'.split(',')}")
+    private List<String> edgeServerName;
+    @Value("#{'${edgeservers.ip}'.split(',')}")
+    private List<String> edgeServerIp;
+    @Value("#{'${edgeservers.externalIp}'.split(',')}")
+    private List<String> edgeServerExternalIp;
+    @Value("#{'${edgeservers.user.id}'.split(',')}")
+    private List<String> edgeServerUser;
+    @Value("#{'${edgeservers.password}'.split(',')}")
+    private List<String> edgeServerPassword;
+    @Value("#{'${edgeservers.memoryTotal}'.split(',')}")
+    private List<String> edgeServerMemoryTotal;
+    @Value("#{'${edgeservers.memoryUse}'.split(',')}")
+    private List<String> edgeServerMemoryUse;
 
 
     private final EdgeServerRepository edgeServerInfo;
@@ -58,15 +68,17 @@ public class EdgeServerInfoConfig {
 
     private final ProfileRepository profileRepository;
 
+    private final ProductRepository productRepository;
+
     private final JoinService joinService;
 
     private final GameTagRepository gameTagRepo;
 
-	@PostConstruct
-	private void init() {
+    @PostConstruct
+    private void init() {
         EdgeServer edgeServer = new EdgeServer();
         int edgeServerNumber = edgeServerIp.size();
-		for(int index = 0; index < edgeServerNumber ; index++){
+        for (int index = 0; index < edgeServerNumber; index++) {
             edgeServer.setEdgeServerName(edgeServerName.get(index));
             edgeServer.setIp(edgeServerIp.get(index));
             edgeServer.setExternalIp(edgeServerExternalIp.get(index));
@@ -82,63 +94,63 @@ public class EdgeServerInfoConfig {
         gameServerSettingRepo.save(minecreftServerSetting);
 
         Game mine1_16_5 = new Game(
-            "Minecraft",
-            "1.16.5",
-            "mc1.16.5",
-            "25565/tcp",
-            "/server",
-            "/server.properties",
-            "\n",
-            "=",
-            "max-players"
+                "Minecraft",
+                "1.16.5",
+                "mc1.16.5",
+                "25565/tcp",
+                "/server",
+                "/server.properties",
+                "\n",
+                "=",
+                "max-players"
         );
 
         Game mine1_19_2 = new Game(
-            "Minecraft",
-            "1.19.2",
-            "mc1.19.2",
-            "25565/tcp",
-            "/server",
-            "/server.properties",
-            "\n",
-            "=",
-            "max-players"
+                "Minecraft",
+                "1.19.2",
+                "mc1.19.2",
+                "25565/tcp",
+                "/server",
+                "/server.properties",
+                "\n",
+                "=",
+                "max-players"
         );
 
         Game mine1_20_4 = new Game(
-            "Minecraft",
-            "1.20.4",
-            "mc1.20.4",
-            "25565/tcp",
-            "/server",
-            "/server.properties",
-            "\n",
-            "=",
-            "max-players"
+                "Minecraft",
+                "1.20.4",
+                "mc1.20.4",
+                "25565/tcp",
+                "/server",
+                "/server.properties",
+                "\n",
+                "=",
+                "max-players"
         );
 
         Game palworld = new Game(
-            "Palworld",
-            null,
-            "palworld",
-            "8211/udp",
-            "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
-            "/PalWorldSettings.ini",
-            ",",
-            "=",
-            "ServerPlayerMaxNum"
+                "Palworld",
+                null,
+                "palworld",
+                "8211/udp",
+                "/home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer",
+                "/PalWorldSettings.ini",
+                ",",
+                "=",
+                "ServerPlayerMaxNum"
         );
 
         Game terraria = new Game(
-            "Terraria",
-            null,
-            "terraria",
-            "7777/tcp",
-            "/config",
-            "/serverconfig.txt",
-            "",
-            "",
-            ""
+                "Terraria",
+                null,
+                "terraria",
+                "7777/tcp",
+                "/config",
+                "/serverconfig.txt",
+                "",
+                "",
+                ""
         );
 
         gameRepo.save(mine1_16_5);
@@ -147,26 +159,35 @@ public class EdgeServerInfoConfig {
         gameRepo.save(palworld);
 
         saveCMD_common();
-        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4,palworld,terraria);
+        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4, palworld, terraria);
 
-        User root = saveUser("root@naver.com","root","root",true);
+        User root = saveUser("root@naver.com", "root", "root", true);
 
         // User INFO
-        User Sunwo = saveUser("sunwo@naver.com","sunwo","malenwater",false);
-        User Jihoon = saveUser("misu@naver.com","misu","Jiman_misu",false);
-        User Minseo = saveUser("Minseo@naver.com","Minseo0O","Minseo",false);
-        User Haeun = saveUser("Haeun@naver.com","Haeun000111!","Haeun",false);
-        User Seungmin = saveUser("Seungmin@naver.com","Seungmin000111!","Seungmin",false);
+        User Sunwo = saveUser("sunwo@naver.com", "sunwo", "malenwater", false);
+        User Jihoon = saveUser("misu@naver.com", "misu", "Jiman_misu", false);
+        User Minseo = saveUser("Minseo@naver.com", "Minseo0O", "Minseo", false);
+        User Haeun = saveUser("Haeun@naver.com", "Haeun000111!", "Haeun", false);
+        User Seungmin = saveUser("Seungmin@naver.com", "Seungmin000111!", "Seungmin", false);
         // 5 User
-        User Jiwoo = saveUser("Jiwoo@naver.com","SunJiwoo1!","Jiwoo",false);
-        User Seoyeon = saveUser("Seoyeon@naver.com","Seoyeon1!","Seoyeon",false);
-        User Minjoon = saveUser("Minjoon@naver.com","Minjoon0O","Minjoon",false);
-        User Yujin = saveUser("Yujin@naver.com","Yujin000111!","Yujin",false);
-        User Jimin = saveUser("Jimin@naver.com","Jimin000111!","Jimin",false);
+        User Jiwoo = saveUser("Jiwoo@naver.com", "SunJiwoo1!", "Jiwoo", false);
+        User Seoyeon = saveUser("Seoyeon@naver.com", "Seoyeon1!", "Seoyeon", false);
+        User Minjoon = saveUser("Minjoon@naver.com", "Minjoon0O", "Minjoon", false);
+        User Yujin = saveUser("Yujin@naver.com", "Yujin000111!", "Yujin", false);
+        User Jimin = saveUser("Jimin@naver.com", "Jimin000111!", "Jimin", false);
         // 10
 
 
         createProfilesForUsers();
+
+        //상품저장
+        //bronze,silver,gold,diamond
+
+        saveProduct("bronze",5000,500,"pointproduct");
+        saveProduct("silver",10000,1000,"pointproduct");
+        saveProduct("gold",50000,5000,"pointproduct");
+        saveProduct("diamond",100000,10000,"pointproduct");
+
 
         saveGameTag("포켓몬");
         saveGameTag("모드");
@@ -195,7 +216,7 @@ public class EdgeServerInfoConfig {
         saveGameTag("하드코어");
         saveGameTag("총기");
         saveGameTag("마법");
-        
+
         // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
         // "선우의 서버",
         // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
@@ -209,7 +230,7 @@ public class EdgeServerInfoConfig {
         // Jihoon, Minseo, Seungmin,
         // Seoyeon, Minjoon, Yujin, Jimin,
         // "좀비","성인서버","반야생");
- 
+
         // this.saveDocker(gameRepo.findById((long) 1).orElse(null),
         // "Yujin Server",
         // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
@@ -238,7 +259,7 @@ public class EdgeServerInfoConfig {
         // Sunwo, Haeun, Minjoon, Yujin,
         // "모드","미니게임","건축");
 
-	}
+    }
 
     private void saveGameTag(String tag) {
         GameTag game = new GameTag();
@@ -251,6 +272,7 @@ public class EdgeServerInfoConfig {
         saveIfNotExists("sh\t-c\tcat /control/output.txt", "gameLog", "common");
         saveIfNotExists("sh\t-c\techo 'input INPUT' > /control/input.txt", "input", "common");
     }
+
     private void saveIfNotExists(String cmd, String cmdId, String cmdKind) {
         Optional<GameDockerAPICMD> existingCmd = Optional.ofNullable(gameDockerAPICMDRepo.findBycmdId(cmdId));
         if (existingCmd.isPresent()) {
@@ -274,7 +296,7 @@ public class EdgeServerInfoConfig {
         CmdMemory_Mine_1_19_2Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.19.2.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_19_2Str.setCmdId("1.19.2_START");
         CmdMemory_Mine_1_19_2Str.setCmdKind("execCMD");
-        
+
         GameDockerAPICMD CmdMemory_Mine_1_20_4Str = new GameDockerAPICMD();
         CmdMemory_Mine_1_20_4Str.setCmd("sh\t-c\techo 'java,-Xms1G,-XmxMEMORYG,-XX:+IgnoreUnrecognizedVMOptions,-XX:+UseG1GC,-XX:+ParallelRefProcEnabled,-XX:MaxGCPauseMillis=200,-XX:+UnlockExperimentalVMOptions,-XX:+DisableExplicitGC,-XX:+AlwaysPreTouch,-XX:G1HeapWastePercent=5,-XX:G1MixedGCCountTarget=4,-XX:G1MixedGCLiveThresholdPercent=90,-XX:G1RSetUpdatingPauseTimePercent=5,-XX:SurvivorRatio=32,-XX:+PerfDisableSharedMem,-XX:MaxTenuringThreshold=1,-XX:G1NewSizePercent=30,-XX:G1MaxNewSizePercent=40,-XX:G1HeapRegionSize=8M,-XX:G1ReservePercent=20,-XX:InitiatingHeapOccupancyPercent=15,-Dusing.aikars.flags=https://mcflags.emc.gs,-Daikars.new.flags=true,-jar,/server/craftbukkit-1.20.4.jar,nogui' >  /control/meomory.txt");
         CmdMemory_Mine_1_20_4Str.setCmdId("1.20.4_START");
@@ -289,13 +311,13 @@ public class EdgeServerInfoConfig {
         CmdMemory_terraria.setCmd("bash\t-c\techo \"./run.sh\" >  /control/meomory.txt");
         CmdMemory_terraria.setCmdId("CmdMemory_terraria");
         CmdMemory_terraria.setCmdKind("execCMD");
-        
+
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_16_5Str);
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_19_2Str);
         gameDockerAPICMDRepo.save(CmdMemory_Mine_1_20_4Str);
         gameDockerAPICMDRepo.save(CmdMemory_palworld);
         gameDockerAPICMDRepo.save(CmdMemory_terraria);
-        
+
         GameDockerAPICMD CmdStartAckStr_mine = new GameDockerAPICMD();
         CmdStartAckStr_mine.setCmd("sh\t-c\ttimeout 5m tail -n 5 -f /control/output.txt | { flag=0; while IFS= read -r line; do if [[ \"$line\" == *\"Done\"* ]]; then echo \"startAck\"; pkill -P $$ tail; flag=1; break; fi; done; if [ $flag -eq 0 ]; then echo \"startERR\"; fi; }");
         CmdStartAckStr_mine.setCmdId("CmdStartAckStr");
@@ -350,12 +372,12 @@ public class EdgeServerInfoConfig {
         delMeoStr_mine.setCmd("rm\t-rf\tserver/");
         delMeoStr_mine.setCmdId("delMeoStr_mine");
         delMeoStr_mine.setCmdKind("delMeoStr");
-        
+
         GameDockerAPICMD CmdStopStr_mine = new GameDockerAPICMD();
         CmdStopStr_mine.setCmd("sh\t-c\techo 'input stop' > /control/input.txt");
         CmdStopStr_mine.setCmdId("CmdStopStr_mine");
         CmdStopStr_mine.setCmdKind("CmdStopStr");
-        
+
         GameDockerAPICMD SearchStr_mine = new GameDockerAPICMD();
         SearchStr_mine.setCmd("/server/craftbukkit-");
         SearchStr_mine.setCmdId("SearchStr_mine");
@@ -389,7 +411,7 @@ public class EdgeServerInfoConfig {
         delMeoStr_pal.setCmd("rm\t-rf\t/home/steam/Steam/steamapps/common/PalServer/");
         delMeoStr_pal.setCmdId("delMeoStr_pal");
         delMeoStr_pal.setCmdKind("delMeoStr");
-        
+
         GameDockerAPICMD pathFileList_pal = new GameDockerAPICMD();
         pathFileList_pal.setCmd("/home/steam/Steam/steamapps/common/PalServer/");
         pathFileList_pal.setCmdId("pathFileList_pal");
@@ -424,7 +446,7 @@ public class EdgeServerInfoConfig {
         SearchStr_pal.setCmd("PalServ");
         SearchStr_pal.setCmdId("SearchStr_pal");
         SearchStr_pal.setCmdKind("SearchStr");
-        
+
         gameDockerAPICMDRepo.save(pathFolder_pal);
         gameDockerAPICMDRepo.save(pathFileList_pal);
         gameDockerAPICMDRepo.save(CmdStartAckStr_pal);
@@ -480,12 +502,12 @@ public class EdgeServerInfoConfig {
         delMeoStr_terra.setCmd("rm\t-rf\t/config/");
         delMeoStr_terra.setCmdId("delMeoStr_terra");
         delMeoStr_terra.setCmdKind("delMeoStr");
-        
+
         GameDockerAPICMD CmdStopStr_terra = new GameDockerAPICMD();
         CmdStopStr_terra.setCmd("bash\t-c\techo 'input exit' > /control/input.txt");
         CmdStopStr_terra.setCmdId("CmdStopStr_terra");
         CmdStopStr_terra.setCmdKind("CmdStopStr");
-        
+
         GameDockerAPICMD SearchStr_terra = new GameDockerAPICMD();
         SearchStr_terra.setCmd("TerrariaServer");
         SearchStr_terra.setCmdId("SearchStr_terra");
@@ -597,28 +619,28 @@ public class EdgeServerInfoConfig {
 
 
     private void saveDocker(
-                    Game game, 
-                    String ServerName, 
-                    EdgeServer edge,
-                    int port, 
-                    String DockerId, 
-                    int Ram,
-                    String ServerComment, 
-                    Boolean Public,
-                    Boolean FreeAccess,
-                    User serverUser, 
-                    User user1, User user2, User user3,
-                    User user4, User user5, User user6, User user7,
-                    String tag1, String tag2, String tag3 ) {
+            Game game,
+            String ServerName,
+            EdgeServer edge,
+            int port,
+            String DockerId,
+            int Ram,
+            String ServerComment,
+            Boolean Public,
+            Boolean FreeAccess,
+            User serverUser,
+            User user1, User user2, User user3,
+            User user4, User user5, User user6, User user7,
+            String tag1, String tag2, String tag3) {
         DockerServer docker = new DockerServer();
         docker.setGame(game);
         docker.setServerName(ServerName);
         docker.setUser(serverUser);
         docker.setBaseImage(null);
         docker.setEdgeServer(edge);
-        docker.setPort(port); 
-        docker.setDockerId(DockerId); 
-        docker.setRAMCapacity(Ram); 
+        docker.setPort(port);
+        docker.setDockerId(DockerId);
+        docker.setRAMCapacity(Ram);
         docker.setServerComment(ServerComment);
         docker.setPublic(Public);
         docker.setFreeAccess(FreeAccess);
@@ -631,7 +653,7 @@ public class EdgeServerInfoConfig {
         docker.addParticipant(user5);
         docker.addParticipant(user6);
         docker.addParticipant(user7);
-        
+
         docker.addGameTag(gameTagRepo.findByTag(tag1));
         docker.addGameTag(gameTagRepo.findByTag(tag2));
         docker.addGameTag(gameTagRepo.findByTag(tag3));
@@ -639,7 +661,7 @@ public class EdgeServerInfoConfig {
     }
 
 
-    private User saveUser(String Username,String password,String name,Boolean manager) {
+    private User saveUser(String Username, String password, String name, Boolean manager) {
         JoinDTO joinDTO = new JoinDTO();
         joinDTO.setUsername(Username);
         joinDTO.setPassword(password);
@@ -648,9 +670,9 @@ public class EdgeServerInfoConfig {
         User user = UserRepo.findByUsername(Username);
         user.setName(name);
         user.setEmail(Username);
-        user.setPoints((long)9999999);
+        user.setPoints((long) 9999999);
         user.setAccountStatus(true);
-        if(name.equals("root")){
+        if (name.equals("root")) {
             user.setRole("ROLE_ADMIN");
         }
         UserRepo.save(user);
@@ -660,6 +682,29 @@ public class EdgeServerInfoConfig {
         // UserRepo.save(user);
         return user;
     }
+
+    private Product saveProduct(String itemName, Integer price, Integer tax, String productType) {
+
+
+        Product product;
+        product = new PointProduct();
+       // if ("PointProduct".equals(productType)) {
+
+     //   } else {
+            // Add other product types as needed
+    //    }
+
+        product.setItemName(itemName);
+        product.setPrice(price);
+        product.setTax(tax);
+        product = productRepository.save(product);
+
+
+        return product;
+    }
+
+
+
 
     @Transactional
     private void createProfilesForUsers(){

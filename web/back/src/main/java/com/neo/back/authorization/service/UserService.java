@@ -10,6 +10,9 @@ public interface UserService {
 
     boolean checkDuplicateName(String name);
 
+    boolean changenickname(User user ,String name);
+
     void deleteUser(User user);
+
 
 }
