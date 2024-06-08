@@ -24,18 +24,19 @@ public class KakaoPayService {
     @Value("${pay.secret_key}")
     private String secretKey;
 
+    @Value("${MAIN_SERVER_IP}")
+	private String mainServerIp;
 
 
     public KakaoPayService(WebClient.Builder webClientBuilder ,PaymentPendingRepository paymentPendingRepository,
-                           PaymentCompletedRepository paymentCompletedRepository) {
+        PaymentCompletedRepository paymentCompletedRepository) {
+            
         this.webClient = webClientBuilder.baseUrl("https://open-api.kakaopay.com").build();
         this.paymentCompletedRepository = paymentCompletedRepository;
         this.paymentPendingRepository =paymentPendingRepository;
     }
 
     public Mono<String> startPayment(User user,String partner_order_id,String partner_user_id, String itemName, Integer quantity, Integer totalAmount, Integer vatAmount,Integer tax_free_amount ){
-
-        String mainServerIp = System.getenv("MAIN_SERVER_IP");
 
         String approvalUrl = String.format("https://%s:8080/kakaoPay/success?partner_user_id=%s",mainServerIp ,partner_user_id);
         String failUrl = String.format("https://%s:8080/", mainServerIp);
