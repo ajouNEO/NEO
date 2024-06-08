@@ -123,7 +123,7 @@ public class SecurityConfig {
                .requestMatchers("/static/**", "/public/**", "/resources/**", "/META-INF/resources/**").permitAll()
                       .requestMatchers("/login","/","/api/join","/user/reset-password").permitAll()
                 //       .requestMatchers("/api/**").authenticated()
-               .requestMatchers("/api/admin").hasRole("ADMIN")
+               .requestMatchers("/api/admin/**").hasRole("ADMIN")
                .requestMatchers("/reissue").permitAll()
                 //        .anyRequest().authenticated());
                .anyRequest().permitAll());

@@ -14,7 +14,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.x.protobuf.MysqlxDatatypes.Object;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.neo.back.authorization.entity.User;
@@ -216,10 +215,6 @@ public class GameUserListService {
         SseEmitter emitter = new SseEmitter();
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
-        // emitter.onCompletion(clear(user));
-        // emitter.onTimeout(clear(user));
-        // emitter.onError(e -> clear(user).run());
-
         UserBanListSSE.put(user, emitter);
         UserBanListSCH.put(user, executor);
         executor.scheduleAtFixedRate(sendBanListSCH(user,UserSetting), 0, 1, TimeUnit.SECONDS);
@@ -244,12 +239,7 @@ public class GameUserListService {
                     }
                 }
             });
-            // try {
-            //     getUserAndSseEmitter.get(user).send(SseEmitter.event().name("LiveCheck").data("Live"));
-            // } catch (IOException e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
-            // }
+
         };
     }
 
@@ -267,10 +257,6 @@ public class GameUserListService {
         
         SseEmitter emitter = new SseEmitter();
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
-        // emitter.onCompletion(clear(user));
-        // emitter.onTimeout(clear(user));
-        // emitter.onError(e -> clear(user).run());
 
         UserListSSE.put(user, emitter);
         UserListSCH.put(user, executor);
@@ -290,12 +276,7 @@ public class GameUserListService {
                     e.printStackTrace();
                 }
             });
-            // try {
-            //     getUserAndSseEmitter.get(user).send(SseEmitter.event().name("LiveCheck").data("Live"));
-            // } catch (IOException e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
-            // }
+
         };
     }
 }

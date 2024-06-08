@@ -2,21 +2,17 @@ package com.neo.back.service.service;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.neo.back.service.dto.UserBanServerListDto;
 import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.utility.MakeWebClient;
 import com.neo.back.authorization.entity.User;
 import java.util.concurrent.*;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 
 
 @Service
@@ -27,7 +23,6 @@ public class GameLogService {
     private Map<User, String> previousLogs = new ConcurrentHashMap<>();
     private final DockerAPI dockerAPI;
     private final MakeWebClient makeWebClient;
-    private final GameUserListService gameUserListService;
     private WebClient dockerWebClient;
     
     public SseEmitter sendLogContinue(User user){
@@ -45,10 +40,6 @@ public class GameLogService {
             
             SseEmitter emitter = new SseEmitter();
             ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
-            // emitter.onCompletion(clear(user));
-            // emitter.onTimeout(clear(user));
-            // emitter.onError(e -> clear(user).run());
 
             getUserAndSseEmitter.put(user, emitter);
             getuserAndSche.put(user, executor);
@@ -75,12 +66,6 @@ public class GameLogService {
                 }
             });
 
-            // try {
-            //     getUserAndSseEmitter.get(user).send(SseEmitter.event().name("LiveCheck").data("Live"));
-            // } catch (IOException e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
-            // }
         };
     }
 

@@ -1,4 +1,4 @@
-package com.neo.back.service.exception;
+package com.neo.back.exception;
 
 public class NasServerException extends Exception {
     public NasServerException(String message) {

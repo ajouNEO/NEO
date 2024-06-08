@@ -1,6 +1,8 @@
 package com.neo.back.service.service;
 
 import com.neo.back.authorization.entity.User;
+import com.neo.back.exception.DoNotHaveServerException;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -10,10 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.neo.back.service.dto.GameServerRunDto;
 import com.neo.back.service.dto.UserSettingCMDDto;
-import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
-import com.neo.back.service.repository.DockerServerRepository;
-import com.neo.back.service.repository.GameDockerAPICMDRepository;
 import com.neo.back.service.utility.MakeWebClient;
 
 import reactor.core.publisher.Mono;

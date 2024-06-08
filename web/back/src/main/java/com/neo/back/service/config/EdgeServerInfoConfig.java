@@ -646,7 +646,10 @@ public class EdgeServerInfoConfig {
         user.setName(name);
         user.setEmail(Username);
         user.setPoints((long)9999999);
-        user.setManager(manager);
+        user.setAccountStatus(true);
+        if(name.equals("root")){
+            user.setRole("ROLE_ADMIN");
+        }
         UserRepo.save(user);
         // user.setName(name);
         // user.setPassword(password);

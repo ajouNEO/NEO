@@ -1,9 +1,9 @@
 package com.neo.back.infoManaging.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.neo.back.authorization.entity.User;
-import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.infoManaging.dto.ManagerPostInquiryDto;
 import com.neo.back.infoManaging.dto.UserInquiryListDto;
 import com.neo.back.infoManaging.dto.UserInquiryToAnswer;
@@ -11,7 +11,6 @@ import com.neo.back.infoManaging.dto.UserPostInquiryDto;
 import com.neo.back.infoManaging.entity.UserInquiry;
 import com.neo.back.infoManaging.middleware.RootAPI;
 import com.neo.back.infoManaging.repository.UserInquiryRepository;
-import com.neo.back.service.dto.ServerListDto;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -72,7 +71,7 @@ public class UserInquiryService {
                 .collect(Collectors.toList());
     }
 
-    public Mono<String> deleteUserInquiry(User user, Long inquiryId){
+    public Mono<Object> deleteUserInquiry(User user, Long inquiryId){
         Optional<UserInquiry> inquirys = userInquiryRepo.findById(inquiryId);
         if(inquirys.isPresent()){
             UserInquiry inquiry = inquirys.get();
@@ -85,8 +84,7 @@ public class UserInquiryService {
         }
     }
 
-    public Mono<Object> postManagerInquiry(User user,ManagerPostInquiryDto inquiryData){
-        if(!this.rootAPI.checkManager(user)) return Mono.just("not Manager");
+    public ResponseEntity<Object> postManagerInquiry(User user,ManagerPostInquiryDto inquiryData){
         Optional<UserInquiry> inquirys = userInquiryRepo.findById(inquiryData.getInquiryId());
         if(inquirys.isPresent()){
             UserInquiry inquiry = inquirys.get();
@@ -95,19 +93,18 @@ public class UserInquiryService {
             inquiry.setManagerAnswerDate(answerTime);
             inquiry.setAnswerOrNot(true);
             userInquiryRepo.save(inquiry);
-            return Mono.just("success to answer userInquiry");
+            return ResponseEntity.ok("success to answer userInquiry");
         }
         else{
-            return Mono.just("fail to answer userInquiry");
+            return ResponseEntity.ok("fail to answer userInquiry");
         }
     }
 
-    public Mono<Object> getManagerInquiryToAnswer(User user, Long inquiryId){
-        if(!this.rootAPI.checkManager(user)) return Mono.just("not Manager");
+    public ResponseEntity<Object> getManagerInquiryToAnswer(User user, Long inquiryId){
         Optional<UserInquiry> inquirys = userInquiryRepo.findById(inquiryId);
         if(inquirys.isPresent()){
             UserInquiry inquiry = inquirys.get();
-            return Mono.just(new UserInquiryToAnswer(
+            return ResponseEntity.ok(new UserInquiryToAnswer(
                 inquiry.getId(),
                 inquiry.getAnswerOrNot(),
                 inquiry.getUserInquiryTitle(),
@@ -119,14 +116,13 @@ public class UserInquiryService {
             ));
         }
         else{
-            return Mono.just("fail to get ManagerInquiry");
+            return ResponseEntity.ok("fail to get ManagerInquiry");
         }
     }
 
-    public Mono<Object> getManagerInquiryList(User user){
-        if(!this.rootAPI.checkManager(user)) return Mono.just("not Manager");
+    public ResponseEntity<Object> getManagerInquiryList(User user){
         List<UserInquiry> inquirys = userInquiryRepo.findAll();
-        return Mono.just(inquirys.stream()
+        return ResponseEntity.ok(inquirys.stream()
         .map(inquiry -> new UserInquiryListDto(
          inquiry.getId(),
          inquiry.getAnswerOrNot(),
@@ -135,15 +131,14 @@ public class UserInquiryService {
          .collect(Collectors.toList()));
     }
 
-    public Mono<String> deleteManagerInquiry(User user, Long inquiryId){
-        if(!this.rootAPI.checkManager(user)) return Mono.just("not Manager");
+    public ResponseEntity<Object> deleteManagerInquiry(User user, Long inquiryId){
         Optional<UserInquiry> inquirys = userInquiryRepo.findById(inquiryId);
         if(inquirys.isPresent()){
             userInquiryRepo.deleteById(inquiryId);
-            return Mono.just("success to delete Inquiry by manager");
+            return ResponseEntity.ok("success to delete Inquiry by manager");
         }
         else{
-            return Mono.just("fail to delete Inquiry by manager");
+            return ResponseEntity.ok("fail to delete Inquiry by manager");
         }
     }
 
