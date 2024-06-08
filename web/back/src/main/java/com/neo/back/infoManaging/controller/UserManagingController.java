@@ -128,7 +128,6 @@ public class UserManagingController {
     @PostMapping("/api/admin/user/inquiry")
     public ResponseEntity<Object> postManagerInquiry(@RequestBody ManagerPostInquiryDto inquiryData) {
         User user = getCurrentUser.getUser();
-
         return this.userserInquiryService.postManagerInquiry(user,inquiryData);
     }
 
