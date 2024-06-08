@@ -34,7 +34,12 @@ public class KakaoPayService {
     }
 
     public Mono<String> startPayment(User user,String partner_order_id,String partner_user_id, String itemName, Integer quantity, Integer totalAmount, Integer vatAmount,Integer tax_free_amount ){
-        String approvalUrl = String.format("http://localhost:8080/kakaoPay/success?partner_user_id=%s", partner_user_id);
+
+        String mainServerIp = System.getenv("MAIN_SERVER_IP");
+
+        String approvalUrl = String.format("https://%s:8080/kakaoPay/success?partner_user_id=%s",mainServerIp ,partner_user_id);
+        String failUrl = String.format("https://%s:8080/", mainServerIp);
+        String cancelUrl = String.format("https://%s:8080/", mainServerIp);
 
         return webClient.post()
                 .uri("/online/v1/payment/ready")
@@ -50,9 +55,9 @@ public class KakaoPayService {
                         "    \"tax_free_amount\": " +  tax_free_amount + ",\n" +
                         "    \"vat_amount\": " + vatAmount + ",\n" +
                         "    \"approval_url\": \"%s\",\n" +
-                        "    \"fail_url\": \"http://localhost:8080/fail\",\n" +
-                        "    \"cancel_url\": \"http://localhost:8080/cancel\"\n" +
-                        "}",approvalUrl))
+                        "    \"fail_url\": \"%s\",\n" +
+                        "    \"cancel_url\": \"%s\"\n" +
+                        "}",approvalUrl,failUrl,cancelUrl))
                 .retrieve()
                 .bodyToMono(String.class)
                 .doOnSuccess(response -> {

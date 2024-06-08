@@ -38,13 +38,13 @@ public class PayController {
 
     @PostMapping("/kakaoPay")
     public Mono<String> kakaoPay(@RequestBody OrderRequestDTO orderRequestDTO, HttpSession session) {
-        String itemname = orderRequestDTO.getItem_name();
+        String itemname = "point";
+
+
         User user = getCurrentUser.getUser();
 
-        Product pointProduct = productRepository.findByItemName(itemname);
-
-        Integer productprice = pointProduct.getPrice();
-        Integer taxprice = pointProduct.getTax();
+        Integer productprice = orderRequestDTO.getTotal_amount();
+        Integer taxprice =0;
         String partner_user_id = String.valueOf(user.getId());
         String partner_order_id = generatePartnerOrderId();
 
