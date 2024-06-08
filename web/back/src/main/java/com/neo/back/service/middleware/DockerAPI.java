@@ -18,10 +18,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.dto.UserSettingCMDDto;
 import com.neo.back.service.entity.DockerServer;
-import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.repository.GameDockerAPICMDRepository;
 import com.neo.back.authorization.entity.User;
+import com.neo.back.exception.DoNotHaveServerException;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -228,7 +228,7 @@ public class DockerAPI {
         }
     }
 
-    public UserSettingDto settingIDS(User user){
+    public UserSettingDto settingIDS(User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         if (dockerServer == null) throw new DoNotHaveServerException();
         UserSettingDto setting = new UserSettingDto();
@@ -239,7 +239,7 @@ public class DockerAPI {
     }
 
     @Transactional
-    public UserSettingCMDDto settingIDS_CMD(User user){
+    public UserSettingCMDDto settingIDS_CMD(User user) {
         DockerServer dockerServer = dockerServerRepo.findByUser(user);
         if (dockerServer == null) throw new DoNotHaveServerException();
         UserSettingCMDDto setting = new UserSettingCMDDto();

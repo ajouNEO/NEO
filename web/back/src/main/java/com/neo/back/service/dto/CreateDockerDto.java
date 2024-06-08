@@ -21,10 +21,4 @@ public class CreateDockerDto {
 
     private int ramCapacity;
 
-    private String paymentSystem;
-
-    private int time;
-
-    private String baseImage;
-
 }

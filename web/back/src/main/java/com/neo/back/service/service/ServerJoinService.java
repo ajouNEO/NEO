@@ -1,17 +1,15 @@
 package com.neo.back.service.service;
 
 import com.neo.back.service.entity.DockerServer;
-import com.neo.back.service.exception.DoNotHaveServerException;
-import com.neo.back.service.exception.UserNotFoundException;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
+import com.neo.back.exception.DoNotHaveServerException;
+import com.neo.back.exception.DoesNotPublicException;
+import com.neo.back.exception.UserNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Mono;
@@ -36,16 +34,6 @@ public class ServerJoinService {
 
         SseEmitter emitter = new SseEmitter();
         getApplicantsEmitters.put(user, emitter);
-
-        // emitter.onCompletion(() -> {
-        //     getApplicantsEmitters.remove(user);
-        // });
-        // emitter.onTimeout(() -> {
-        //     getApplicantsEmitters.remove(user);
-        // });
-        // emitter.onError(e -> {
-        //     getApplicantsEmitters.remove(user);
-        // });
 
         sendApplicantsInitial(user, emitter);
 
@@ -83,10 +71,6 @@ public class ServerJoinService {
         SseEmitter emitter = new SseEmitter();
         getParticipantsEmitters.put(user, emitter);
 
-        // emitter.onCompletion(() -> getParticipantsEmitters.remove(user));
-        // emitter.onTimeout(() -> getParticipantsEmitters.remove(user));
-        // emitter.onError(e -> getParticipantsEmitters.remove(user));
-
         sendParticipantsInitial(user, emitter);
 
         return emitter;
@@ -115,82 +99,61 @@ public class ServerJoinService {
 
     public Mono<Object> application(Long dockerNum, User user) {
         DockerServer dockerServer;
-        try {
-            Optional<DockerServer> optionalDockerServer = dockerServerRepo.findById(dockerNum);
-            if (optionalDockerServer.isPresent()) dockerServer = optionalDockerServer.get();
-            else throw new AccessDeniedException("");
 
-            if (!dockerServer.isPublic()) throw new AccessDeniedException("");
+        Optional<DockerServer> optionalDockerServer = dockerServerRepo.findById(dockerNum);
+        if (optionalDockerServer.isPresent()) dockerServer = optionalDockerServer.get();
+        else return Mono.error(new DoesNotPublicException());
 
-            dockerServer.addApplicant(user);
-            dockerServerRepo.save(dockerServer);
-            this.sendApplicantsUpdate(dockerServer);
+        if (!dockerServer.isPublic()) return Mono.error(new DoesNotPublicException());
 
-            return Mono.just("success application");
-        } catch (AccessDeniedException e) {
-             return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body("Server that has not been disclosed or does not exist"));
-        }
+        dockerServer.addApplicant(user);
+        dockerServerRepo.save(dockerServer);
+        this.sendApplicantsUpdate(dockerServer);
+
+        return Mono.just("success application");
     }
 
     public  Mono<Object> allowParticipation(User host, String participantName) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(host);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(host);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            User participant = userRepo.findByName(participantName);
-            if (participant == null) throw new UserNotFoundException();
+        User participant = userRepo.findByName(participantName);
+        if (participant == null) return Mono.error(new UserNotFoundException());
 
-            dockerServer.addParticipant(participant);
-            dockerServer.removeApplicant(participant);
-            dockerServerRepo.save(dockerServer);
-            this.sendApplicantsUpdate(dockerServer);
-            this.sendParticipantsUpdate(dockerServer);
+        dockerServer.addParticipant(participant);
+        dockerServer.removeApplicant(participant);
+        dockerServerRepo.save(dockerServer);
+        this.sendApplicantsUpdate(dockerServer);
+        this.sendParticipantsUpdate(dockerServer);
 
-            return Mono.just("success");
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (UserNotFoundException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist"));
-        }
+        return Mono.just("success");
     }
 
-    public  Mono<Object> refuseParticipation(User host, String participantName) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(host);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+    public Mono<Object> refuseParticipation(User host, String participantName) {
+        DockerServer dockerServer = dockerServerRepo.findByUser(host);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            User participant = userRepo.findByName(participantName);
-            if (participant == null) throw new UserNotFoundException();
+        User participant = userRepo.findByName(participantName);
+        if (participant == null) return Mono.error(new UserNotFoundException());
 
-            dockerServer.removeApplicant(participant);
-            dockerServerRepo.save(dockerServer);
-            this.sendApplicantsUpdate(dockerServer);
+        dockerServer.removeApplicant(participant);
+        dockerServerRepo.save(dockerServer);
+        this.sendApplicantsUpdate(dockerServer);
 
-            return Mono.just("success");
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (UserNotFoundException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist"));
-        }
+        return Mono.just("success");
     }
 
     public  Mono<Object> deleteParticipation(User host, String participantName) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(host);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(host);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            User participant = userRepo.findByName(participantName);
-            if (participant == null) throw new UserNotFoundException();
+        User participant = userRepo.findByName(participantName);
+        if (participant == null) return Mono.error(new UserNotFoundException());
 
-            dockerServer.removeParticipant(participant);
-            dockerServerRepo.save(dockerServer);
-            this.sendParticipantsUpdate(dockerServer);
+        dockerServer.removeParticipant(participant);
+        dockerServerRepo.save(dockerServer);
+        this.sendParticipantsUpdate(dockerServer);
 
-            return Mono.just("success");
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (UserNotFoundException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist"));
-        }
+        return Mono.just("success");
     }
 }

@@ -6,18 +6,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.neo.back.authorization.entity.User;
+import com.neo.back.exception.DoNotHaveServerException;
+import com.neo.back.exception.NasServerException;
+
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.neo.back.service.entity.DockerImage;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.EdgeServer;
-import com.neo.back.service.exception.DoNotHaveServerException;
-import com.neo.back.service.exception.NasServerException;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerImageRepository;
 import com.neo.back.service.repository.DockerServerRepository;
@@ -40,35 +38,29 @@ public class CloseDockerService {
     private String imageId;
 
     public Mono<Object> closeDockerService(User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
 
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
-            
-            return this.stopContainerRequest(dockerServer)
-                .flatMap(result -> this.makeImageRequest(dockerServer))
-                .flatMap(result -> this.deleteContainerRequest(dockerServer))
-                .flatMap(result -> {
-                    try {
-                        return this.saveDockerImage(dockerServer);
-                    } catch (NasServerException e) {
-                        e.printStackTrace();
-                        return Mono.error(new NasServerException());
-                    }
-                })
-                .onErrorResume(NasServerException.class, e -> Mono.error(new NasServerException()))
-                .flatMap(result -> this.databaseReflection(dockerServer))
-                .flatMap(result -> this.deleteLeftDockerImage())
-                .flatMap(result -> Mono.just("Server close & save success"));
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (WebClientResponseException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
-        } catch (Exception e) {
-            return Mono.just(e);
-        }
+        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
+        
+        return this.stopContainerRequest(dockerServer)
+            .flatMap(result -> this.makeImageRequest(dockerServer))
+            .flatMap(result -> this.deleteContainerRequest(dockerServer))
+            .flatMap(result -> {
+                try {
+                    return this.saveDockerImage(dockerServer);
+                } catch (NasServerException e) {
+                    e.printStackTrace();
+                    return Mono.error(new NasServerException());
+                }
+            })
+            .onErrorResume(NasServerException.class, e -> Mono.error(new NasServerException()))
+            .flatMap(result -> this.databaseReflection(dockerServer))
+            .flatMap(result -> this.deleteLeftDockerImage())
+            .flatMap(result -> Mono.just("Server close & save success"));
+
+
     }
 
 

@@ -2,23 +2,21 @@ package com.neo.back.service.service;
 
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.Game;
-import com.neo.back.service.exception.DoNotHaveServerException;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.utility.MakeWebClient;
 
 import com.neo.back.authorization.entity.User;
+import com.neo.back.exception.DoNotHaveServerException;
+
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
 
@@ -42,76 +40,60 @@ public class GameServerSettingService {
     private WebClient dockerWebClient;
 
     public Mono<Object> getServerSetting(User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
-            String containerId = dockerServer.getDockerId();
-            String filePathInContainer = dockerServer.getGame().getSettingFilePath() + dockerServer.getGame().getSettingFileName();
-            Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
+        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
+        String containerId = dockerServer.getDockerId();
+        String filePathInContainer = dockerServer.getGame().getSettingFilePath() + dockerServer.getGame().getSettingFileName();
+        Path localPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
 
-            // Docker 컨테이너로부터 파일 받아오기
-            return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
-                    .flatMap(response -> this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath));
-            
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (WebClientResponseException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
-        } catch (Exception e) {
-            return Mono.just(e);
-        }
+        // Docker 컨테이너로부터 파일 받아오기
+        return this.getDockerContainerFile(containerId, filePathInContainer, localPath)
+                .flatMap(response -> this.settingFormatConversion(dockerServer.getGame().getGameName(), localPath));
 
     }
 
-    public Mono<Object> setServerSetting(Map<String, String> setting, User user) {
-        try {
-            DockerServer dockerServer = dockerServerRepo.findByUser(user);
-            if (dockerServer == null) throw new DoNotHaveServerException();
+    public Mono<Object> setServerSetting(Map<String, String> setting, User user) throws IOException {
 
-            Game game = dockerServer.getGame();
+        DockerServer dockerServer = dockerServerRepo.findByUser(user);
+        if (dockerServer == null) return Mono.error(new DoNotHaveServerException());
 
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
-            String dockerId = dockerServer.getDockerId();
+        Game game = dockerServer.getGame();
 
-            StringBuilder result = new StringBuilder();
-            for (Map.Entry<String, String> entry : setting.entrySet()) {
-                if (result.length() > 0) {
-                    result.append(game.getItemSeparator());
-                }
-                result.append(entry.getKey()).append(game.getKeyValueSeparator()).append(entry.getValue());
+        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(dockerServer.getEdgeServer().getIp());
+        String dockerId = dockerServer.getDockerId();
+
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, String> entry : setting.entrySet()) {
+            if (result.length() > 0) {
+                result.append(game.getItemSeparator());
             }
-
-            if ("Palworld".equals(game.getGameName())) {
-                result.append(")");
-                result.insert(0, "OptionSettings=(");
-                result.insert(0, "[/Script/Pal.PalGameWorldSettings]\n");
-            }
-
-            System.out.println(result.toString());
-            // content 문자열을 바이트 배열로 변환
-            byte[] contentBytes = result.toString().getBytes(StandardCharsets.UTF_8);
-
-            // 파일 내용을 tar 파일로 압축
-            byte[] tarFile = this.createTarContent(dockerServer.getGame().getSettingFileName(), contentBytes);
-
-            // tar 파일을 저장할 경로
-            Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
-
-            // tar 파일 바이트 배열을 실제 파일로 저장
-            Files.write(tarPath, tarFile);
-
-            // Docker API를 통해 파일을 컨테이너에 복사
-            return this.changeFileinContainer(dockerServer.getGame().getSettingFilePath(), dockerId, tarFile);
-
-        } catch (DoNotHaveServerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This user does not have an open server"));
-        } catch (WebClientResponseException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
-        } catch (Exception e) {
-            return Mono.just(e);
+            result.append(entry.getKey()).append(game.getKeyValueSeparator()).append(entry.getValue());
         }
+
+        if ("Palworld".equals(game.getGameName())) {
+            result.append(")");
+            result.insert(0, "OptionSettings=(");
+            result.insert(0, "[/Script/Pal.PalGameWorldSettings]\n");
+        }
+
+        System.out.println(result.toString());
+        // content 문자열을 바이트 배열로 변환
+        byte[] contentBytes = result.toString().getBytes(StandardCharsets.UTF_8);
+
+        // 파일 내용을 tar 파일로 압축
+        byte[] tarFile = this.createTarContent(dockerServer.getGame().getSettingFileName(), contentBytes);
+
+        // tar 파일을 저장할 경로
+        Path tarPath = Path.of("/mnt/nas/serverSetting/" + user.getName() + ".tar");
+
+        // tar 파일 바이트 배열을 실제 파일로 저장
+        Files.write(tarPath, tarFile);
+
+        // Docker API를 통해 파일을 컨테이너에 복사
+        return this.changeFileinContainer(dockerServer.getGame().getSettingFilePath(), dockerId, tarFile);
+
     }
 
 
@@ -167,7 +149,7 @@ public class GameServerSettingService {
             return Mono.just(json.toString());
         } catch (IOException e) {
             e.printStackTrace();
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error extracting server.properties"));
+            return Mono.error(new IOException());
         }
     }
 

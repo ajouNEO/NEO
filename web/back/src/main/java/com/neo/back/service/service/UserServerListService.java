@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import com.neo.back.service.dto.UserSettingDto;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.authorization.entity.User;
+import com.neo.back.exception.NotOwnerException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import com.neo.back.service.dto.MyServerListDto;
 import com.neo.back.service.entity.DockerImage;
-import com.neo.back.service.exception.NotOwnerException;
 import com.neo.back.service.repository.DockerImageRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -43,9 +43,7 @@ public class UserServerListService {
             Path dockerImagePath = Paths.get("/mnt/nas/dockerImage");
             Optional<DockerImage> dockerImage = dockerImageRepo.findById(imageNum);
 
-            if (dockerImage.get().getUser() != user) {
-                throw new NotOwnerException();
-            } 
+            if (dockerImage.get().getUser() != user) return Mono.error(new NotOwnerException());
 
             Path path = dockerImagePath.resolve(dockerImage.get().getServerName() + "_" + dockerImage.get().getUser().getId() + ".tar");
 
@@ -57,8 +55,6 @@ public class UserServerListService {
         } catch (NoSuchFileException e) {
             dockerImageRepo.deleteById(imageNum);
             return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This container does not exist in storage"));
-        } catch (NotOwnerException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body("This container is not owned by this user"));
         } catch (Exception e) {
             return Mono.error(e);
         }
@@ -69,9 +65,5 @@ public class UserServerListService {
         List<UserSettingDto> userSettingsList = Collections.singletonList(UserSetting);
         return userSettingsList;
     }
-
-    // public Mono<String> renameServer() {
-        
-    // }
 
 }

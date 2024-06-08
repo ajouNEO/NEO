@@ -6,15 +6,18 @@ import java.util.Collections;
 import java.nio.file.*;
 
 import com.neo.back.authorization.entity.User;
+import com.neo.back.exception.DoesNotExistGameException;
+import com.neo.back.exception.DoesNotExistImageException;
+import com.neo.back.exception.DualServerException;
+import com.neo.back.exception.LackPointException;
+import com.neo.back.exception.UserCapacityExceededException;
+
 import org.json.JSONObject;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.neo.back.service.dto.CreateDockerDto;
 import com.neo.back.service.dto.EdgeServerInfoDto;
@@ -22,7 +25,6 @@ import com.neo.back.service.entity.DockerImage;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.EdgeServer;
 import com.neo.back.service.entity.Game;
-import com.neo.back.service.exception.UserCapacityExceededException;
 import com.neo.back.service.middleware.DockerAPI;
 import com.neo.back.service.repository.DockerImageRepository;
 import com.neo.back.service.repository.DockerServerRepository;
@@ -51,107 +53,79 @@ public class CreateDockerService {
 
     public Mono<Object> createContainer(CreateDockerDto config, User user) {
         // 사용자 포인트 확인
-        if (user.getPoints() < 1) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Point isn't enough for create"));
-        }
-        try {
+        if (user.getPoints() < config.getRamCapacity()/2) return Mono.error(new LackPointException());
 
-            DockerServer existingDocker = this.dockerRepo.findByUser(user);
-            if (existingDocker != null) throw new IllegalStateException();
-            
-            this.selectedEdgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
-            if (this.selectedEdgeServerInfo == null) throw new UserCapacityExceededException();
 
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.selectedEdgeServerInfo.getIP());
-
-            Game game = gameRepo.findByGameNameAndVersion(config.getGameName(), config.getVersion());
-            if (game == null) throw new IllegalArgumentException();
-
-            // Docker 컨테이너 생성을 위한 JSON 객체 구성
-            var createContainerRequest = Map.of(
-                "Image", game.getDockerImage(),
-                "ExposedPorts", Map.of(
-                    game.getDefaultPort(), Map.of()
-                ),
-                "HostConfig", Map.of(
-                    "PortBindings", Map.of(
-                        game.getDefaultPort(), Collections.singletonList(
-                            Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
-                        )
-                    ),
-                    "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
-                )
-            );
-
-            return this.createContainerRequest(createContainerRequest)
-                .flatMap(response -> this.databaseReflection(config, game, null, user))
-                .flatMap(response -> scheduleService.startScheduling(user));
+        DockerServer existingDocker = this.dockerRepo.findByUser(user);
+        if (existingDocker != null) return Mono.error(new DualServerException());
         
-        } catch (IllegalStateException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("This user already has an open server"));
-        } catch (UserCapacityExceededException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("No servers are available"));
-        } catch (IllegalArgumentException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("It's a game that doesn't exist"));
-        } catch (WebClientResponseException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
-        } catch (Exception e) {
-            return Mono.just(e);
-        }
+        this.selectedEdgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
+        if (this.selectedEdgeServerInfo == null) return Mono.error(new UserCapacityExceededException());
+
+        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.selectedEdgeServerInfo.getIP());
+
+        Game game = gameRepo.findByGameNameAndVersion(config.getGameName(), config.getVersion());
+        if (game == null) return Mono.error(new DoesNotExistGameException());
+
+        // Docker 컨테이너 생성을 위한 JSON 객체 구성
+        var createContainerRequest = Map.of(
+            "Image", game.getDockerImage(),
+            "ExposedPorts", Map.of(
+                game.getDefaultPort(), Map.of()
+            ),
+            "HostConfig", Map.of(
+                "PortBindings", Map.of(
+                    game.getDefaultPort(), Collections.singletonList(
+                        Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
+                    )
+                ),
+                "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
+            )
+        );
+
+        return this.createContainerRequest(createContainerRequest)
+            .flatMap(response -> this.databaseReflection(config, game, null, user))
+            .flatMap(response -> scheduleService.startScheduling(user));
+        
     }
 
     public Mono<Object> recreateContainer(CreateDockerDto config, User user) {
         // 사용자 포인트 확인
-        if (user.getPoints() < 1) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Point isn't enough for create"));
-        }
-        try {
-            DockerServer existingDocker = this.dockerRepo.findByUser(user);
-            if (existingDocker != null) throw new IllegalStateException();
-
-            Optional<DockerImage> dockerImage = this.imageRepo.findById(config.getImageNum());
-            
-            this.selectedEdgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
-            if (this.selectedEdgeServerInfo == null) throw new UserCapacityExceededException();
-
-            this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.selectedEdgeServerInfo.getIP());
-
-            // Docker 컨테이너 생성을 위한 JSON 객체 구성
-            var createContainerRequest = Map.of(
-                "Image", dockerImage.get().getImageId(),
-                "ExposedPorts", Map.of(
-                    dockerImage.get().getGame().getDefaultPort(), Map.of()
-                ),
-                "HostConfig", Map.of(
-                    "PortBindings", Map.of(
-                        dockerImage.get().getGame().getDefaultPort(), Collections.singletonList(
-                            Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
-                        )
-                    ),
-                    "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
-                )
-            );
-
-            config.setServerName(dockerImage.get().getServerName());
-
-            return this.loadImage(dockerImage.get())
-                .flatMap(response -> this.createContainerRequest(createContainerRequest))
-                .flatMap(response -> this.databaseReflection(config, dockerImage.get().getGame(), dockerImage.get().getImageId(), user))
-                .flatMap(response -> scheduleService.startScheduling(user));
+        if (user.getPoints() < config.getRamCapacity()/2) return Mono.error(new LackPointException());
         
-        } catch (IllegalStateException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body("This user already has an open server"));
-        } catch (UserCapacityExceededException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("No servers are available"));
-        } catch (IllegalArgumentException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("It's a game that doesn't exist"));
-        } catch (WebClientResponseException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dockerAPI error"));
-        } catch (NoSuchFileException e) {
-            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body("This image does not exist in storage"));
-        } catch (Exception e) {
-            return Mono.just(e);
-        }
+        DockerServer existingDocker = this.dockerRepo.findByUser(user);
+        if (existingDocker != null) return Mono.error(new DualServerException());
+
+        Optional<DockerImage> dockerImage = this.imageRepo.findById(config.getImageNum());
+        
+        this.selectedEdgeServerInfo = this.selectEdgeServerService.selectingEdgeServer(config.getRamCapacity());
+        if (this.selectedEdgeServerInfo == null) return Mono.error(new UserCapacityExceededException());
+
+        this.dockerWebClient =  this.makeWebClient.makeDockerWebClient(this.selectedEdgeServerInfo.getIP());
+
+        // Docker 컨테이너 생성을 위한 JSON 객체 구성
+        var createContainerRequest = Map.of(
+            "Image", dockerImage.get().getImageId(),
+            "ExposedPorts", Map.of(
+                dockerImage.get().getGame().getDefaultPort(), Map.of()
+            ),
+            "HostConfig", Map.of(
+                "PortBindings", Map.of(
+                    dockerImage.get().getGame().getDefaultPort(), Collections.singletonList(
+                        Map.of("HostPort", String.valueOf(this.selectedEdgeServerInfo.getPortSelect()))
+                    )
+                ),
+                "Memory", config.getRamCapacity() * 1024 * 1024 * 1024
+            )
+        );
+
+        config.setServerName(dockerImage.get().getServerName());
+
+        return this.loadImage(dockerImage.get())
+            .flatMap(response -> this.createContainerRequest(createContainerRequest))
+            .flatMap(response -> this.databaseReflection(config, dockerImage.get().getGame(), dockerImage.get().getImageId(), user))
+            .flatMap(response -> scheduleService.startScheduling(user));
+    
     }
 
     private Mono<String> createContainerRequest(Map<String, Object> createContainerRequest) {
@@ -187,9 +161,9 @@ public class CreateDockerService {
         return Mono.just("Container create Success");
     }
 
-    private Mono<String> loadImage(DockerImage dockerImage) throws NoSuchFileException {
+    private Mono<String> loadImage(DockerImage dockerImage) {
         Path filePath = Paths.get("/mnt/nas/dockerImage/" + dockerImage.getServerName() + "_" + dockerImage.getUser().getId() + ".tar");
-        if (!Files.exists(filePath)) throw new NoSuchFileException(filePath.toString());
+        if (!Files.exists(filePath)) return Mono.error(new DoesNotExistImageException());
         
         FileSystemResource resource = new FileSystemResource(filePath);
         
