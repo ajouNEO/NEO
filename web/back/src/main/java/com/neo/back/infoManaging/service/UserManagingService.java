@@ -5,14 +5,10 @@ import org.springframework.stereotype.Service;
 
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
-import com.neo.back.infoManaging.dto.UserInquiryListDto;
 import com.neo.back.infoManaging.dto.UserManagingListDto;
 import com.neo.back.infoManaging.dto.UserManagingPointDto;
-import com.neo.back.infoManaging.entity.UserInquiry;
-import com.neo.back.infoManaging.middleware.RootAPI;
 
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserManagingService {
 
-    private final RootAPI rootAPI;
     private final UserRepository userRepo;
     
     public ResponseEntity<Object> getUserLsitByManager(User user){
