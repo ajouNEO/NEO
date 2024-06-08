@@ -107,14 +107,14 @@ public class UserManagingController {
     }
 
     @PostMapping("api/user/profilecomment")
-    public void setProfileComment(@RequestBody UserProfileDto userProfileDto){
+    public boolean setProfileComment(@RequestBody UserProfileDto userProfileDto){
 
         User user = getCurrentUser.getUser();
 
         System.out.println(userProfileDto.getProfilecomment());
-        userInfoService.saveProfileComment(user,userProfileDto);
+        Boolean success = userInfoService.saveProfileComment(user,userProfileDto);
 
-        return;
+        return success;
     }
 
     @GetMapping("api/user/profilecomment")

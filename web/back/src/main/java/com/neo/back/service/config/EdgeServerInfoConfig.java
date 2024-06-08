@@ -3,7 +3,10 @@ package com.neo.back.service.config;
 import java.util.List;
 import java.util.Optional;
 
+import com.neo.back.authorization.entity.PointProduct;
+import com.neo.back.authorization.entity.Product;
 import com.neo.back.authorization.entity.Profile;
+import com.neo.back.authorization.repository.ProductRepository;
 import com.neo.back.authorization.repository.ProfileRepository;
 import com.neo.back.service.entity.MinecreftServerSetting;
 import com.neo.back.service.repository.GameServerSettingRepository;
@@ -35,13 +38,20 @@ import jakarta.annotation.PostConstruct;
 @RequiredArgsConstructor
 public class EdgeServerInfoConfig {
 
-	@Value("#{'${edgeservers.id}'.split(',')}")private List<String> edgeServerName;
-   @Value("#{'${edgeservers.ip}'.split(',')}")private List<String> edgeServerIp;
-   @Value("#{'${edgeservers.externalIp}'.split(',')}")private List<String> edgeServerExternalIp;
-	@Value("#{'${edgeservers.user.id}'.split(',')}")private List<String> edgeServerUser;
-	@Value("#{'${edgeservers.password}'.split(',')}")private List<String> edgeServerPassword;
-	@Value("#{'${edgeservers.memoryTotal}'.split(',')}")private List<String> edgeServerMemoryTotal;
-	@Value("#{'${edgeservers.memoryUse}'.split(',')}")private List<String> edgeServerMemoryUse;
+    @Value("#{'${edgeservers.id}'.split(',')}")
+    private List<String> edgeServerName;
+    @Value("#{'${edgeservers.ip}'.split(',')}")
+    private List<String> edgeServerIp;
+    @Value("#{'${edgeservers.externalIp}'.split(',')}")
+    private List<String> edgeServerExternalIp;
+    @Value("#{'${edgeservers.user.id}'.split(',')}")
+    private List<String> edgeServerUser;
+    @Value("#{'${edgeservers.password}'.split(',')}")
+    private List<String> edgeServerPassword;
+    @Value("#{'${edgeservers.memoryTotal}'.split(',')}")
+    private List<String> edgeServerMemoryTotal;
+    @Value("#{'${edgeservers.memoryUse}'.split(',')}")
+    private List<String> edgeServerMemoryUse;
 
 
    private final EdgeServerRepository edgeServerInfo;
@@ -58,24 +68,26 @@ public class EdgeServerInfoConfig {
 
     private final ProfileRepository profileRepository;
 
+    private final ProductRepository productRepository;
+
     private final JoinService joinService;
 
    private final GameTagRepository gameTagRepo;
 
-	@PostConstruct
-	private void init() {
-       EdgeServer edgeServer = new EdgeServer();
-       int edgeServerNumber = edgeServerIp.size();
-		for(int index = 0; index < edgeServerNumber ; index++){
-           edgeServer.setEdgeServerName(edgeServerName.get(index));
-           edgeServer.setIp(edgeServerIp.get(index));
-           edgeServer.setExternalIp(edgeServerExternalIp.get(index));
-           edgeServer.setUser(edgeServerUser.get(index));
-           edgeServer.setPassWord(edgeServerPassword.get(index));
-           edgeServer.setMemoryTotal(Integer.parseInt(edgeServerMemoryTotal.get(index)));
-           edgeServer.setMemoryUse(Integer.parseInt(edgeServerMemoryUse.get(index)));
-           edgeServerInfo.save(edgeServer);
-       }
+    @PostConstruct
+    private void init() {
+        EdgeServer edgeServer = new EdgeServer();
+        int edgeServerNumber = edgeServerIp.size();
+        for (int index = 0; index < edgeServerNumber; index++) {
+            edgeServer.setEdgeServerName(edgeServerName.get(index));
+            edgeServer.setIp(edgeServerIp.get(index));
+            edgeServer.setExternalIp(edgeServerExternalIp.get(index));
+            edgeServer.setUser(edgeServerUser.get(index));
+            edgeServer.setPassWord(edgeServerPassword.get(index));
+            edgeServer.setMemoryTotal(Integer.parseInt(edgeServerMemoryTotal.get(index)));
+            edgeServer.setMemoryUse(Integer.parseInt(edgeServerMemoryUse.get(index)));
+            edgeServerInfo.save(edgeServer);
+        }
 
        MinecreftServerSetting minecreftServerSetting = new MinecreftServerSetting();
        minecreftServerSetting.setSettingFilePath("/server/server.properties");
@@ -149,20 +161,20 @@ public class EdgeServerInfoConfig {
        saveCMD_common();
        saveCMD_mine(mine1_16_5, mine1_19_2, mine1_20_4,palworld,terraria);
 
-        User root = saveUser("root@naver.com","root","root",true);
+        User root = saveUser("root@naver.com", "root", "root", true);
 
         // User INFO
-        User Sunwo = saveUser("sunwo@naver.com","sunwo","malenwater",false);
-        User Jihoon = saveUser("misu@naver.com","misu","Jiman_misu",false);
-        User Minseo = saveUser("Minseo@naver.com","Minseo0O","Minseo",false);
-        User Haeun = saveUser("Haeun@naver.com","Haeun000111!","Haeun",false);
-        User Seungmin = saveUser("Seungmin@naver.com","Seungmin000111!","Seungmin",false);
+        User Sunwo = saveUser("sunwo@naver.com", "sunwo", "malenwater", false);
+        User Jihoon = saveUser("misu@naver.com", "misu", "Jiman_misu", false);
+        User Minseo = saveUser("Minseo@naver.com", "Minseo0O", "Minseo", false);
+        User Haeun = saveUser("Haeun@naver.com", "Haeun000111!", "Haeun", false);
+        User Seungmin = saveUser("Seungmin@naver.com", "Seungmin000111!", "Seungmin", false);
         // 5 User
-        User Jiwoo = saveUser("Jiwoo@naver.com","SunJiwoo1!","Jiwoo",false);
-        User Seoyeon = saveUser("Seoyeon@naver.com","Seoyeon1!","Seoyeon",false);
-        User Minjoon = saveUser("Minjoon@naver.com","Minjoon0O","Minjoon",false);
-        User Yujin = saveUser("Yujin@naver.com","Yujin000111!","Yujin",false);
-        User Jimin = saveUser("Jimin@naver.com","Jimin000111!","Jimin",false);
+        User Jiwoo = saveUser("Jiwoo@naver.com", "SunJiwoo1!", "Jiwoo", false);
+        User Seoyeon = saveUser("Seoyeon@naver.com", "Seoyeon1!", "Seoyeon", false);
+        User Minjoon = saveUser("Minjoon@naver.com", "Minjoon0O", "Minjoon", false);
+        User Yujin = saveUser("Yujin@naver.com", "Yujin000111!", "Yujin", false);
+        User Jimin = saveUser("Jimin@naver.com", "Jimin000111!", "Jimin", false);
         // 10
 
        // saveGameTag("포켓몬");
@@ -220,6 +232,42 @@ public class EdgeServerInfoConfig {
        // Sunwo, Jimin, Minjoon,
        // Haeun, Minseo, Jiwoo, Seoyeon,
        // "경제","마인팜","서바이벌");
+        //상품저장
+        //bronze,silver,gold,diamond
+
+        saveProduct("bronze",5000,500,"pointproduct");
+        saveProduct("silver",10000,1000,"pointproduct");
+        saveProduct("gold",50000,5000,"pointproduct");
+        saveProduct("diamond",100000,10000,"pointproduct");
+
+
+        // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
+        // "선우의 서버",
+        // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        // 43556,
+        // "????", 
+        // 4 ,
+        // "놀러와요. 선우의 숲",
+        // true,
+        // true,
+        // Sunwo,
+        // Jihoon, Minseo, Seungmin,
+        // Seoyeon, Minjoon, Yujin, Jimin,
+        // "좀비","성인서버","반야생");
+
+        // this.saveDocker(gameRepo.findById((long) 1).orElse(null),
+        // "Yujin Server",
+        // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+        // 66781,
+        // "jlkasdasdjasdfppjlj213412",
+        // 4,
+        // "놀러와요. Yujin의 숲",
+        // true, 
+        // true,
+        // Yujin,
+        // Sunwo, Jimin, Minjoon,
+        // Haeun, Minseo, Jiwoo, Seoyeon,
+        // "경제","마인팜","서바이벌");
 
        // this.saveDocker(gameRepo.findById((long) 1).orElse(null),
        // "Jihoon Server",
@@ -235,7 +283,7 @@ public class EdgeServerInfoConfig {
        // Sunwo, Haeun, Minjoon, Yujin,
        // "모드","미니게임","건축");
 
-	}
+    }
 
    // private void saveGameTag(String tag) {
    //     GameTag game = new GameTag();
@@ -248,6 +296,7 @@ public class EdgeServerInfoConfig {
         saveIfNotExists("sh\t-c\tcat /control/output.txt", "gameLog", "common");
         saveIfNotExists("sh\t-c\techo 'input INPUT' > /control/input.txt", "input", "common");
     }
+
     private void saveIfNotExists(String cmd, String cmdId, String cmdKind) {
         Optional<GameDockerAPICMD> existingCmd = Optional.ofNullable(gameDockerAPICMDRepo.findBycmdId(cmdId));
         if (existingCmd.isPresent()) {
@@ -636,7 +685,7 @@ public class EdgeServerInfoConfig {
    }
 
 
-    private User saveUser(String Username,String password,String name,Boolean manager) {
+    private User saveUser(String Username, String password, String name, Boolean manager) {
         JoinDTO joinDTO = new JoinDTO();
         joinDTO.setUsername(Username);
         joinDTO.setPassword(password);
@@ -645,9 +694,9 @@ public class EdgeServerInfoConfig {
         User user = UserRepo.findByUsername(Username);
         user.setName(name);
         user.setEmail(Username);
-        user.setPoints((long)9999999);
+        user.setPoints((long) 9999999);
         user.setAccountStatus(true);
-        if(name.equals("root")){
+        if (name.equals("root")) {
             user.setRole("ROLE_ADMIN");
         }
         UserRepo.save(user);
@@ -657,6 +706,29 @@ public class EdgeServerInfoConfig {
         // UserRepo.save(user);
         return user;
     }
+
+    private Product saveProduct(String itemName, Integer price, Integer tax, String productType) {
+
+
+        Product product;
+        product = new PointProduct();
+       // if ("PointProduct".equals(productType)) {
+
+     //   } else {
+            // Add other product types as needed
+    //    }
+
+        product.setItemName(itemName);
+        product.setPrice(price);
+        product.setTax(tax);
+        product = productRepository.save(product);
+
+
+        return product;
+    }
+
+
+
 
     @Transactional
     private void createProfilesForUsers(){

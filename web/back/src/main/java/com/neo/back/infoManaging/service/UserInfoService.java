@@ -39,13 +39,13 @@ public class UserInfoService {
 
     }
 
-    public void saveProfileComment(User user, UserProfileDto userProfileDto){
+    public boolean saveProfileComment(User user, UserProfileDto userProfileDto){
         Profile profile = user.getProfile();
         profile.setProfilecomment(userProfileDto.getProfilecomment());
 
         userRepository.save(user);
 
-        return;
+        return true;
     }
 
     public byte[] LoadProfileImage(User user) throws IOException {

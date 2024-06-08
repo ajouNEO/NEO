@@ -80,6 +80,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean changenickname(User user,String name) {
+        if(name == null || name.trim().isEmpty()) {
+            // 유효하지 않은 username 입력 처리
+            return false;
+        }
+        user.setName(name);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
     @Transactional
     public void deleteUser(User user) {
 
