@@ -140,7 +140,7 @@ public class SecurityConfig {
         //세션 설정 stateless로 설정
         http
                 .sessionManagement((session)->session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         //세션 설정 중복 로그인 방지.
         http
                 .sessionManagement((auth)-> auth
