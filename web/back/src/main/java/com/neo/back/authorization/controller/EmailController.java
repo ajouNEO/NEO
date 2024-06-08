@@ -22,7 +22,7 @@ public class EmailController {
     @GetMapping("/{email_addr}/authcode")
     public ResponseEntity<String> sendEmailPath(@PathVariable String email_addr) throws MessagingException {
         emailService.sendEmail(email_addr);
-        return ResponseEntity.ok("이메일을 확인하세요");
+        return ResponseEntity.ok("인증번호를 보냈습니다. 이메일을 확인해주세요.");
     }
 
     @PostMapping("/authcode")
