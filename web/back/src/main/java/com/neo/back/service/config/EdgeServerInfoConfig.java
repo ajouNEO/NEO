@@ -3,10 +3,7 @@ package com.neo.back.service.config;
 import java.util.List;
 import java.util.Optional;
 
-import com.neo.back.authorization.entity.PointProduct;
-import com.neo.back.authorization.entity.Product;
 import com.neo.back.authorization.entity.Profile;
-import com.neo.back.authorization.repository.ProductRepository;
 import com.neo.back.authorization.repository.ProfileRepository;
 import com.neo.back.service.entity.MinecreftServerSetting;
 import com.neo.back.service.repository.GameServerSettingRepository;
@@ -68,7 +65,6 @@ public class EdgeServerInfoConfig {
 
     private final ProfileRepository profileRepository;
 
-    private final ProductRepository productRepository;
 
     private final JoinService joinService;
 
@@ -234,11 +230,6 @@ public class EdgeServerInfoConfig {
        // "경제","마인팜","서바이벌");
         //상품저장
         //bronze,silver,gold,diamond
-
-        saveProduct("bronze",5000,500,"pointproduct");
-        saveProduct("silver",10000,1000,"pointproduct");
-        saveProduct("gold",50000,5000,"pointproduct");
-        saveProduct("diamond",100000,10000,"pointproduct");
 
 
         // this.saveDocker(gameRepo.findById((long) 3).orElse(null), 
@@ -707,27 +698,6 @@ public class EdgeServerInfoConfig {
         return user;
     }
 
-    private Product saveProduct(String itemName, Integer price, Integer tax, String productType) {
-
-
-        Product product;
-        product = new PointProduct();
-       // if ("PointProduct".equals(productType)) {
-
-     //   } else {
-            // Add other product types as needed
-    //    }
-
-        product.setItemName(itemName);
-        product.setPrice(price);
-        product.setTax(tax);
-        product = productRepository.save(product);
-
-
-        return product;
-    }
-
-
 
 
     @Transactional
@@ -735,11 +705,10 @@ public class EdgeServerInfoConfig {
         List<User> users = UserRepo.findAll();
 
         for(User user : users){
-            Profile profile = new Profile();
+            Profile profile = new Profile(user.getName());
             profile.setUsername(user.getUsername());
             profile.setImagePath(null);
             profile.setProfilecomment(null);
-            profile.setUser(user);
 
             profileRepository.save(profile);
         }

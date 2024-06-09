@@ -71,11 +71,11 @@ public class UserController {
     }
 
     @PostMapping("/changename")
-    public Boolean changeNickname(@RequestBody NameRequest request){
+    public ResponseEntity<String> changeNickname(@RequestBody NameRequest request){
         String name = request.getNickname();
 
         User user = getCurrentUser.getUser();
-        boolean success = userService.changenickname(user,name);
+        ResponseEntity<String> success = userService.changenickname(user,name);
 
         return success;
     }

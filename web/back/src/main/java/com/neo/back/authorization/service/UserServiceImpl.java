@@ -1,21 +1,34 @@
 package com.neo.back.authorization.service;
 
+import com.neo.back.authorization.entity.PaymentCompleted;
+import com.neo.back.authorization.entity.PaymentPending;
 import com.neo.back.authorization.entity.User;
+import com.neo.back.authorization.repository.PaymentCompletedRepository;
+import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.service.repository.DockerImageRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PaymentCompletedRepository paymentCompletedRepository;
+
+    @Autowired
+    private PaymentPendingRepository paymentPendingRepository;
 
     @Autowired
     private DockerImageRepository dockerImageRepository;
@@ -80,20 +93,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changenickname(User user,String name) {
+    public ResponseEntity<String> changenickname(User user, String name) {
         if(name == null || name.trim().isEmpty()) {
             // 유효하지 않은 username 입력 처리
-            return false;
+            return ResponseEntity.badRequest().body("닉네임이 유효하지 않습니다.");
         }
+
+        if (userRepository.existsByname(name)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 있는 닉네임입니다.");
+        }
+
         user.setName(name);
         userRepository.save(user);
 
-        return true;
+        return ResponseEntity.ok("닉네임이 성공적으로 변경되었습니다.");
     }
 
     @Override
     @Transactional
     public void deleteUser(User user) {
+
+        // PaymentCompleted 기록 조회 및 삭제 혹은 처리
+        List<PaymentCompleted> payments = paymentCompletedRepository.findAllByPartnerUserId(user.getId().toString());
+        for (PaymentCompleted payment : payments) {
+            // 여기서는 단순 삭제를 예로 들지만, 실제로는 다른 처리를 할 수도 있습니다.
+            paymentCompletedRepository.delete(payment);
+        }
+
+        List<PaymentPending> pendingpayments = paymentPendingRepository.findAllByPartnerUserId(user.getId().toString());
+        for (PaymentPending payment : pendingpayments) {
+            // 여기서는 단순 삭제를 예로 들지만, 실제로는 다른 처리를 할 수도 있습니다.
+            paymentPendingRepository.delete(payment);
+        }
+
 
         dockerImageRepository.deleteByUserId(user.getId());
 
