@@ -1,5 +1,6 @@
 package com.neo.back.authorization.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,5 +27,7 @@ public class PaymentCompleted {
     private Integer totalAmount;
     private Integer vatAmount;
     private Integer taxFreeAmount;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime paymentDate;
+
 }
