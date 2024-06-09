@@ -38,6 +38,7 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
