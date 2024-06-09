@@ -3,7 +3,6 @@ package com.neo.back.infoManaging.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.neo.back.authorization.entity.User;
 import com.neo.back.infoManaging.service.UserInfoService;
