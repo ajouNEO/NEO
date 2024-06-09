@@ -3,6 +3,7 @@ package com.neo.back.authorization.controller;
 import com.neo.back.authorization.dto.*;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.service.UserService;
+import com.neo.back.authorization.util.RedisUtil;
 import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.utility.GetCurrentUser;
@@ -25,6 +26,9 @@ public class UserController {
 
     @Autowired
     DockerServerRepository dockerServerRepository;
+
+    @Autowired
+    private  RedisUtil redisUtil;
 
 
 
@@ -89,6 +93,10 @@ public class UserController {
 
             if(dockerServerRepository.findByUser(user)!=null)
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("user game server should close");
+
+            // Redis에서 해당 사용자의 데이터를 삭제
+            String usernameKey = user.getUsername();
+            redisUtil.deleteData(usernameKey);
 
             userService.deleteUser(user);
             return ResponseEntity.ok("User deleted successfully");

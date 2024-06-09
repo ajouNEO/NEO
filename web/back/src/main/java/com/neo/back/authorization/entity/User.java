@@ -48,10 +48,10 @@ public class User {
         return Objects.hash(id);
     }
 
-    public void addPoint(Long point){
+    public Long addPoint(Long point){
         Long currentPoint = getPoints();
         currentPoint += point;
         setPoints(currentPoint);
-
+        return currentPoint;
     }
 }

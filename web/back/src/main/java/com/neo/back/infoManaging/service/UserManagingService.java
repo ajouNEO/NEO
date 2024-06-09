@@ -1,5 +1,8 @@
 package com.neo.back.infoManaging.service;
 
+import com.neo.back.authorization.entity.PaymentCompleted;
+import com.neo.back.authorization.repository.PaymentCompletedRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,9 @@ import java.util.Optional;
 public class UserManagingService {
 
     private final UserRepository userRepo;
-    
+
+    private final PaymentCompletedRepository paymentCompletedRepository;
+
     public ResponseEntity<Object> getUserLsitByManager(User user){
         List<User> Users = userRepo.findAllByIdNot((long) 1);
 
@@ -85,5 +90,25 @@ public class UserManagingService {
         else{
             return ResponseEntity.ok("fail to active user account");
         }
+    }
+
+
+    public ResponseEntity<Object> getUserPaymentHistory() {
+        try {
+            List<PaymentCompleted> paymentHistory = paymentCompletedRepository.findAll();
+            return ResponseEntity.ok(paymentHistory);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving payment history.");
+        }    }
+
+    public ResponseEntity<Object> getSelectUserPaymentHistory(Long userId) {
+        try {
+            List<PaymentCompleted> paymentHistory = paymentCompletedRepository.findAllByPartnerUserId(String.valueOf(userId));
+
+            return ResponseEntity.ok(paymentHistory);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving payment history.");
+        }
+
     }
 }
