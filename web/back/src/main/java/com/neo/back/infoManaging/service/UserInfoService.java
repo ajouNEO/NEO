@@ -26,7 +26,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class UserInfoService {
 
-    private static final String NAS_BASE_PATH = "/mnt/nas/profileImage";
+    private static final String NAS_BASE_PATH = "/mnt/nas/profileImage/";
 
 
     private final UserRepository userRepo;
