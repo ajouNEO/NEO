@@ -42,7 +42,7 @@ public class KakaoPayService {
 
     public Mono<String> startPayment(User user,String partner_order_id,String partner_user_id, String itemName, Integer quantity, Integer totalAmount, Integer vatAmount,Integer tax_free_amount ){
 
-        String approvalUrl = String.format("https://neo.framer.media/paymentSuccess");
+        String approvalUrl = String.format("https://neo.framer.media/paymentSuccess?partner_user_id=%s", partner_user_id);
         String failUrl = String.format("https://%s:8080/", mainServerIp);
         String cancelUrl = String.format("https://%s:8080/", mainServerIp);
 
