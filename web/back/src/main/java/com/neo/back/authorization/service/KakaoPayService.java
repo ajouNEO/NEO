@@ -42,7 +42,7 @@ public class KakaoPayService {
 
     public Mono<String> startPayment(User user,String partner_order_id,String partner_user_id, String itemName, Integer quantity, Integer totalAmount, Integer vatAmount,Integer tax_free_amount ){
 
-        String approvalUrl = String.format("https://%s:8080/kakaoPay/success?partner_user_id=%s",mainServerIp ,partner_user_id);
+        String approvalUrl = String.format("https://neo.framer.media/paymentSuccess?partner_user_id=%s",partner_user_id);
         String failUrl = String.format("https://%s:8080/", mainServerIp);
         String cancelUrl = String.format("https://%s:8080/", mainServerIp);
 
@@ -101,7 +101,7 @@ public class KakaoPayService {
                         paymentCompleted.setPaymentDate(LocalDateTime.now());
 
                         paymentCompletedRepository.save(paymentCompleted);
-                        User user = userRepository.findById(Long.valueOf(paymentPending.getPartnerUserId()));
+                        User user = userRepository.findById(Long.valueOf(paymentPending.getPartnerUserId())).get();
                         user.addPoint(Long.valueOf(paymentPending.getTotalAmount()));
                         userRepository.save(user);
                         paymentPendingRepository.delete(paymentPending);
