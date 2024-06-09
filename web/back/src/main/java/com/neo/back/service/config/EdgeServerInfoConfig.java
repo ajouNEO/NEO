@@ -3,8 +3,6 @@ package com.neo.back.service.config;
 import java.util.List;
 import java.util.Optional;
 
-import com.neo.back.authorization.entity.Profile;
-import com.neo.back.authorization.repository.ProfileRepository;
 import com.neo.back.service.entity.MinecreftServerSetting;
 import com.neo.back.service.repository.GameServerSettingRepository;
 import com.neo.back.service.repository.GameTagRepository;
@@ -51,24 +49,21 @@ public class EdgeServerInfoConfig {
     private List<String> edgeServerMemoryUse;
 
 
-   private final EdgeServerRepository edgeServerInfo;
+    private final EdgeServerRepository edgeServerInfo;
 
-   private final GameRepository gameRepo;
+    private final GameRepository gameRepo;
 
-   private final GameServerSettingRepository gameServerSettingRepo;
+    private final GameServerSettingRepository gameServerSettingRepo;
 
-   private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
+    private final GameDockerAPICMDRepository gameDockerAPICMDRepo;
 
-   private final DockerServerRepository dockerServerRepo;
+    private final DockerServerRepository dockerServerRepo;
 
-   private final UserRepository UserRepo;
-
-    private final ProfileRepository profileRepository;
-
+    private final UserRepository UserRepo;
 
     private final JoinService joinService;
 
-   private final GameTagRepository gameTagRepo;
+    private final GameTagRepository gameTagRepo;
 
     @PostConstruct
     private void init() {

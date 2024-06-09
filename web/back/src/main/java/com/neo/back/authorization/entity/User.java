@@ -11,11 +11,6 @@ import java.util.Objects;
 @Setter
 @Getter
 public class User {
-
-    public User() {
-        this.profile = new Profile(this.name);
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,8 +30,9 @@ public class User {
     private Long points;
 
     private Boolean accountStatus = true;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Profile profile;
+    
+    private String imagePath;
+    private String profileComment = "안녕하세요";
 
 
     @Override

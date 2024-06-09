@@ -1,8 +1,6 @@
 package com.neo.back.infoManaging.service;
 
-import com.neo.back.authorization.entity.Profile;
 import com.neo.back.authorization.entity.User;
-import com.neo.back.authorization.repository.ProfileRepository;
 import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.service.dto.UserProfileDto;
 import com.neo.back.service.entity.DockerServer;
@@ -19,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -31,25 +28,22 @@ public class UserInfoService {
 
     private final UserRepository userRepo;
     private final DockerServerRepository dockerServerRepo;
-    private final ProfileRepository profileRepo;
 
 
     public ResponseEntity<String> saveProfileImage(User user, MultipartFile file) throws IOException {
-        Profile profile = user.getProfile();
         String fileName = user.getName() + ".jpg";
         Path filePath = Paths.get(NAS_BASE_PATH + fileName);
         Files.write(filePath, file.getBytes());
-        profile.setImagePath(filePath.toString());
+        user.setImagePath(filePath.toString());
 
-        userRepo.save(user); // CascadeType.ALL로 인해 profile도 함께 저장됨
+        userRepo.save(user);
 
         return ResponseEntity.ok("success");
 
     }
 
     public boolean saveProfileComment(User user, UserProfileDto userProfileDto){
-        Profile profile = user.getProfile();
-        profile.setProfilecomment(userProfileDto.getProfilecomment());
+        user.setProfileComment(userProfileDto.getProfilecomment());
 
         userRepo.save(user);
 
@@ -58,22 +52,19 @@ public class UserInfoService {
 
     public byte[] LoadProfileImage(User user) throws IOException {
 
-        Profile profile = user.getProfile();
-        if(profile.getImagePath() == null){
+        if(user.getImagePath() == null){
             Random random = new Random();
             int randomNumber = 1 + random.nextInt(6);
-            profile.setImagePath(NAS_BASE_PATH + "sample_"+ randomNumber +".jpg");
-            profileRepo.save(profile);
+            user.setImagePath(NAS_BASE_PATH + "sample_"+ randomNumber +".jpg");
+            userRepo.save(user);
         }
-        Path filePath = Paths.get(profile.getImagePath());
+        Path filePath = Paths.get(user.getImagePath());
 
         return Files.readAllBytes(filePath);
     }
 
     public String LoadProfileComment(User user){
-        Profile profile = user.getProfile();
-
-        String profilecomment = profile.getProfilecomment();
+        String profilecomment = user.getProfileComment();
 
         return profilecomment;
 
@@ -87,21 +78,19 @@ public class UserInfoService {
 
     public ResponseEntity<Object> getProfileImage_other(User user,String userName) throws IOException {
         User userOther = this.userRepo.findByName(userName);
-        Profile profile = userOther.getProfile();
-        if(profile.getImagePath() == null){
-        Random random = new Random();
-        int randomNumber = 1 + random.nextInt(6);
-        profile.setImagePath(NAS_BASE_PATH + "sample_"+ randomNumber +".jpg");
-        profileRepo.save(profile);
+        if(userOther.getImagePath() == null){
+            Random random = new Random();
+            int randomNumber = 1 + random.nextInt(6);
+            userOther.setImagePath(NAS_BASE_PATH + "sample_"+ randomNumber +".jpg");
+            userRepo.save(userOther);
         }
-        Path filePath = Paths.get(profile.getImagePath());
+        Path filePath = Paths.get(userOther.getImagePath());
         return ResponseEntity.ok(Files.readAllBytes(filePath));
     }
 
     public String LoadProfileComment_other(User user,String userName){
         User userOther = this.userRepo.findByName(userName);
-        Profile profile = userOther.getProfile();
-        String profilecomment = profile.getProfilecomment();
+        String profilecomment = userOther.getProfileComment();
         return profilecomment;
     }
 
