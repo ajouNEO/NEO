@@ -27,8 +27,10 @@ public interface DockerServerRepository extends JpaRepository<DockerServer, Long
 
     @Query("SELECT ds FROM DockerServer ds JOIN ds.participants p WHERE p = :user")
     List<DockerServer> findAllByParticipantUserId(@Param("user") User user);
-    
+
     @Query("SELECT u FROM DockerServer ds JOIN ds.applicants u WHERE ds.id = :dockerServerId")
     List<User> findApplicantsByDockerServerId(@Param("dockerServerId") Long dockerServerId);
 
+    @Query("SELECT u FROM DockerServer ds JOIN ds.participants u WHERE ds.id = :dockerServerId")
+    List<User> findParticipantsByDockerServerId(@Param("dockerServerId") Long dockerServerId);
 }
