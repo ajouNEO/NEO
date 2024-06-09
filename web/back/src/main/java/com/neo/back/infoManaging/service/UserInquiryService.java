@@ -67,7 +67,10 @@ public class UserInquiryService {
                 inquiry.getId(),
                 inquiry.getAnswerOrNot(),
                 inquiry.getUserInquiryTitle(),
-                inquiry.getUserInquiryDate()))
+                inquiry.getUserInquiryDate(),
+                inquiry.getUser().getUsername(),
+                inquiry.getUser().getName()
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -127,7 +130,10 @@ public class UserInquiryService {
          inquiry.getId(),
          inquiry.getAnswerOrNot(),
          inquiry.getUserInquiryTitle(),
-         inquiry.getUserInquiryDate()))
+         inquiry.getUserInquiryDate(),
+         inquiry.getUser().getUsername(),
+         inquiry.getUser().getName()
+         ))
          .collect(Collectors.toList()));
     }
 

@@ -14,4 +14,6 @@ public class UserInquiryListDto {
     private Boolean answerOrNot;
     private String inquiryTitle;
     private String userInquiryDate;
+    private String userName;
+    private String name;
 }

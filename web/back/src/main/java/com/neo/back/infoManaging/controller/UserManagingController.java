@@ -121,19 +121,27 @@ public class UserManagingController {
 
         return userInfoService.LoadProfileComment(user);
     }
+
+    @GetMapping("api/user/profileemail")
+    public String getUserEmail(){
+
+        User user = getCurrentUser.getUser();
+
+        return userInfoService.LoadProfileEmail(user);
+    }
     
     @GetMapping("api/user/profileimage/other")
-    public ResponseEntity<Object> getProfileImage_other(@RequestParam Long userId) throws IOException {
+    public ResponseEntity<Object> getProfileImage_other(@RequestParam String userName) throws IOException {
         User user = getCurrentUser.getUser();
-        if(!userInfoService.isUserHaveApplicant(user, userId)) return ResponseEntity.ok("not applicant");
-        return userInfoService.getProfileImage_other(user,userId);
+        if(!userInfoService.isUserHaveApplicant(user, userName)) return ResponseEntity.ok("not applicant");
+        return userInfoService.getProfileImage_other(user,userName);
     }
 
     @GetMapping("api/user/profilecomment/other")
-    public String getProfileComment_other(@RequestParam Long userId){
+    public String getProfileComment_other(@RequestParam String userName){
         User user = getCurrentUser.getUser();
-        if(!userInfoService.isUserHaveApplicant(user, userId)) return "not applicant";
-        return userInfoService.LoadProfileComment_other(user,userId);
+        if(!userInfoService.isUserHaveApplicant(user, userName)) return "not applicant";
+        return userInfoService.LoadProfileComment_other(user,userName);
     }
 
     @PostMapping("/api/admin/user/inquiry")

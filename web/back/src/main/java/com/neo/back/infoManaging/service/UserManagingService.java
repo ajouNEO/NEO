@@ -27,7 +27,9 @@ public class UserManagingService {
             userData.getUsername(),
             userData.getName(),
             userData.getPoints(),
-            userData.getId()))
+            userData.getId(),
+            userData.getAccountStatus()
+            ))
         .collect(Collectors.toList()));
     }
 
