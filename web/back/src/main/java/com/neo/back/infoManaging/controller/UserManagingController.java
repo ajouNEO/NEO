@@ -121,6 +121,14 @@ public class UserManagingController {
 
         return userInfoService.LoadProfileComment(user);
     }
+
+    @GetMapping("api/user/profileemail")
+    public String getUserEmail(){
+
+        User user = getCurrentUser.getUser();
+
+        return userInfoService.LoadProfileEmail(user);
+    }
     
     @GetMapping("api/user/profileimage/other")
     public ResponseEntity<Object> getProfileImage_other(@RequestParam String userName) throws IOException {

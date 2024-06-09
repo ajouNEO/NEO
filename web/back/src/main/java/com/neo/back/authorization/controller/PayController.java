@@ -107,6 +107,7 @@ public class PayController {
                 });
     }
 
+    @GetMapping("/api/user/payment")
     public Mono<ResponseEntity<String>> getpaymentlist() {
         User user = getCurrentUser.getUser();
         Long userid = user.getId();

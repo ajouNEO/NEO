@@ -79,6 +79,12 @@ public class UserInfoService {
 
     }
 
+    public String LoadProfileEmail(User user) {
+        String Email = user.getEmail();
+
+        return Email;
+    }
+
     public ResponseEntity<Object> getProfileImage_other(User user,String userName) throws IOException {
         User userOther = this.userRepo.findByName(userName);
         Profile profile = userOther.getProfile();
@@ -109,5 +115,6 @@ public class UserInfoService {
         }
         return false;
     }
+
 
 }
