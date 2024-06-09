@@ -201,19 +201,19 @@ public class EdgeServerInfoConfig {
        // saveGameTag("총기");
        // saveGameTag("마법");
 
-       // this.saveDocker(gameRepo.findById((long) 3).orElse(null),
-       // "선우의 서버",
-       // edgeServerInfo.findByEdgeServerName("edgeServer_1"),
-       // 43556,
-       // "????",
-       // 4 ,
-       // "놀러와요. 선우의 숲",
-       // true,
-       // true,
-       // Sunwo,
-       // Jihoon, Minseo, Seungmin,
-       // Seoyeon, Minjoon, Yujin, Jimin,
-       // "좀비","성인서버","반야생");
+       this.saveDocker(gameRepo.findById((long) 3).orElse(null),
+       "선우의 서버",
+       edgeServerInfo.findByEdgeServerName("edgeServer_1"),
+       43556,
+       "????",
+       4 ,
+       "놀러와요. 선우의 숲",
+       true,
+       true,
+       Sunwo,
+       Jihoon, Minseo, Seungmin,
+       Seoyeon, Minjoon, Yujin, Jimin,
+       "좀비","성인서버","반야생");
 
        // this.saveDocker(gameRepo.findById((long) 1).orElse(null),
        // "Yujin Server",

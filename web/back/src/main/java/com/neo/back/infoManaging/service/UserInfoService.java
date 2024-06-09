@@ -79,43 +79,31 @@ public class UserInfoService {
 
     }
 
-    public ResponseEntity<Object> getProfileImage_other(User user,Long userId) throws IOException {
-        Optional<User> userOthers = this.userRepo.findById(userId);
-        if(userOthers.isPresent()){
-            User userOther = userOthers.get();
-            Profile profile = userOther.getProfile();
-            if(profile.getImagePath() == null){
-                Random random = new Random();
-                int randomNumber = 1 + random.nextInt(6);
-                profile.setImagePath(NAS_BASE_PATH + "sample_"+ randomNumber +".jpg");
-                profileRepo.save(profile);
-            }
-            Path filePath = Paths.get(profile.getImagePath());
-            return ResponseEntity.ok(Files.readAllBytes(filePath));
+    public ResponseEntity<Object> getProfileImage_other(User user,String userName) throws IOException {
+        User userOther = this.userRepo.findByName(userName);
+        Profile profile = userOther.getProfile();
+        if(profile.getImagePath() == null){
+        Random random = new Random();
+        int randomNumber = 1 + random.nextInt(6);
+        profile.setImagePath(NAS_BASE_PATH + "sample_"+ randomNumber +".jpg");
+        profileRepo.save(profile);
         }
-        else{
-            return ResponseEntity.ok("no user");
-        }
+        Path filePath = Paths.get(profile.getImagePath());
+        return ResponseEntity.ok(Files.readAllBytes(filePath));
     }
 
-    public String LoadProfileComment_other(User user,Long userId){
-        Optional<User> userOthers = this.userRepo.findById(userId);
-        if(userOthers.isPresent()){
-            User userOther = userOthers.get();
-            Profile profile = userOther.getProfile();
-            String profilecomment = profile.getProfilecomment();
-            return profilecomment;
-        }
-        else{
-            return "no user";
-        }
+    public String LoadProfileComment_other(User user,String userName){
+        User userOther = this.userRepo.findByName(userName);
+        Profile profile = userOther.getProfile();
+        String profilecomment = profile.getProfilecomment();
+        return profilecomment;
     }
 
-    public boolean isUserHaveApplicant(User user,Long userId){
+    public boolean isUserHaveApplicant(User user,String userId){
         DockerServer userDockerServer = this.dockerServerRepo.findByUser(user);
         List<User> applicantUsers =  this.dockerServerRepo.findApplicantsByDockerServerId(userDockerServer.getId());
         for (User applicant : applicantUsers) {
-            if (applicant.getId().equals(userId)) {
+            if (applicant.getName().equals(userId)) {
                 return true; 
             }
         }
