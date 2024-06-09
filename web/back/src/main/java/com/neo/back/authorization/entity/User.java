@@ -32,7 +32,7 @@ public class User {
     private Boolean accountStatus = true;
     
     private String imagePath;
-    private String profileComment = "안녕하세요";
+    private String profileComment;
 
 
     @Override
