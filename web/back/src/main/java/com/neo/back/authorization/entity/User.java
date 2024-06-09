@@ -34,7 +34,7 @@ public class User {
     private String role;
     private Long points;
 
-    private Boolean accountStatus;
+    private Boolean accountStatus = true;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
