@@ -35,7 +35,7 @@ public class User {
     private Long points;
 
     private Boolean accountStatus;
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
     @Override

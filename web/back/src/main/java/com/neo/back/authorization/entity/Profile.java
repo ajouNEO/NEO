@@ -8,6 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Profile {
+
+    public Profile() {
+    }
+    
     public Profile(String username) {
         this.username = username;
     }
