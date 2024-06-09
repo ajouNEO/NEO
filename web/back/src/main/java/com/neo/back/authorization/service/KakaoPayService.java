@@ -6,6 +6,7 @@ import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.repository.UserRepository;
+import com.neo.back.authorization.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class KakaoPayService {
     private PaymentCompletedRepository paymentCompletedRepository;
 
     private UserRepository userRepository;
+
+    private RedisUtil redisUtil;
+
     @Value("${pay.secret_key}")
     private String secretKey;
 
@@ -32,12 +36,13 @@ public class KakaoPayService {
 
 
     public KakaoPayService(WebClient.Builder webClientBuilder ,PaymentPendingRepository paymentPendingRepository,
-        PaymentCompletedRepository paymentCompletedRepository,UserRepository userRepository) {
+        PaymentCompletedRepository paymentCompletedRepository,UserRepository userRepository,RedisUtil redisUtil) {
             
         this.webClient = webClientBuilder.baseUrl("https://open-api.kakaopay.com").build();
         this.paymentCompletedRepository = paymentCompletedRepository;
         this.paymentPendingRepository =paymentPendingRepository;
         this.userRepository = userRepository;
+        this.redisUtil =redisUtil;
     }
 
     public Mono<String> startPayment(User user,String partner_order_id,String partner_user_id, String itemName, Integer quantity, Integer totalAmount, Integer vatAmount,Integer tax_free_amount ){
@@ -102,13 +107,12 @@ public class KakaoPayService {
 
                         paymentCompletedRepository.save(paymentCompleted);
                         User user = userRepository.findById(Long.valueOf(paymentPending.getPartnerUserId())).get();
-                        user.addPoint(Long.valueOf(paymentPending.getTotalAmount()));
+                        Long currentPoint = user.addPoint(Long.valueOf(paymentPending.getTotalAmount()));
+
                         userRepository.save(user);
                         paymentPendingRepository.delete(paymentPending);
 
-
-
-
+                        redisUtil.setValue(user.getUsername(), String.valueOf(currentPoint));
 
                         System.out.println("success");
                     }
