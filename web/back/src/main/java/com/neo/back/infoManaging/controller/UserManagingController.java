@@ -197,4 +197,17 @@ public class UserManagingController {
         User user = getCurrentUser.getUser();
         return this.userManagingService.activeUserAccount(user,userId);
     }
+
+    @GetMapping("/api/admin/selectuser/payment")
+    public ResponseEntity<Object> paymenthistory(@RequestParam Long userId) {
+
+        return this.userManagingService.getSelectUserPaymentHistory(userId);
+    }
+
+    @GetMapping("/api/admin/user/payment")
+    public ResponseEntity<Object> paymenthistory() {
+
+        return this.userManagingService.getUserPaymentHistory();
+    }
+
 }
