@@ -29,6 +29,15 @@ public class UserInfoService {
     private final UserRepository userRepo;
     private final DockerServerRepository dockerServerRepo;
 
+    public ResponseEntity<String> isAdmin(User user){
+        if(user.getRole().equals("ROLE_ADMIN")){
+            return ResponseEntity.ok("admin");
+        }
+        else{
+            return ResponseEntity.ok("no admin");
+        }
+
+    }
 
     public ResponseEntity<String> saveProfileImage(User user, MultipartFile file) throws IOException {
         String fileName = user.getName() + ".jpg";
