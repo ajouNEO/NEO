@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.neo.back.authorization.dto.OrderRequestDTO;
 import com.neo.back.authorization.entity.*;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
@@ -108,17 +110,19 @@ public class PayController {
     }
 
     @GetMapping("/api/user/payment")
-    public Mono<ResponseEntity<String>> getpaymentlist() {
+    public Mono<ResponseEntity<String>> getPaymentList() {
         User user = getCurrentUser.getUser();
-        Long userid = user.getId();
+        Long userId = user.getId();
 
         return Mono.fromSupplier(() -> {
-            List<PaymentCompleted> paymentList = paymentCompletedRepository.findAllByPartnerUserId(userid.toString());
+            List<PaymentCompleted> paymentList = paymentCompletedRepository.findAllByPartnerUserId(userId.toString());
             if (paymentList.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.registerModule(new JavaTimeModule());
+                objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
                 String jsonResponse = objectMapper.writeValueAsString(paymentList);
                 return ResponseEntity.ok(jsonResponse);
             } catch (JsonProcessingException e) {
@@ -126,6 +130,7 @@ public class PayController {
             }
         });
     }
+
 
     /*private String extractPgToken(String url) {
         String pattern = "pg_token=(.+)";
