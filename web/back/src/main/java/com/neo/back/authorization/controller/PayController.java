@@ -8,7 +8,6 @@ import com.neo.back.authorization.dto.OrderRequestDTO;
 import com.neo.back.authorization.entity.*;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
-import com.neo.back.authorization.repository.ProductRepository;
 import com.neo.back.authorization.service.KakaoPayService;
 import com.neo.back.service.utility.GetCurrentUser;
 import jakarta.servlet.http.HttpSession;

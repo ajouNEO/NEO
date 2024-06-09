@@ -23,8 +23,4 @@ public class Profile {
 
     private String profilecomment = "안녕하세요";
 
-    @OneToOne
-    @JoinColumn(name = "user_id",nullable = false)
-    private User user;
-
 }
