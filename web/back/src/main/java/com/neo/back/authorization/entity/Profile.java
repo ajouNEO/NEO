@@ -8,6 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Profile {
+    public Profile(String username) {
+        this.username = username;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,7 +21,7 @@ public class Profile {
 
     private String imagePath;
 
-    private String profilecomment;
+    private String profilecomment = "안녕하세요";
 
     @OneToOne
     @JoinColumn(name = "user_id",nullable = false)

@@ -5,13 +5,16 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Setter
 @Getter
 public class User {
+
+    public User() {
+        this.profile = new Profile(this.name);
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
