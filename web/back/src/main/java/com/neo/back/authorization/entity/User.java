@@ -1,10 +1,12 @@
 package com.neo.back.authorization.entity;
 
 
+import com.neo.back.infoManaging.entity.UserInquiry;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -33,6 +35,9 @@ public class User {
     
     private String imagePath;
     private String profileComment;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserInquiry> userInquiries;
 
 
     @Override
