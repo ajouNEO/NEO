@@ -6,6 +6,8 @@ import com.neo.back.service.repository.DockerImageRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -80,15 +82,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changenickname(User user,String name) {
+    public ResponseEntity<String> changenickname(User user, String name) {
         if(name == null || name.trim().isEmpty()) {
             // 유효하지 않은 username 입력 처리
-            return false;
+            return ResponseEntity.badRequest().body("닉네임이 유효하지 않습니다.");
         }
+
+        if (userRepository.existsByname(name)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 있는 닉네임입니다.");
+        }
+
         user.setName(name);
         userRepository.save(user);
 
-        return true;
+        return ResponseEntity.ok("닉네임이 성공적으로 변경되었습니다.");
     }
 
     @Override

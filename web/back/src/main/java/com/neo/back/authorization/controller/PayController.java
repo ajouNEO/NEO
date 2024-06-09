@@ -5,21 +5,24 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neo.back.authorization.dto.OrderRequestDTO;
-import com.neo.back.authorization.entity.PaymentPending;
-import com.neo.back.authorization.entity.PointProduct;
-import com.neo.back.authorization.entity.Product;
-import com.neo.back.authorization.entity.User;
+import com.neo.back.authorization.entity.*;
+import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.repository.ProductRepository;
 import com.neo.back.authorization.service.KakaoPayService;
 import com.neo.back.service.utility.GetCurrentUser;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
@@ -30,8 +33,9 @@ public class PayController {
     private final AtomicInteger orderCounter = new AtomicInteger(0); // 오늘 생성된 주문 숫자 카운트
 
 
-    private final ProductRepository productRepository;
     private final PaymentPendingRepository paymentPendingRepository;
+
+    private final PaymentCompletedRepository paymentCompletedRepository;
     private final GetCurrentUser getCurrentUser;
 
     private final ObjectMapper objectMapper;
@@ -102,6 +106,25 @@ public class PayController {
                     System.out.println("성공!!!!!!!!!");
                     return approveResponse;
                 });
+    }
+
+    public Mono<ResponseEntity<String>> getpaymentlist() {
+        User user = getCurrentUser.getUser();
+        Long userid = user.getId();
+
+        return Mono.fromSupplier(() -> {
+            List<PaymentCompleted> paymentList = paymentCompletedRepository.findAllByPartnerUserId(userid.toString());
+            if (paymentList.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writeValueAsString(paymentList);
+                return ResponseEntity.ok(jsonResponse);
+            } catch (JsonProcessingException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing JSON response");
+            }
+        });
     }
 
     /*private String extractPgToken(String url) {
