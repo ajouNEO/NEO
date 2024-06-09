@@ -699,18 +699,4 @@ public class EdgeServerInfoConfig {
     }
 
 
-
-    @Transactional
-    private void createProfilesForUsers(){
-        List<User> users = UserRepo.findAll();
-
-        for(User user : users){
-            Profile profile = new Profile(user.getName());
-            profile.setUsername(user.getUsername());
-            profile.setImagePath(null);
-            profile.setProfilecomment(null);
-
-            profileRepository.save(profile);
-        }
-    }
 }
