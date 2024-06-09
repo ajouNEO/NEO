@@ -14,4 +14,5 @@ public class UserManagingListDto {
     private String name;
     private Long points;
     private Long id;
+    private Boolean accountStatus;
 }
