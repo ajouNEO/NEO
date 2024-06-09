@@ -108,8 +108,14 @@ public class UserInfoService {
     public boolean isUserHaveApplicant(User user,String userId){
         DockerServer userDockerServer = this.dockerServerRepo.findByUser(user);
         List<User> applicantUsers =  this.dockerServerRepo.findApplicantsByDockerServerId(userDockerServer.getId());
+        List<User> participants =  this.dockerServerRepo.findParticipantsByDockerServerId(userDockerServer.getId());
         for (User applicant : applicantUsers) {
             if (applicant.getName().equals(userId)) {
+                return true; 
+            }
+        }
+        for (User participant : participants) {
+            if (participant.getName().equals(userId)) {
                 return true; 
             }
         }
