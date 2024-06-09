@@ -98,12 +98,9 @@ public class UserManagingController {
     }
 
     @PostMapping("api/user/profileimage")
-    public void setProfileImage(@RequestParam("file")MultipartFile file) throws IOException {
+    public ResponseEntity<String> setProfileImage(@RequestParam("file")MultipartFile file) throws IOException {
         User user = getCurrentUser.getUser();
-
-        userInfoService.saveProfileImage(user, file);
-
-        return;
+        return userInfoService.saveProfileImage(user, file);
     }
 
     @PostMapping("api/user/profilecomment")
@@ -125,6 +122,20 @@ public class UserManagingController {
         return userInfoService.LoadProfileComment(user);
     }
     
+    @GetMapping("api/user/profileimage/other")
+    public ResponseEntity<Object> getProfileImage_other(@RequestParam Long userId) throws IOException {
+        User user = getCurrentUser.getUser();
+        if(!userInfoService.isUserHaveApplicant(user, userId)) return ResponseEntity.ok("not applicant");
+        return userInfoService.getProfileImage_other(user,userId);
+    }
+
+    @GetMapping("api/user/profilecomment/other")
+    public String getProfileComment_other(@RequestParam Long userId){
+        User user = getCurrentUser.getUser();
+        if(!userInfoService.isUserHaveApplicant(user, userId)) return "not applicant";
+        return userInfoService.LoadProfileComment_other(user,userId);
+    }
+
     @PostMapping("/api/admin/user/inquiry")
     public ResponseEntity<Object> postManagerInquiry(@RequestBody ManagerPostInquiryDto inquiryData) {
         User user = getCurrentUser.getUser();
