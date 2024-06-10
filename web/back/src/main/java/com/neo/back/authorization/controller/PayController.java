@@ -1,7 +1,6 @@
 package com.neo.back.authorization.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -11,14 +10,12 @@ import com.neo.back.authorization.entity.*;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.service.KakaoPayService;
-import com.neo.back.service.utility.GetCurrentUser;
+import com.neo.back.mainService.utility.GetCurrentUser;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -70,7 +67,6 @@ public class PayController {
                             paymentPending.setPaymentDate(LocalDateTime.now());
                             paymentPending.setUsername(user.getUsername());
                             paymentPendingRepository.save(paymentPending);
-                       // String nextRedirectPcUrl = jsonNode.get("next_redirect_pc_url").asText();
 
                         session.setAttribute("tid", tid);
                         session.setAttribute("partnerOrderId", partner_order_id);
@@ -102,9 +98,6 @@ public class PayController {
 
         return kakaoPayService.approvePayment(tid, partnerOrderId, partnerUserId, pgToken)
                 .map(approveResponse -> {
-                    // 결제 승인 후 로직 추가 가능
-
-                    System.out.println("성공!!!!!!!!!");
                     return approveResponse;
                 });
     }
@@ -130,17 +123,6 @@ public class PayController {
             }
         });
     }
-
-
-    /*private String extractPgToken(String url) {
-        String pattern = "pg_token=(.+)";
-        java.util.regex.Pattern r = java.util.regex.Pattern.compile(pattern);
-        java.util.regex.Matcher m = r.matcher(url);
-        if (m.find()) {
-            return m.group(1);
-        }
-        throw new IllegalArgumentException("Invalid next_redirect_pc_url format");
-    }*/
 
     private String generatePartnerOrderId() {
         LocalDateTime now = LocalDateTime.now();

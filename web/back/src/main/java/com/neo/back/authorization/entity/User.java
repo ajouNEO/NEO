@@ -1,7 +1,7 @@
 package com.neo.back.authorization.entity;
 
 
-import com.neo.back.infoManaging.entity.UserInquiry;
+import com.neo.back.otherService.entity.UserInquiry;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

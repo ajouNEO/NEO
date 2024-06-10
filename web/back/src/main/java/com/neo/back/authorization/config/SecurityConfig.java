@@ -122,10 +122,8 @@ public class SecurityConfig {
               authorizeHttpRequests((auth)-> auth
                .requestMatchers("/static/**", "/public/**", "/resources/**", "/META-INF/resources/**").permitAll()
                       .requestMatchers("/login","/","/api/join","/user/reset-password").permitAll()
-                //       .requestMatchers("/api/**").authenticated()
                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                .requestMatchers("/reissue").permitAll()
-                //        .anyRequest().authenticated());
                .anyRequest().permitAll());
 
 

@@ -1,11 +1,11 @@
 package com.neo.back.forTest;
 
-import com.neo.back.service.entity.DockerImage;
-import com.neo.back.service.entity.DockerServer;
-import com.neo.back.service.entity.EdgeServer;
-import com.neo.back.service.repository.DockerImageRepository;
-import com.neo.back.service.repository.DockerServerRepository;
-import com.neo.back.service.repository.EdgeServerRepository;
+import com.neo.back.mainService.entity.DockerImage;
+import com.neo.back.mainService.entity.DockerServer;
+import com.neo.back.mainService.entity.EdgeServer;
+import com.neo.back.mainService.repository.DockerImageRepository;
+import com.neo.back.mainService.repository.DockerServerRepository;
+import com.neo.back.mainService.repository.EdgeServerRepository;
 
 import lombok.RequiredArgsConstructor;
 
