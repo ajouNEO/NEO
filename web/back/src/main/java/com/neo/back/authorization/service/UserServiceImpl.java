@@ -6,7 +6,7 @@ import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.repository.UserRepository;
-import com.neo.back.service.repository.DockerImageRepository;
+import com.neo.back.mainService.repository.DockerImageRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

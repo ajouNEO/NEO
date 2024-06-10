@@ -10,7 +10,7 @@ import com.neo.back.authorization.entity.*;
 import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.service.KakaoPayService;
-import com.neo.back.service.utility.GetCurrentUser;
+import com.neo.back.mainService.utility.GetCurrentUser;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
