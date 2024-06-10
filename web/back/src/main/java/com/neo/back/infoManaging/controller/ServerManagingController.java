@@ -2,7 +2,6 @@ package com.neo.back.infoManaging.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neo.back.authorization.entity.User;
@@ -10,14 +9,12 @@ import com.neo.back.infoManaging.dto.ServerManagingDockerImageDto;
 import com.neo.back.infoManaging.dto.ServerManagingDockerServerDto;
 import com.neo.back.infoManaging.dto.ServerManagingEdgeServerDto;
 import com.neo.back.infoManaging.dto.ServerManagingGameDto;
-import com.neo.back.infoManaging.dto.UserPostInquiryDto;
 import com.neo.back.infoManaging.service.ServerManagingService;
 import com.neo.back.service.utility.GetCurrentUser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController

@@ -20,7 +20,6 @@ import com.neo.back.service.entity.DockerServer;
 import com.neo.back.service.entity.EdgeServer;
 import com.neo.back.service.entity.Game;
 import com.neo.back.service.entity.GameDockerAPICMD;
-import com.neo.back.service.entity.GameTag;
 import com.neo.back.service.repository.DockerServerRepository;
 import com.neo.back.service.repository.EdgeServerRepository;
 import com.neo.back.service.repository.GameDockerAPICMDRepository;
@@ -594,7 +593,6 @@ public class EdgeServerInfoConfig {
        palworld.addCMD(CmdMemory_palworld);
        palworld.addCMD(CmdStartAckStr_pal);
        palworld.addCMD(CmdStopAckStr_pal);
-       // palworld.addCMD(banlist_mine);
        palworld.addCMD(running_pal);
        palworld.addCMD(UserListcmd_pal);
        palworld.addCMD(UserList_mine);
@@ -686,10 +684,6 @@ public class EdgeServerInfoConfig {
             user.setRole("ROLE_ADMIN");
         }
         UserRepo.save(user);
-        // user.setName(name);
-        // user.setPassword(password);
-        // user.setUsername(Username);
-        // UserRepo.save(user);
         return user;
     }
 

@@ -8,9 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -52,10 +50,6 @@ public class Game {
     private String keyValueSeparator;
 
     private String maxPlayerKey;
-
-    // @ManyToOne
-    // @JoinColumn
-    // private GameServerSetting defaultSetting;
 
     @ManyToMany
     private Set<GameDockerAPICMD> gameDockerAPICMDs = new HashSet<>();

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neo.back.service.dto.ServerFilterDto;
-import com.neo.back.service.dto.ServerInputDto;
 import com.neo.back.service.dto.ServerListDto;
 import com.neo.back.service.service.SearchServerService;
 import com.neo.back.service.service.ServerJoinService;

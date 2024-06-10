@@ -129,7 +129,6 @@ public class GameUserListService {
         String[] lines = ack.split("\n");
 
         UserListSetting(data, lines);
-        // saveUserList(user);
         return Mono.just(data);
     }
 
@@ -173,8 +172,6 @@ public class GameUserListService {
         List<String> namesToAdd = null;
 
         UserListSetting(data, lines);
-
-        //dockerServer.setUserNumber(data.getNumber());
 
         namesToRemove = dockerServer.getUserNameInGame()
         .stream()

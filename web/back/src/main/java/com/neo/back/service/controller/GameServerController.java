@@ -188,18 +188,6 @@ public class GameServerController {
         return gameUserListService.sendUserList(user); 
     }
 
-    // @PostMapping("/api/get-banlist")//특정 파일 읽어오 는 용도 api
-    // public Mono<String> readAndConvertToJson(String containerId, String filePath) {
-    //     String command = "cat " + filePath;
-    //     return serverSettingService.executeCommand(containerId, command)
-    //             .map(content -> {
-    //                 // 파일 내용을 JSON 객체로 변환
-    //                 JSONObject json = new JSONObject();
-    //                 json.put("content", content);
-    //                 return json.toString();
-    //             });
-    // }
-
     @GetMapping("/api/server/console")
     public SseEmitter sendGameLog() {
         User user = getCurrentUser.getUser();

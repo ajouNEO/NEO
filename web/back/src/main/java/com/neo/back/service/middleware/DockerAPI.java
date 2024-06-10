@@ -83,8 +83,6 @@ public class DockerAPI {
         return dockerWebClient.post()
             .uri(uriBuilder -> uriBuilder.path("/commit")
                 .queryParam("container", containerId)
-                //.queryParam("repo", dockerServer.getServerName()) // 한글로하면 오류남
-                //.queryParam("author", author)
                 .build())
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
@@ -218,7 +216,6 @@ public class DockerAPI {
         try {
             ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
             while (byteBuffer.hasRemaining()) {
-                //System.out.println("Writing data...");
                 channel.write(byteBuffer);
             }
             DataBufferUtils.release(dataBuffer);

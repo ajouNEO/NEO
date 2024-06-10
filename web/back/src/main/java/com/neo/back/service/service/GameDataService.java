@@ -64,7 +64,6 @@ public class GameDataService {
         String ip = dockerServer.getEdgeServer().getIp();
         String dockerId = dockerServer.getDockerId();
         this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375")
-        // .filter(logRequestAndResponse())
         .build();
         UserSettingCMDDto UserSetting = dockerAPI.settingIDS_CMD(user);
         String[] CMD_exec = new String[1];
@@ -105,7 +104,6 @@ public class GameDataService {
         String ip = dockerServer.getEdgeServer().getIp();
         String fileListInstId = parseExecInstanceId(fileListInst.block());
         this.dockerWebClient =  this.webClientBuilder.baseUrl("http://" + ip +":2375")
-        // .filter(logRequestAndResponse())
         .build();
         
         var FileAndFolder = Map.of(

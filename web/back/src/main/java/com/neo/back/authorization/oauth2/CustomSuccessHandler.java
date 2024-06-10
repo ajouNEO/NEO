@@ -23,9 +23,6 @@ import java.util.Iterator;
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Autowired
-    private EnvConfig envConfig;
-
     private final JWTUtil jwtUtil;
 
     private final RefreshRepository refreshRepository;
@@ -74,7 +71,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(60*60*60);
-        //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(false);
 

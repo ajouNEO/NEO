@@ -5,7 +5,6 @@ import com.neo.back.service.service.*;
 import com.neo.back.service.utility.GetCurrentUser;
 import com.neo.back.authorization.entity.User;
 
-import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

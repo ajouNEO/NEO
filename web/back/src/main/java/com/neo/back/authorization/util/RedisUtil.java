@@ -70,11 +70,4 @@ public class RedisUtil {
         String value = template.opsForValue().get("docker:" + dockerId + ":usernames");
         return value != null ? List.of(value.split(",")) : null;
     }
-
-
-
-
-    //serverstatus get api 필요하면 만들것.
-
-
 }
