@@ -55,8 +55,6 @@ RUN echo "[/Script/Pal.PalGameWorldSettings]" > /home/steam/Steam/steamapps/comm
     echo "CoopPlayerMaxNum=4,ServerPlayerMaxNum=32,ServerName=\"Default Palworld Server\",ServerDescription=\"\",AdminPassword=\"\"," >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini && \
     echo "ServerPassword=\"\",PublicPort=8211,PublicIP=\"\",RCONEnabled=False,RCONPort=25575,Region=\"\",bUseAuth=True,BanListURL=\"https://api.palworldgame.com/api/banlist.txt\")" >> /home/steam/Steam/steamapps/common/PalServer/Pal/Saved/Config/LinuxServer/PalWorldSettings.ini
 
-# RUN chmod +x /control/start.sh
-# RUN chmod +x /control/stop.sh
 USER root
 RUN apt-get update && apt-get install -y openjdk-17-jre
 
@@ -64,10 +62,6 @@ COPY control/. /control/
 RUN chmod -R 777 /control
 
 WORKDIR /
-
-# CMD ["sleep", "infinity"]
-
-# CMD [ "./server/PalServer.exe" ]
 
 CMD ["java", "/control/inputAndOutput.java"]
 

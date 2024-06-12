@@ -31,6 +31,8 @@ LABEL org.opencontainers.image.licenses=MIT
 LABEL org.opencontainers.image.description="Vanilla Terraria Server - Version 1449"
 LABEL VANILLA_VERSION=1449
 
+LABEL VANILLA_VERSION=1449
+
 # Allow for external data
 VOLUME ["/config"]
 
@@ -45,7 +47,4 @@ RUN chmod +x ./run.sh
 
 COPY terraria/. /config/
 
-# CMD ["java", "/control/inputAndOutput.java"]
-
-CMD ["sleep", "infinity"]
-# ENTRYPOINT ["./run.sh"]
+CMD ["java", "/control/inputAndOutput.java"]
