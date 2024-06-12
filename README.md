@@ -101,6 +101,8 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
      docker build -t mc1.16.5 -f Dockerfile_mc1.16.5 .
      docker build -t mc1.19.2 -f Dockerfile_mc1.19.2 .
      docker build -t mc1.20.4 -f Dockerfile_mc1.20.4 .
+     docker build -t palworld -f Dockerfile_palworld .
+     docker build -t terraria -f Dockerfile_terraria_vanila .
      
 와 같이
 
