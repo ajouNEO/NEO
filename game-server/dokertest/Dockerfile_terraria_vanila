@@ -49,3 +49,8 @@ COPY terraria/. /config/
 
 CMD ["sleep", "infinity"]
 # ENTRYPOINT ["./run.sh"]
+
+
+The MIT License (MIT)
+
+Copyright (c) Henry Skrtich
