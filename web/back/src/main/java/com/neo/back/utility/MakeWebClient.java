@@ -1,4 +1,4 @@
-package com.neo.back.mainService.utility;
+package com.neo.back.utility;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;

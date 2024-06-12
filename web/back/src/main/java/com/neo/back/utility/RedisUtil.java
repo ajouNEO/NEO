@@ -1,4 +1,4 @@
-package com.neo.back.authorization.util;
+package com.neo.back.utility;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

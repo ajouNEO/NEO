@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import com.neo.back.authorization.util.RedisUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -25,7 +24,8 @@ import com.neo.back.mainService.dto.UserSettingDto;
 import com.neo.back.mainService.entity.DockerServer;
 import com.neo.back.mainService.middleware.DockerAPI;
 import com.neo.back.mainService.repository.DockerServerRepository;
-import com.neo.back.mainService.utility.MakeWebClient;
+import com.neo.back.utility.MakeWebClient;
+import com.neo.back.utility.RedisUtil;
 
 import io.jsonwebtoken.io.IOException;
 import jakarta.transaction.Transactional;

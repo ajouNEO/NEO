@@ -12,7 +12,7 @@ import com.neo.back.mainService.dto.ServerFilterDto;
 import com.neo.back.mainService.dto.ServerListDto;
 import com.neo.back.mainService.service.SearchServerService;
 import com.neo.back.mainService.service.ServerJoinService;
-import com.neo.back.mainService.utility.GetCurrentUser;
+import com.neo.back.utility.GetCurrentUser;
 import com.neo.back.authorization.entity.User;
 
 import lombok.RequiredArgsConstructor;

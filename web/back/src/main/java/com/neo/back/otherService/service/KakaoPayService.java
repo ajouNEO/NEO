@@ -1,12 +1,13 @@
-package com.neo.back.authorization.service;
+package com.neo.back.otherService.service;
 
-import com.neo.back.authorization.entity.PaymentCompleted;
-import com.neo.back.authorization.entity.PaymentPending;
 import com.neo.back.authorization.entity.User;
-import com.neo.back.authorization.repository.PaymentCompletedRepository;
-import com.neo.back.authorization.repository.PaymentPendingRepository;
 import com.neo.back.authorization.repository.UserRepository;
-import com.neo.back.authorization.util.RedisUtil;
+import com.neo.back.otherService.entity.PaymentCompleted;
+import com.neo.back.otherService.entity.PaymentPending;
+import com.neo.back.otherService.repository.PaymentCompletedRepository;
+import com.neo.back.otherService.repository.PaymentPendingRepository;
+import com.neo.back.utility.RedisUtil;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

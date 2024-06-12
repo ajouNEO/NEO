@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.neo.back.mainService.dto.GameServerRunDto;
 import com.neo.back.mainService.dto.UserSettingCMDDto;
 import com.neo.back.mainService.middleware.DockerAPI;
-import com.neo.back.mainService.utility.MakeWebClient;
+import com.neo.back.utility.MakeWebClient;
 
 import reactor.core.publisher.Mono;
 

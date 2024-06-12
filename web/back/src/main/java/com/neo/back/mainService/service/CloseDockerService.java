@@ -20,7 +20,7 @@ import com.neo.back.mainService.middleware.DockerAPI;
 import com.neo.back.mainService.repository.DockerImageRepository;
 import com.neo.back.mainService.repository.DockerServerRepository;
 import com.neo.back.mainService.repository.EdgeServerRepository;
-import com.neo.back.mainService.utility.MakeWebClient;
+import com.neo.back.utility.MakeWebClient;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

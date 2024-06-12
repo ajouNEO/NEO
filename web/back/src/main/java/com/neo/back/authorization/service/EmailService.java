@@ -1,6 +1,5 @@
 package com.neo.back.authorization.service;
 
-import com.neo.back.authorization.util.RedisUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import com.neo.back.utility.RedisUtil;
 
 import java.util.Random;
 

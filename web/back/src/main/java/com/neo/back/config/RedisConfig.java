@@ -1,4 +1,4 @@
-package com.neo.back.authorization.config;
+package com.neo.back.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

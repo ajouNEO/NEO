@@ -1,4 +1,4 @@
-package com.neo.back.authorization.controller;
+package com.neo.back.otherService.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.neo.back.authorization.dto.OrderRequestDTO;
 import com.neo.back.authorization.entity.*;
-import com.neo.back.authorization.repository.PaymentCompletedRepository;
-import com.neo.back.authorization.repository.PaymentPendingRepository;
-import com.neo.back.authorization.service.KakaoPayService;
-import com.neo.back.mainService.utility.GetCurrentUser;
+import com.neo.back.otherService.entity.PaymentCompleted;
+import com.neo.back.otherService.entity.PaymentPending;
+import com.neo.back.otherService.repository.PaymentCompletedRepository;
+import com.neo.back.otherService.repository.PaymentPendingRepository;
+import com.neo.back.otherService.service.KakaoPayService;
+import com.neo.back.utility.GetCurrentUser;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

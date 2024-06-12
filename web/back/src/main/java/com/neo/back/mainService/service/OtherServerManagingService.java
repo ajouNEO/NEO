@@ -1,6 +1,5 @@
 package com.neo.back.mainService.service;
 
-import com.neo.back.authorization.util.RedisUtil;
 import com.neo.back.exception.DoNotHaveServerException;
 import com.neo.back.mainService.dto.GameServerRunDto;
 import com.neo.back.mainService.dto.MyServerInfoDto;
@@ -12,7 +11,8 @@ import com.neo.back.mainService.entity.GameTag;
 import com.neo.back.mainService.middleware.DockerAPI;
 import com.neo.back.mainService.repository.DockerServerRepository;
 import com.neo.back.mainService.repository.GameTagRepository;
-import com.neo.back.mainService.utility.MakeWebClient;
+import com.neo.back.utility.MakeWebClient;
+import com.neo.back.utility.RedisUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.neo.back.authorization.entity.User;
 

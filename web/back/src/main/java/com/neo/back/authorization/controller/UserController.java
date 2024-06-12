@@ -3,9 +3,10 @@ package com.neo.back.authorization.controller;
 import com.neo.back.authorization.dto.*;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.service.UserService;
-import com.neo.back.authorization.util.RedisUtil;
 import com.neo.back.mainService.repository.DockerServerRepository;
-import com.neo.back.mainService.utility.GetCurrentUser;
+import com.neo.back.utility.GetCurrentUser;
+import com.neo.back.utility.RedisUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

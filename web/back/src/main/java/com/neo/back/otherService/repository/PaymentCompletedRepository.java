@@ -1,7 +1,8 @@
-package com.neo.back.authorization.repository;
+package com.neo.back.otherService.repository;
 
-import com.neo.back.authorization.entity.PaymentCompleted;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.neo.back.otherService.entity.PaymentCompleted;
 
 import java.util.List;
 

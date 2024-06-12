@@ -2,7 +2,7 @@ package com.neo.back.mainService.controller;
 
 import com.neo.back.mainService.dto.UserSettingDto;
 import com.neo.back.mainService.service.*;
-import com.neo.back.mainService.utility.GetCurrentUser;
+import com.neo.back.utility.GetCurrentUser;
 import com.neo.back.authorization.entity.User;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
