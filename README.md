@@ -124,6 +124,8 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 ### Framer 사용법
 
 **기본 화면**
+![1](https://github.com/ajouNEO/NEO/assets/154511161/4a82dcd4-cbea-41e9-88a5-a0c344625a8f)
+
 1) Pages/Layers/Assets
 - Pages: 다양한 페이지를 만들고 볼 수 있습니다.
 - Layers: 페이지 속 각각의 레이어들을 만들고 볼 수 있습니다.
@@ -135,6 +137,7 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 - 선택한 요소의 링크, 위치, 크기, 레이아웃, 이펙트, 오버레이, 커서 등의 디자인적 요소들을 쉽게 설정할 수 있고, Code Override도 가능합니다.
 
 **헤더**
+![2](https://github.com/ajouNEO/NEO/assets/154511161/e85e8c51-d6b7-4b95-9139-22e72e106f6a)
 
 4) 삽입
 - 여러 가지 기본 제공하는 페이지나 기능들을 삽입할 수 있습니다.
@@ -143,10 +146,28 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 * 멤버 관리를 할 수 있고 프로젝트 미리보기, 도메인 대여 및 웹 페이지 배포를 쉽게 할 수 있습니다.
 
 **디자인 컴포넌트**
+![3](https://github.com/ajouNEO/NEO/assets/154511161/16925356-0a3a-417f-a239-13f4a4366d9e)
+
 * 어떤 버튼을 눌렀을 때 어떤 화면이 보이는 지 같은 디자인 요소를 설정할 수 있는 컴포넌트를 제작하고 이용할 수 있습니다.
 
 **코드 컴포넌트**
+![4](https://github.com/ajouNEO/NEO/assets/154511161/a57af72e-9d6d-4d20-aac8-de7f2c969aac)
 * 코드로도 return되는 디자인이 존재하면, 컴포넌트로 제작하고 사용할 수 있습니다.
+
+### 주요 컴포넌트
+
+* Header: 상단 바 컴포넌트
+* Footer: 하단 바 컴포넌트
+* Login: 로그인 컴포넌트
+* Signup: 회원가입 컴포넌트
+* CreateServer: 서버 대여 컴포넌트
+* MyPageVarient: 마이 페이지 컴포넌트
+* MyServerlists: 내 서버 목록 페이지 컴포넌트
+* OpenServerList: 공개 서버 목록 페이지 컴포넌트
+* ManagerTool: 관리자 페이지 컴포넌트
+* Question: 문의하기 컴포넌트
+* Tutorial: 튜토리얼 컴포넌트
+
 
 ### Framer URL
 * https://framer.com/projects/NEO--H1Fqms6Su09vkk1kjXSR-6Qbvu
