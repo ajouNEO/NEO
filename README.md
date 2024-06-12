@@ -97,7 +97,7 @@ Edge Server : 유저의 게임 서버를 도커 위에 띄워서 실행시키는
 
 ### EdgeServer 실행
  Edge Server에 게임 서버 도커 이미지를 만들어야 Edge Server에 게임 서버를 생성할 수 있습니다.
- 해당 Edge Server에 이동하고, 깃허브의 game-server/dockertest/ 폴더에 있는 모든 데이터를 옮겨와서
+ 해당 Edge Server에 이동하고, 깃허브의 game-server/dockerGameServer/ 폴더에 있는 모든 데이터를 옮겨와서
  
      docker build -t mc1.16.5 -f Dockerfile_mc1.16.5 .
      docker build -t mc1.19.2 -f Dockerfile_mc1.19.2 .
