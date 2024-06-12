@@ -1,8 +1,9 @@
-package com.neo.back.authorization.repository;
+package com.neo.back.otherService.repository;
 
-import com.neo.back.authorization.entity.PaymentPending;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.neo.back.otherService.entity.PaymentPending;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.neo.back.mainService.utility;
+package com.neo.back.utility;
 
 import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;

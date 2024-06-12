@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.neo.back.authorization.entity.User;
 import com.neo.back.otherService.service.UserInfoService;
-import com.neo.back.mainService.utility.GetCurrentUser;
+import com.neo.back.utility.GetCurrentUser;
 
 import lombok.RequiredArgsConstructor;
 

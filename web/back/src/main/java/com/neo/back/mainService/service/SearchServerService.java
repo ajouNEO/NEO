@@ -11,8 +11,8 @@ import com.neo.back.mainService.dto.ServerListDto;
 import com.neo.back.mainService.entity.DockerServer;
 import com.neo.back.mainService.entity.GameTag;
 import com.neo.back.mainService.repository.DockerServerRepository;
+import com.neo.back.utility.RedisUtil;
 import com.neo.back.authorization.entity.User;
-import com.neo.back.authorization.util.RedisUtil;
 
 import java.util.Iterator;
 import java.util.List;

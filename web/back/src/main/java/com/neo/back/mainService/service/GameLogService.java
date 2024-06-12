@@ -9,7 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.neo.back.mainService.dto.UserSettingDto;
 import com.neo.back.mainService.middleware.DockerAPI;
-import com.neo.back.mainService.utility.MakeWebClient;
+import com.neo.back.utility.MakeWebClient;
 import com.neo.back.authorization.entity.User;
 import java.util.concurrent.*;
 import lombok.RequiredArgsConstructor;

@@ -10,7 +10,7 @@ import com.neo.back.otherService.dto.ServerManagingDockerServerDto;
 import com.neo.back.otherService.dto.ServerManagingEdgeServerDto;
 import com.neo.back.otherService.dto.ServerManagingGameDto;
 import com.neo.back.otherService.service.ServerManagingService;
-import com.neo.back.mainService.utility.GetCurrentUser;
+import com.neo.back.utility.GetCurrentUser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PutMapping;

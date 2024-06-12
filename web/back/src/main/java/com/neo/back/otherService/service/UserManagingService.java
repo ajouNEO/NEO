@@ -1,7 +1,5 @@
 package com.neo.back.otherService.service;
 
-import com.neo.back.authorization.entity.PaymentCompleted;
-import com.neo.back.authorization.repository.PaymentCompletedRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -10,6 +8,8 @@ import com.neo.back.authorization.entity.User;
 import com.neo.back.authorization.repository.UserRepository;
 import com.neo.back.otherService.dto.UserManagingListDto;
 import com.neo.back.otherService.dto.UserManagingPointDto;
+import com.neo.back.otherService.entity.PaymentCompleted;
+import com.neo.back.otherService.repository.PaymentCompletedRepository;
 
 import lombok.RequiredArgsConstructor;
 import java.util.stream.Collectors;

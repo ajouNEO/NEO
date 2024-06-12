@@ -4,8 +4,7 @@ import com.neo.back.mainService.entity.DockerServer;
 import com.neo.back.mainService.entity.Game;
 import com.neo.back.mainService.middleware.DockerAPI;
 import com.neo.back.mainService.repository.DockerServerRepository;
-import com.neo.back.mainService.utility.MakeWebClient;
-
+import com.neo.back.utility.MakeWebClient;
 import com.neo.back.authorization.entity.User;
 import com.neo.back.exception.DoNotHaveServerException;
 

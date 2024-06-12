@@ -1,4 +1,4 @@
-package com.neo.back.mainService.config;
+package com.neo.back.config;
 
 import java.util.List;
 import java.util.Optional;

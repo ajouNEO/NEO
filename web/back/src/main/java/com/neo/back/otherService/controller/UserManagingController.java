@@ -8,9 +8,10 @@ import com.neo.back.otherService.dto.UserManagingPointDto;
 import com.neo.back.otherService.dto.UserPostInquiryDto;
 import com.neo.back.otherService.service.UserInquiryService;
 import com.neo.back.otherService.service.UserManagingService;
+import com.neo.back.utility.GetCurrentUser;
 import com.neo.back.otherService.service.UserInfoService;
 import com.neo.back.mainService.dto.UserProfileDto;
-import com.neo.back.mainService.utility.GetCurrentUser;
+
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

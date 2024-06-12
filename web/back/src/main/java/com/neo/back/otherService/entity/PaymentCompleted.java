@@ -1,5 +1,4 @@
-package com.neo.back.authorization.entity;
-
+package com.neo.back.otherService.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
@@ -14,14 +13,12 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-public class PaymentPending {
+public class PaymentCompleted {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    private String username;
     private String tid;
     private String partnerOrderId;
     private String partnerUserId;
@@ -32,6 +29,5 @@ public class PaymentPending {
     private Integer taxFreeAmount;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     private LocalDateTime paymentDate;
-
 
 }
